@@ -1,0 +1,2 @@
+maintain only types one file. no shared folder. and all constants must be from constants file
+same for client

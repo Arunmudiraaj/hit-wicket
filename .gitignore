@@ -1,0 +1,18 @@
+# Node dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build output
+client/build/
+client/dist/
+server/dist/
+server/build/
+
+# dotenv files
+.env
+.env.*  # e.g. .env.local, .env.production, etc.
+
+# Optional: ignore compiled JS if you're using TypeScript
+client/**/*.js
+server/**/*.js
