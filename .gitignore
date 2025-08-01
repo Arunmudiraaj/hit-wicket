@@ -13,6 +13,12 @@ server/build/
 .env
 .env.*  # e.g. .env.local, .env.production, etc.
 
-# Optional: ignore compiled JS if you're using TypeScript
-client/**/*.js
-server/**/*.js
+# Ignore compiled JS files only from src folders (optional if using TypeScript)
+client/src/**/*.js
+server/src/**/*.js
+
+# ✅ But DON'T ignore root config files
+!client/tailwind.config.js
+!client/postcss.config.js
+!client/eslint.config.js
+!client/vite.config.js

@@ -2,7 +2,7 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ClientGameState, Inning, BallEvent, PlayerRole, GameResult } from '../../shared/types';
+import type { ClientGameState, Inning, BallEvent, PlayerRole, GameResult } from '../../types';
 
 const initialState: ClientGameState = {
   gameId: '',

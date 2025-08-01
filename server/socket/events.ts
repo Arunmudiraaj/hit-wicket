@@ -5,7 +5,7 @@ export const GAME_EVENTS = {
     LEAVE: 'game:leave',
     UPDATE: 'game:update',
     ERROR: 'game:error',
-    DISCONNECT: 'game:disconnect',
+    DISCONNECT: 'disconnect',
     GAME_STATE_UPDATE_EVENT: 'game:update'
   };
   

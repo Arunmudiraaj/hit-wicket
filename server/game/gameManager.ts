@@ -1,25 +1,9 @@
-import { GamePlayer, PendingChoices, Role } from "../types";
-import { Server } from 'socket.io';
+import { ChoiceInput, GamePlayer, PendingChoices, PlayBallInput, Role } from "../types";
 import { BallEvent, GameState, LiveGame } from "../types/index";
 import { emitGameUpdate } from "../socket/socketEmitters";
 import { formatGameForClient, generateUniqueGameId } from "../utils/utils";
 import { BALL_OUTCOME, GAME_MODE, GAME_STATUS, ROLES } from "../constants/dataConstants";
 import { cloneDeep } from 'lodash';
-
-
-interface PlayBallInput {
-  io: Server;
-  gameId: string;
-  batsmanChoice: number;
-  bowlerChoice: number;
-}
-
-interface ChoiceInput {
-  io: Server;
-  gameId: string;
-  role: Role;
-  choice: number;
-}
 
 const queue: GamePlayer[] = [];
 const liveGames = new Map<string, LiveGame>();

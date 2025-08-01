@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import socket from "../socket/socket";
 import { setGameState } from "../store/slices/gameSlice";
 import { useAppDispatch } from "./useTypedRedux";
-import type { ClientGameState } from "../shared/types";
+import type { ClientGameState } from "../types";
 import { GAME_EVENTS } from "../socket/events";
 
 export const useGameSocket = () => {

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec ts-node index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,8 @@
     "@types/lodash": "^4.17.17",
     "@types/node": "^22.15.29",
     "@types/socket.io": "^3.0.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }

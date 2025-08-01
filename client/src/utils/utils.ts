@@ -1,5 +1,5 @@
-import { GameState, PlayerRole } from '../types/game';
-import { GameResult } from '../types/game';
+import type { GameState, PlayerRole } from '../types/index';
+import type { GameResult } from '../types/index';
 
 export function determineMyRole(game: GameState, myId: string): PlayerRole {
   const currentInning = game.innings[game.currentInning];

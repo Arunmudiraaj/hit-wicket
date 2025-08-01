@@ -23,5 +23,3 @@ export const ROLES = {
     BATSMAN: 'batsman',
     BOWLER: 'bowler',
 }
-
-// game events

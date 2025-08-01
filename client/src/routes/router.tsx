@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy, type JSX } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import Header from '../layouts/Header';
 import Loader from '../components/shared/Loader';
 
 // Lazy-loaded route components
@@ -17,7 +17,7 @@ const withSuspense = (Component: React.LazyExoticComponent<() => JSX.Element>) =
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: <Header />,
     children: [
       { index: true, element: withSuspense(Home) },
       { path: 'about', element: withSuspense(About) },

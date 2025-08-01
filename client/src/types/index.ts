@@ -1,6 +1,8 @@
 // shared/types/game.ts
 
-export type BallOutcome = 'runs' | 'out';
+import type { BALL_OUTCOME, GAME_RESULT, GAME_STATUS, ROLES } from "../constants/dataConstants";
+
+export type BallOutcome = (typeof BALL_OUTCOME)[keyof typeof BALL_OUTCOME];
 
 export interface BallEvent {
   ballNumber: number;
@@ -22,7 +24,7 @@ export interface Inning {
   isAllOut: boolean;
 }
 
-export type GameStatus = 'waiting' | 'ongoing' | 'finished';
+export type GameStatus = (typeof GAME_STATUS)[keyof typeof GAME_STATUS];
 
 export interface GameState {
   gameId: string;
@@ -37,8 +39,8 @@ export interface GameState {
 }
 
 // Client Redux specific additions
-export type GameResult = 'won' | 'lost' | 'tie' | null;
-export type PlayerRole = 'batsman' | 'bowler';
+export type GameResult = (typeof GAME_RESULT)[keyof typeof GAME_RESULT] | null;
+export type PlayerRole = (typeof ROLES)[keyof typeof ROLES];
 
 export interface ClientGameState extends GameState {
   myRole: PlayerRole;

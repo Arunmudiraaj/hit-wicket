@@ -17,7 +17,12 @@ export default function socketHandlers(io: Server, socket: Socket) {
   socket.on(GAME_EVENTS.SELECT_CHOICE, (data: { gameId: string, role: Role, choice: number }) => handlePlayerChoice({...data, io}));
 
   socket.on(GAME_EVENTS.DISCONNECT, () => {
-    console.log("User disconnected:", userId);
+    
+  });
+
+
+  socket.on('disconnect', () => {
+    console.log(`Socket disconnected: ${socket.id} ${userId}`);
     // TODO: remove from queue or end ongoing game
   });
 }

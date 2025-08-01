@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { BALL_OUTCOME, GAME_STATUS, ROLES } from "../constants/dataConstants";
+import { Server } from 'socket.io';
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
@@ -50,16 +51,6 @@ export interface Inning {
 
 export type GameStatus = (typeof GAME_STATUS)[keyof typeof GAME_STATUS];
 
-// Client Redux specific additions
-export type GameResult = 'won' | 'lost' | 'tie' | null;
-
-// export interface ClientGameState extends GameState {
-//   myRole: PlayerRole;
-//   opponent: string;
-//   result: GameResult;
-//   currentBall: number;
-// }
-
 // Server in-memory live game structure
 
 export interface PendingChoices {
@@ -77,4 +68,18 @@ export interface LiveGame {
   sockets: Record<string, string>; // { playerId: socketId }
   socketToPlayerId?: Record<string, string>; // { socketId: playerId }
   pendingChoices?: PendingChoices;
+}
+
+export interface PlayBallInput {
+  io: Server;
+  gameId: string;
+  batsmanChoice: number;
+  bowlerChoice: number;
+}
+
+export interface ChoiceInput {
+  io: Server;
+  gameId: string;
+  role: Role;
+  choice: number;
 }
