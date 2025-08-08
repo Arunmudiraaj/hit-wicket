@@ -1,9 +1,10 @@
-import { ChoiceInput, GamePlayer, PendingChoices, PlayBallInput, Role } from "../types";
-import { BallEvent, GameState, LiveGame } from "../types/index";
-import { emitGameUpdate } from "../socket/socketEmitters";
-import { formatGameForClient, generateUniqueGameId } from "../utils/utils";
-import { BALL_OUTCOME, GAME_MODE, GAME_STATUS, ROLES } from "../constants/dataConstants";
-import { cloneDeep } from 'lodash';
+import { ChoiceInput, GamePlayer, PendingChoices, PlayBallInput, Role } from "../types/index.js";
+import { BallEvent, GameState, LiveGame } from "../types/index.js";
+import { emitGameUpdate } from "../socket/socketEmitters.js";
+import { formatGameForClient, generateUniqueGameId } from "../utils/utils.js";
+import { BALL_OUTCOME, GAME_MODE, GAME_STATUS, ROLES } from "../constants/dataConstants.js";
+import pkg from 'lodash';
+const { cloneDeep } = pkg;
 
 const queue: GamePlayer[] = [];
 const liveGames = new Map<string, LiveGame>();

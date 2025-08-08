@@ -2,8 +2,8 @@ import express from 'express';
 import http from 'http';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './config/db';
-import { initSocket } from './socket';
+import connectDB from './config/db.js';
+import { initSocket } from './socket/index.js';
 
 dotenv.config();
 cors({ origin: "*" });

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { BALL_OUTCOME, GAME_STATUS, ROLES } from "../constants/dataConstants";
+import { BALL_OUTCOME, GAME_STATUS, ROLES } from "../constants/dataConstants.js";
 import { Server } from 'socket.io';
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];

@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid';
-import { GameState, LiveGame } from '../types/index';
+import { GameState, LiveGame } from '../types/index.js';
 
 const generateId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 7);
 

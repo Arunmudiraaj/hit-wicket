@@ -1,6 +1,6 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import socketHandlers from './socketHandlers';
+import socketHandlers from './socketHandlers.js';
 
 let io: SocketIOServer;
 

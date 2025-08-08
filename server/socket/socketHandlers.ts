@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
-import { GAME_EVENTS } from './events';
-import { matchPlayers, handlePlayerChoice } from "../game/gameManager";
-import { Role } from "../types/index";
+import { GAME_EVENTS } from './events.js';
+import { matchPlayers, handlePlayerChoice } from "../game/gameManager.js";
+import { Role } from "../types/index.js";
 
 export default function socketHandlers(io: Server, socket: Socket) {
   let userId: string;
