@@ -4,16 +4,24 @@ import { emitGameUpdate } from "../socket/socketEmitters.js";
 import { formatGameForClient, generateUniqueGameId } from "../utils/utils.js";
 import { BALL_OUTCOME, GAME_MODE, GAME_STATUS, ROLES } from "../constants/dataConstants.js";
 import pkg from 'lodash';
+import { Server } from 'socket.io';
+import { getIO } from "../socket/index.js";
+import { GAME_EVENTS } from "../socket/events.js";
 const { cloneDeep } = pkg;
 
 const queue: GamePlayer[] = [];
 const liveGames = new Map<string, LiveGame>();
+let io: Server;
+setTimeout(() => { io = getIO() }, 0);
 
 
-export const matchPlayers = (user: GamePlayer) => {
+export const matchPlayers = (user: GamePlayer, data: any) => {
+  console.log("Player joining queue:", data);
+
   if (queue.length > 0) {
     const opponent = queue.shift()!;
-    const gameId = generateUniqueGameId(liveGames)
+    const gameId = generateUniqueGameId(liveGames);
+
     const roles = Math.random() > 0.5
       ? { batsmanId: user.userId, bowlerId: opponent.userId }
       : { batsmanId: opponent.userId, bowlerId: user.userId };
@@ -43,15 +51,24 @@ export const matchPlayers = (user: GamePlayer) => {
 
     liveGames.set(gameId, liveGame);
 
+    // ✅ Add both players to the same room
+    user.socket.join(gameId);
+    opponent.socket.join(gameId);
+
+    // Notify each player individually with their role
     [user, opponent].forEach(u => {
       const role = u.userId === roles.batsmanId ? ROLES.BATSMAN : ROLES.BOWLER;
-      u.socket.emit("matchFound", { gameId, role });
+      u.socket.emit(GAME_EVENTS.GAME_MATCH_FOUND, { gameId, role });
     });
+
+    // ✅ Notify room that game has started
+    io.to(gameId).emit(GAME_EVENTS.GAME_STARTED, { gameId, players: game.players });
 
   } else {
     queue.push(user);
   }
 };
+
 
 export function handlePlayerChoice({ io, gameId, role, choice }: ChoiceInput) {
   const liveGame = liveGames.get(gameId);

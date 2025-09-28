@@ -1,11 +1,17 @@
 export const GAME_EVENTS = {
+    // client -> server
     REGISTER: 'game:register',
-    JOIN_QUEUE: 'game:join_queue',
-    SELECT_CHOICE: 'game:select_choice',
+    JOIN_QUEUE: "game:play_new_game",
+    PLAYER_CHOICE: "player:choice",
     LEAVE: 'game:leave',
-    UPDATE: 'game:update',
     ERROR: 'game:error',
-    DISCONNECT: 'disconnect',
-    GAME_STATE_UPDATE_EVENT: 'game:update'
+    DISCONNECT: 'game:disconnect',
+    // server -> client
+    GAME_STATE_UPDATE_EVENT: 'game:update',
+    REQUEST_STATE: "game:requestState",
+    GAME_STARTED: "game:started",
+    GAME_MATCH_FOUND: "game:matchFound",
+    GAME_ENDED: "game:ended",
+    GAME_ERROR: "game:error",
   };
   

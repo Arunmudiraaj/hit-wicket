@@ -4,17 +4,14 @@ import { matchPlayers, handlePlayerChoice } from "../game/gameManager.js";
 import { Role } from "../types/index.js";
 
 export default function socketHandlers(io: Server, socket: Socket) {
-  let userId: string;
 
-  socket.on(GAME_EVENTS.REGISTER, (id: string) => {
-    userId = id;
-    socket.data.userId = id;
-    console.log("User registered:", userId);
+  socket.on(GAME_EVENTS.JOIN_QUEUE, (data) => {
+    const userId = data.playerId || socket.id;
+    socket.data.userId = userId; // attach userId to socket for easy access
+    matchPlayers({ userId, socket }, data)
   });
 
-  socket.on(GAME_EVENTS.JOIN_QUEUE, () => matchPlayers({ userId, socket }));
-
-  socket.on(GAME_EVENTS.SELECT_CHOICE, (data: { gameId: string, role: Role, choice: number }) => handlePlayerChoice({...data, io}));
+  socket.on(GAME_EVENTS.PLAYER_CHOICE, (data: { gameId: string, role: Role, choice: number }) => handlePlayerChoice({...data, io}));
 
   socket.on(GAME_EVENTS.DISCONNECT, () => {
     
@@ -22,7 +19,7 @@ export default function socketHandlers(io: Server, socket: Socket) {
 
 
   socket.on('disconnect', () => {
-    console.log(`Socket disconnected: ${socket.id} ${userId}`);
+    console.log(`Socket disconnected: ${socket.id} ${socket.data.userId || ''}`);
     // TODO: remove from queue or end ongoing game
   });
 }
