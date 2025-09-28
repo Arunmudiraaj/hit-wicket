@@ -20,3 +20,14 @@ export const GAME_RESULT = {
     LOST: 'lost',
     TIE: 'tie'
 }
+
+export const GAME_TYPES = {
+    QUICK: {
+        totalBalls: 6,
+        totalWickets: 1,
+    },
+    CLASSIC: {
+        totalBalls: 30,
+        totalWickets: 3,
+    }
+}

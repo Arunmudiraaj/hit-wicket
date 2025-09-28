@@ -25,8 +25,8 @@ const gameSlice = createSlice({
     resetGame: () => initialState,
 
     setGameState: (state, action: PayloadAction<ClientGameState>) => {
-        
-      return action.payload;
+      const next = action.payload;
+      return next; // keep simple; session slice handles lastGameId
     },
 
     setStatus: (state, action: PayloadAction<ClientGameState['status']>) => {

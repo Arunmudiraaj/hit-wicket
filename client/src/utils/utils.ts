@@ -1,5 +1,16 @@
 import type { GameState, PlayerRole } from '../types/index';
 import type { GameResult } from '../types/index';
+import { storage } from "./storage";
+import { v4 as uuid } from "uuid";
+
+export function getOrCreatePlayerId(): string {
+  let id = storage.getPlayerId();
+  if (!id) {
+    id = `guest-${uuid()}`;
+    storage.setPlayerId(id);
+  }
+  return id;
+}
 
 export function determineMyRole(game: GameState, myId: string): PlayerRole {
   const currentInning = game.innings[game.currentInning];

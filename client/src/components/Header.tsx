@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import { APP_ROUTES } from '../constants/constants';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,10 +39,7 @@ const Header = () => {
   const isActive = (path: string) =>
     location.pathname === path;
 
-  const navLinks = [
-    { path: '/about', label: 'About' },
-    { path: '/leaderboard', label: 'Leaderboard' },
-  ];
+  const navLinks = Object.values(APP_ROUTES);
 
   return (
     <>
@@ -79,7 +77,7 @@ const Header = () => {
                   key={link.path}
                   to={link.path}
                   className={`
-                    relative px-4 py-2.5 lg:px-6 lg:py-3 rounded-xl text-sm lg:text-base font-semibold
+                    relative px-4 py-2.5 rounded-xl text-sm lg:text-base font-semibold
                     transition-all duration-300 ease-out transform
                     hover:scale-105 hover:-translate-y-0.5
                     ${isActive(link.path)
@@ -201,9 +199,6 @@ const Header = () => {
           </div>
         </div>
       </div>
-
-      {/* Spacer to prevent content from going under fixed header */}
-      <div className="h-16 sm:h-18 lg:h-20"></div>
     </>
   );
 };

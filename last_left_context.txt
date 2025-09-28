@@ -1,1 +1,3 @@
-build initial client components from chatgpt and use the folder structure suggested by it
+Added custom colors app wide and using it
+
+next build components and connect with serever for match making
