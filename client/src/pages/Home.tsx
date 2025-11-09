@@ -1,23 +1,42 @@
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../hooks/useTypedRedux";
-import { setPlayerName } from "../store/slices/sessionSlice";
-import { gameApi } from "../socket/api/gameApi";
-import { useState } from "react";
+import { useAppSelector } from "../hooks/useTypedRedux";
+import { emitPlayNewGame } from "../socket/socketEmitters";
+import { useEffect, useState } from "react";
 import PlayButton from "../components/UI/PlayButton";
 import Modal from "../components/UI/Modal";
 import CricketLoader from "../components/UI/CricketLoader";
+import { useSocket } from "../socket/socket";
+import { useNavigate } from "react-router-dom";
+import { SOCKET_EVENTS } from "../socket/events";
 
 export default function Home() {
+
   const [findMatchLoading, setFindMatchLoading] = useState(false);
-  // const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { playerId, playerName } = useAppSelector((s) => s.session);
+  const navigate = useNavigate();
+  const socket = useSocket();
 
   const handlePlayNewGame = () => {
     setFindMatchLoading(true);
-    gameApi.playNewGame(playerId);
-    // Navigate when server responds with game:update (router can push there too if you include gameId in payload).
+    emitPlayNewGame(playerId);
   };
+
+  const gameStartHandler = (game: {gameId: string}) => {
+    try {
+      const gameId = game.gameId;
+      setFindMatchLoading(false);
+      navigate(`/game/${gameId}`);
+    } catch (error) {
+      console.error("Error navigating to game:", error);
+    }
+  };
+
+  // Listen for game event from server
+  useEffect(() => {
+    socket.on(SOCKET_EVENTS.GAME_STARTED, gameStartHandler);
+    return () => {
+      socket.off(SOCKET_EVENTS.GAME_STARTED, gameStartHandler);
+    };
+  }, [socket]);
 
   return (
     <div className="p-4 max-w-md mx-auto flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

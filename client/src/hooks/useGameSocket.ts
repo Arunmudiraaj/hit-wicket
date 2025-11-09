@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import socket from "../socket/socket";
-import { setGameState } from "../store/slices/gameSlice";
 import { useAppDispatch, useAppSelector } from "./useTypedRedux";
-import type { ClientGameState } from "../types";
-import { GAME_EVENTS } from "../socket/events";
-import { gameApi } from "../socket/api/gameApi";
+import { SOCKET_EVENTS } from "../socket/events";
+import { emitRequestState } from "../socket/socketEmitters";
+import { useSocket } from "../socket/socket";
+import { handleGameUpdate } from "../socket/socketHandlers";
+
+const socket = useSocket();
 
 export const useGameSocket = (gameId?: string) => {
   const dispatch = useAppDispatch();
@@ -16,16 +17,12 @@ export const useGameSocket = (gameId?: string) => {
     if (!gameId) return;
 
     // (Re)join/sync whenever this page mounts (user navigates here)
-    // gameApi.rejoinGame(gameId, playerId);
+    emitRequestState(gameId, playerId);
 
-    const handleUpdate = (data: ClientGameState) => {
-      dispatch(setGameState(data));
-    };
-
-    socket.on(GAME_EVENTS.GAME_STATE_UPDATE_EVENT, handleUpdate);
+    socket.on(SOCKET_EVENTS.GAME_STATE_UPDATE_EVENT, handleGameUpdate);
 
     return () => {
-      socket.off(GAME_EVENTS.GAME_STATE_UPDATE_EVENT, handleUpdate);
+      socket.off(SOCKET_EVENTS.GAME_STATE_UPDATE_EVENT, handleGameUpdate);
       // Note: we don't leave the game on unmount by default (persist behavior).
       // If you want to leave when navigating away, you can emit leave here instead.
     };

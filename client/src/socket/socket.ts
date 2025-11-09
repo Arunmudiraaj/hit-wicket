@@ -9,4 +9,7 @@ const socket: Socket = io(import.meta.env.VITE_API_URL, {
   reconnectionDelayMax: 3000,
 });
 
+// Hook to get socket instance
+export const useSocket = () => socket;
+
 export default socket;

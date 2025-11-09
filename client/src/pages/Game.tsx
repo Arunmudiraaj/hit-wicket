@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks/useTypedRedux";
 import { useGameSocket } from "../hooks/useGameSocket";
-import { gameApi } from "../socket/api/gameApi";
+import { emitSendChoice, emitLeaveGame } from "../socket/socketEmitters";
 import { setLastGameId } from "../store/slices/sessionSlice";
 
 export default function Game() {
@@ -19,12 +19,12 @@ export default function Game() {
 
   const sendChoice = (choice: number) => {
     if (!matchId || !myRole) return;
-    gameApi.sendChoice(matchId, playerId, myRole, choice);
+    emitSendChoice(matchId, playerId, myRole, choice);
   };
 
   const leaveGame = () => {
     if (matchId) {
-      gameApi.leaveGame(matchId, playerId);
+      emitLeaveGame(matchId, playerId);
       dispatch(setLastGameId(null)); // clear persistence
     }
     navigate("/");
