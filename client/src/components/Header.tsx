@@ -29,7 +29,7 @@ const Header = () => {
     } else {
       document.body.style.overflow = 'unset';
     }
-    
+
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = 'unset';
@@ -48,8 +48,8 @@ const Header = () => {
           fixed top-0 left-0 right-0 z-50
           bg-primary-dark border-b border-gray-800
           transition-all duration-300 ease-out
-          ${isScrolled 
-            ? 'bg-gray-900/95 backdrop-blur-lg shadow-2xl border-gray-700' 
+          ${isScrolled
+            ? 'bg-gray-900/95 backdrop-blur-lg shadow-2xl border-gray-700'
             : 'bg-gray-900'
           }
         `}
@@ -81,7 +81,7 @@ const Header = () => {
                     transition-all duration-300 ease-out transform
                     hover:scale-105 hover:-translate-y-0.5
                     ${isActive(link.path)
-                      ? 'text-white bg-secondary shadow-lg shadow-indigo-500/25' 
+                      ? 'text-white bg-secondary shadow-lg shadow-indigo-500/25'
                       : 'text-gray-300 hover:text-white hover:bg-gray-800 hover:shadow-lg'
                     }
                   `}
@@ -105,15 +105,13 @@ const Header = () => {
               <div className="relative w-6 h-6">
                 <Menu
                   size={24}
-                  className={`absolute inset-0 transition-all duration-500 ${
-                    isOpen ? 'rotate-180 opacity-0 scale-75' : 'rotate-0 opacity-100 scale-100'
-                  }`}
+                  className={`absolute inset-0 transition-all duration-500 ${isOpen ? 'rotate-180 opacity-0 scale-75' : 'rotate-0 opacity-100 scale-100'
+                    }`}
                 />
                 <X
                   size={24}
-                  className={`absolute inset-0 transition-all duration-500 ${
-                    isOpen ? 'rotate-0 opacity-100 scale-100' : '-rotate-180 opacity-0 scale-75'
-                  }`}
+                  className={`absolute inset-0 transition-all duration-500 ${isOpen ? 'rotate-0 opacity-100 scale-100' : '-rotate-180 opacity-0 scale-75'
+                    }`}
                 />
               </div>
             </button>
@@ -136,7 +134,7 @@ const Header = () => {
           `}
           onClick={() => setIsOpen(false)}
         />
-        
+
         {/* Slide-in Menu */}
         <div
           className={`
@@ -172,7 +170,7 @@ const Header = () => {
                   group flex items-center justify-between px-4 py-4 rounded-xl text-base font-semibold
                   transition-all duration-300 ease-out transform hover:scale-[0.98]
                   ${isActive(link.path)
-                    ? 'text-white bg-secondary shadow-lg' 
+                    ? 'text-white bg-secondary shadow-lg'
                     : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }
                 `}
@@ -189,13 +187,6 @@ const Header = () => {
                 )}
               </Link>
             ))}
-          </div>
-
-          {/* Mobile Menu Footer */}
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="text-center text-xs text-gray-500 border-t border-gray-800 pt-4">
-              © 2024 HitWicket. All rights reserved.
-            </div>
           </div>
         </div>
       </div>

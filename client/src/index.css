@@ -23,6 +23,25 @@
   --color-text: #0f172a;
 }
 
+/* Add custom reuseable classes for tailwind */
+@layer utilities {
+  .h-screen-offset {
+    height: calc(100vh - 4rem);      /* default = h-screen - h-16 */
+  }
+
+  @media (min-width: 640px) {
+    .h-screen-offset {
+      height: calc(100vh - 4.5rem);   /* sm = h-screen - h-18 */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .h-screen-offset {
+      height: calc(100vh - 5rem);     /* lg = h-screen - h-20 */
+    }
+  }
+}
+
 /* Base styles for better font rendering */
 body {
   font-family: var(--font-primary);
