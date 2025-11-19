@@ -23,10 +23,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: withSuspense(Home) },
       { path: APP_ROUTES.ABOUT.path, element: withSuspense(About) },
-      { path: EXTRA_ROUTES.GAME.path, element: withSuspense(Game) },
       { path: '*', element: withSuspense(NotFound) },
     ],
   },
+  { path: EXTRA_ROUTES.GAME.path, element: withSuspense(Game) }
 ]);
 
 export default router;
