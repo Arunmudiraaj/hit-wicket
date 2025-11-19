@@ -46,11 +46,11 @@ const Header = () => {
       <header
         className={`
           fixed top-0 left-0 right-0 z-50
-          bg-primary-dark border-b border-gray-800
+          bg-primary-800 border-b border-dark
           transition-all duration-300 ease-out
           ${isScrolled
-            ? 'bg-gray-900/95 backdrop-blur-lg shadow-2xl border-gray-700'
-            : 'bg-gray-900'
+            ? 'bg-darker/95 backdrop-blur-lg shadow-2xl border-dark'
+            : 'bg-darker'
           }
         `}
       >
@@ -61,11 +61,11 @@ const Header = () => {
               to="/"
               className="group flex items-center space-x-3 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white"
             >
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-primary-light rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-indigo-500/25 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <div className="relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-primary-600/25 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                 <span className="text-sm sm:text-base lg:text-lg font-black text-white">H</span>
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <span className="group-hover:text-indigo-300 transition-colors duration-300">
+              <span className="group-hover:text-primary-300 transition-colors duration-300">
                 HitWicket
               </span>
             </Link>
@@ -81,8 +81,8 @@ const Header = () => {
                     transition-all duration-300 ease-out transform
                     hover:scale-105 hover:-translate-y-0.5
                     ${isActive(link.path)
-                      ? 'text-white bg-secondary shadow-lg shadow-indigo-500/25'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-800 hover:shadow-lg'
+                      ? 'text-white bg-secondary shadow-lg shadow-secondary/25'
+                      : 'text-lighter hover:text-white hover:bg-dark hover:shadow-lg'
                     }
                   `}
                 >
@@ -95,9 +95,9 @@ const Header = () => {
             <button
               className={`
                 md:hidden relative p-3 rounded-xl text-white 
-                hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900
+                hover:bg-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-darker
                 transition-all duration-300 ease-out
-                ${isOpen ? 'bg-gray-800 scale-95' : 'hover:scale-105'}
+                ${isOpen ? 'bg-dark scale-95' : 'hover:scale-105'}
               `}
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle navigation menu"
@@ -139,13 +139,13 @@ const Header = () => {
         <div
           className={`
             absolute top-0 right-0 h-full w-80 max-w-[85vw]
-            bg-gray-900 border-l border-gray-800
+            bg-darker border-l border-dark
             shadow-2xl transform transition-transform duration-500 ease-out
             ${isOpen ? 'translate-x-0' : 'translate-x-full'}
           `}
         >
           {/* Mobile Menu Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-800">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-dark">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center">
                 <span className="text-sm font-black text-white">H</span>
@@ -154,7 +154,7 @@ const Header = () => {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors duration-200"
+              className="p-2 rounded-lg text-lighter hover:text-white hover:bg-dark transition-colors duration-200"
             >
               <X size={20} />
             </button>
@@ -171,7 +171,7 @@ const Header = () => {
                   transition-all duration-300 ease-out transform hover:scale-[0.98]
                   ${isActive(link.path)
                     ? 'text-white bg-secondary shadow-lg'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    : 'text-lighter hover:text-white hover:bg-dark'
                   }
                 `}
                 style={{

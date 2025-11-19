@@ -38,7 +38,7 @@ const Modal = ({
 
       {/* Modal content */}
       <div className="fixed inset-0 flex items-center justify-center">
-        <Dialog.Panel className="bg-white rounded-xl shadow-lg p-6 max-w-lg w-full relative">
+        <Dialog.Panel className="bg-base rounded-xl shadow-lg p-6 max-w-lg w-full relative">
           {title && (
             <Dialog.Title className="text-lg font-semibold mb-4">
               {title}
@@ -50,13 +50,13 @@ const Modal = ({
           {(showCancelBtn || showSubmitBtn) && <div className="mt-6 flex justify-end gap-3">
             {showCancelBtn && <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+              className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
             >
               {cancelText}
             </button>}
             {showSubmitBtn && <button
               onClick={onSubmit}
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              className="px-4 py-2 rounded-lg bg-info text-white hover:bg-info-dark transition-colors"
             >
               {submitText}
             </button>}

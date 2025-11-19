@@ -1,55 +1,144 @@
-@import "tailwindcss";
-
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
 
-@theme {
-  /* Custom Fonts */
-  --font-primary: 'Inter', sans-serif;
-  --font-secondary: 'Poppins', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+@import "tailwindcss";
 
-  /* Custom Colors */
+/* Design tokens - all colors in one place (Tailwind v4) */
+@theme {
+  /* Primary Colors (Indigo/Purple) */
   --color-primary: #3730a3;
   --color-primary-light: #4f46e5;
   --color-primary-dark: #312e81;
+  --color-primary-600: #4f46e5;
+  --color-primary-800: #3730a3;
+
+  /* Secondary Colors (Orange/Amber) */
   --color-secondary: #d97706;
   --color-secondary-dark: #b45309;
   --color-secondary-light: #f59e0b;
-  --color-gold: #f59e0b;
-  --color-background: #ffffff;
+  --color-secondary-400: #fbbf24;
+
+  /* Accent Colors */
+  --color-success: #10b981;
+  --color-success-dark: #059669;
+  --color-danger: #ef4444;
+  --color-danger-dark: #dc2626;
+  --color-danger-light: #f87171;
+  --color-info: #3b82f6;
+  --color-info-dark: #1d4ed8;
+
+  /* Gradient Colors */
+  --color-gradient-start: #a855f7;
+  --color-gradient-end: #ec4899;
+
+  /* Background & Text */
+  --color-bg: #ffffff;
+  --color-bg-dark: #1f2937;
+  --color-bg-darker: #111827;
   --color-text: #0f172a;
+  --color-text-light: #6b7280;
+  --color-text-lighter: #9ca3af;
 }
 
-/* Add custom reuseable classes for tailwind */
+@layer base {
+  body {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
 @layer utilities {
   .h-screen-offset {
-    height: calc(100vh - 4rem);      /* default = h-screen - h-16 */
+    height: calc(100vh - 4rem);
   }
 
   @media (min-width: 640px) {
     .h-screen-offset {
-      height: calc(100vh - 4.5rem);   /* sm = h-screen - h-18 */
+      height: calc(100vh - 4.5rem);
     }
   }
 
   @media (min-width: 1024px) {
     .h-screen-offset {
-      height: calc(100vh - 5rem);     /* lg = h-screen - h-20 */
+      height: calc(100vh - 5rem);
     }
   }
-}
 
-/* Base styles for better font rendering */
-body {
-  font-family: var(--font-primary);
-  background-color: rgb(var(--color-background));
-  color: rgb(var(--color-text));
-}
+  /* Gradient utilities using CSS variables */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-gradient-start), var(--color-gradient-end));
+  }
 
-* {
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  .bg-gradient-secondary {
+    background: linear-gradient(90deg, var(--color-gradient-start), var(--color-gradient-end));
+  }
+
+  /* Support Tailwind gradient directions with custom colors */
+  .bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+  }
+
+  .from-secondary-400 {
+    --tw-gradient-stops: var(--color-secondary-400), var(--tw-gradient-to, rgba(251, 191, 36, 0));
+  }
+
+  .from-secondary-500 {
+    --tw-gradient-stops: var(--color-secondary), var(--tw-gradient-to, rgba(217, 119, 6, 0));
+  }
+
+  .from-info {
+    --tw-gradient-stops: var(--color-info), var(--tw-gradient-to, rgba(59, 130, 246, 0));
+  }
+
+  .to-secondary-500 {
+    --tw-gradient-to: var(--color-secondary);
+  }
+
+  .to-blue-500 {
+    --tw-gradient-to: #3b82f6;
+  }
+
+  /* Color utilities using CSS variables */
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-primary-dark { background-color: var(--color-primary-dark); }
+  .bg-primary-600 { background-color: var(--color-primary-600); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-secondary-dark { background-color: var(--color-secondary-dark); }
+  .bg-secondary-light { background-color: var(--color-secondary-light); }
+  .bg-secondary-400 { background-color: var(--color-secondary-400); }
+
+  .bg-success { background-color: var(--color-success); }
+  .bg-success-dark { background-color: var(--color-success-dark); }
+  .bg-danger { background-color: var(--color-danger); }
+  .bg-danger-dark { background-color: var(--color-danger-dark); }
+  .bg-danger-light { background-color: var(--color-danger-light); }
+  .bg-info { background-color: var(--color-info); }
+  .bg-info-dark { background-color: var(--color-info-dark); }
+
+  .bg-base { background-color: var(--color-bg); }
+  .bg-dark { background-color: var(--color-bg-dark); }
+  .bg-darker { background-color: var(--color-bg-darker); }
+
+  /* Text color utilities using CSS variables */
+  .text-light { color: #d1d5db; }
+  .text-lighter { color: #9ca3af; }
+
+  /* Hover state utilities */
+  .hover\:bg-danger-dark:hover { background-color: var(--color-danger-dark); }
+  .hover\:bg-info-dark:hover { background-color: var(--color-info-dark); }
+  .hover\:bg-secondary-dark:hover { background-color: var(--color-secondary-dark); }
+  .hover\:bg-primary-dark:hover { background-color: var(--color-primary-dark); }
 }

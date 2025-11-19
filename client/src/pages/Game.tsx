@@ -94,12 +94,12 @@ export default function Game() {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white overflow-hidden flex flex-col">
+    <div className="h-screen w-full bg-gradient-primary text-white overflow-hidden flex flex-col">
       {/* Top Bar */}
       <div className="flex justify-between items-center px-4 py-2 bg-black/30 backdrop-blur-sm">
         <button
           onClick={handleLeaveGame}
-          className="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+          className="bg-danger hover:bg-danger-dark px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
         >
           Quit
         </button>
@@ -118,39 +118,39 @@ export default function Game() {
               <div className="text-3xl font-bold">
                 {currentInning?.score || 0}/{currentInning?.wicketsLost || 0}
               </div>
-              <div className="text-xs text-gray-300">
+              <div className="text-xs text-light">
                 {currentInning?.balls.length || 0}/{currentInning?.totalBalls || 6} balls
               </div>
             </div>
             <div className="text-right text-xs space-y-1">
-              <div className="text-gray-300">RR: {((currentInning?.score || 0) / Math.max(currentInning?.balls.length || 1, 1) * 6).toFixed(1)}</div>
-              <div className="text-gray-300">Left: {currentInning?.ballsLeft || 0}</div>
+              <div className="text-light">RR: {((currentInning?.score || 0) / Math.max(currentInning?.balls.length || 1, 1) * 6).toFixed(1)}</div>
+              <div className="text-light">Left: {currentInning?.ballsLeft || 0}</div>
             </div>
           </div>
         </div>
         {/* Ball History - Compact */}
         <div className="bg-white/10 backdrop-blur-md rounded-lg p-3">
-          <div className="text-xs text-gray-300 mb-1">Recent Balls</div>
+          <div className="text-xs text-light mb-1">Recent Balls</div>
           <div className="flex flex-wrap gap-1">
-            {currentInning?.balls.slice(-8).reverse().map((ball) => (
-              <div
-                key={ball.ballNumber}
-                className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${ball.outcome === "wicket"
-                    ? "bg-red-600 ring-2 ring-red-400"
-                    : ball.runs === 0
-                      ? "bg-gray-600"
-                      : ball.runs === 4
-                        ? "bg-blue-600"
-                        : ball.runs === 6
-                          ? "bg-purple-600"
-                          : "bg-green-600"
-                  }`}
-              >
-                {ball.outcome === "wicket" ? "W" : ball.runs}
-              </div>
-            ))}
+            {currentInning?.balls.slice(-8).reverse().map((ball) => {
+              const getBallColor = () => {
+                if (ball.outcome === "wicket") return "bg-danger ring-2 ring-danger-light";
+                if (ball.runs === 0) return "bg-light";
+                if (ball.runs === 4) return "bg-info";
+                if (ball.runs === 6) return "bg-purple-500";
+                return "bg-success";
+              };
+              return (
+                <div
+                  key={ball.ballNumber}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${getBallColor()}`}
+                >
+                  {ball.outcome === "wicket" ? "W" : ball.runs}
+                </div>
+              );
+            })}
             {currentInning?.balls.length === 0 && (
-              <div className="text-gray-400 text-xs">No balls yet</div>
+              <div className="text-light text-xs">No balls yet</div>
             )}
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function Game() {
       <div className="bg-black/40 backdrop-blur-md px-4 py-3 mt-auto">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-2">
-            <span className="text-sm text-gray-300">
+            <span className="text-sm text-light">
               {isChoiceSubmitted ? "Choice submitted" : "Select your number"}
             </span>
           </div>
@@ -174,12 +174,12 @@ export default function Game() {
                   onClick={() => handleChoiceClick(choice)}
                   disabled={!canPlay || isChoiceSubmitted}
                   className={`relative aspect-square rounded-xl font-bold text-3xl transition-all ${isSelected
-                      ? "bg-gradient-to-br from-yellow-400 to-orange-500 scale-105 shadow-lg"
-                      : "bg-gradient-to-br from-blue-500 to-cyan-600 hover:scale-105"
+                      ? "bg-gradient-to-br from-secondary-400 to-secondary-500 scale-105 shadow-lg"
+                      : "bg-gradient-to-br from-info to-blue-500 hover:scale-105"
                     } ${!canPlay || isChoiceSubmitted ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   {choice}
-                  <div className="absolute -top-1 left-0 right-0 text-[10px] font-normal bg-green-600/80 rounded-t-xl py-0.5">
+                  <div className="absolute -top-1 left-0 right-0 text-[10px] font-normal bg-success/80 rounded-t-xl py-0.5">
                     {probability}%
                   </div>
                 </button>

@@ -25,7 +25,7 @@ export default function Result() {
         {myResult === "tie" && "🤝 It's a Tie!"}
         {!myResult && "Game finished."}
       </div>
-      <button onClick={playAgain} className="bg-blue-600 text-white px-4 py-2 rounded">
+      <button onClick={playAgain} className="bg-info text-white px-4 py-2 rounded hover:bg-info-dark transition-colors">
         Back to Home
       </button>
     </div>
