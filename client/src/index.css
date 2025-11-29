@@ -8,57 +8,81 @@
 /* ============================================
    THEME SECTION
    Define your design tokens (CSS variables)
-   - Light mode colors in :root
-   - Dark mode colors inside .dark class
    ============================================ */
 @theme {
-  /* PRIMARY COLOR PALETTE */
+  /* PRIMARY COLOR PALETTE - Replace these values to change entire theme */
   --color-primary-50: #ffebe5;
   --color-primary-100: #ffd8cc;
   --color-primary-200: #ffb199;
   --color-primary-300: #ff8a66;
   --color-primary-400: #ff6333;
-  --color-primary-500: #ff3c00;
+  --color-primary-500: #ff3c00;   /* Main primary color */
   --color-primary-600: #cc3000;
   --color-primary-700: #992400;
   --color-primary-800: #661800;
   --color-primary-900: #330c00;
   --color-primary-950: #240800;
 
-  /* LIGHT MODE (default) */
-  --color-bg-base: #ffffff;
-  --color-bg-elevated: #f9fafb;
-  --color-bg-muted: #f3f4f6;
-  --color-text-base: #111827;
-  --color-text-muted: #6b7280;
-  --color-text-subtle: #9ca3af;
+  /* SEMANTIC COLORS - Adapt based on light/dark mode */
+  /* Light Mode Defaults */
+  --color-primary-text: #cc3000;           /* primary-600 */
+  --color-primary-text-muted: #ff6333;     /* primary-400 */
+  --color-primary-bg: #ff3c00;             /* primary-500 */
+  --color-primary-bg-subtle: #ffebe5;      /* primary-50 */
+  --color-primary-border: #ff8a66;         /* primary-300 */
+
+  /* LIGHT MODE - Background Colors */
+  --color-bg-base: #ffffff;           /* Main app background (pure white) */
+  --color-bg-elevated: #f9fafb;       /* Cards, header, footer (off-white) */
+  --color-bg-muted: #f3f4f6;          /* Disabled states, code blocks (light gray) */
+  
+  /* LIGHT MODE - Text Colors */
+  --color-text-base: #111827;         /* Headings, primary text */
+  --color-text-muted: #6b7280;        /* Body text, descriptions */
+  --color-text-subtle: #9ca3af;       /* Captions, timestamps */
+  
+  /* LIGHT MODE - Border Colors */
   --color-border: #e5e7eb;
   --color-border-strong: #d1d5db;
+}
 
-  /* DARK MODE - triggered by .dark class on <html> or <body> */
-  .dark {
-    --color-bg-base: #0f172a;
-    --color-bg-elevated: #1e293b;
-    --color-bg-muted: #334155;
-    --color-text-base: #f1f5f9;
-    --color-text-muted: #cbd5e1;
-    --color-text-subtle: #94a3b8;
-    --color-border: #334155;
-    --color-border-strong: #475569;
-  }
+/* ============================================
+   DARK MODE - Manual toggle with .dark class
+   Add .dark class to <html> or <body> to activate
+   ============================================ */
+.dark {
+  /* Adaptive primary colors for dark mode */
+  --color-primary-text: #ff6333;           /* primary-400 - lighter */
+  --color-primary-text-muted: #ff8a66;     /* primary-300 - even lighter */
+  --color-primary-bg: #cc3000;             /* primary-600 - darker */
+  --color-primary-bg-subtle: #330c00;      /* primary-900 - dark subtle */
+  --color-primary-border: #ff3c00;         /* primary-500 - brighter */
+
+  /* DARK MODE - Background Colors */
+  --color-bg-base: #0f172a;           /* Main app background (dark blue) */
+  --color-bg-elevated: #1e293b;       /* Cards, header, footer (lighter dark) */
+  --color-bg-muted: #334155;          /* Disabled states, code blocks (medium gray) */
+  
+  /* DARK MODE - Text Colors */
+  --color-text-base: #f1f5f9;         /* Headings, primary text */
+  --color-text-muted: #cbd5e1;        /* Body text, descriptions */
+  --color-text-subtle: #94a3b8;       /* Captions, timestamps */
+  
+  /* DARK MODE - Border Colors */
+  --color-border: #334155;
+  --color-border-strong: #475569;
 }
 
 /* ============================================
    BASE SECTION
    Apply base styles to HTML elements
-   - Sets defaults for typography, colors, etc.
    ============================================ */
 @layer base {
-
   body {
     font-family: 'Poppins', 'Inter', sans-serif;
     color: var(--color-text-base);
     background-color: var(--color-bg-base);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   * {
@@ -77,17 +101,23 @@
 
 /* ============================================
    UTILITIES SECTION
-   Create custom utility classes
-   - Only add custom utilities for theme-specific needs
+   Custom utility classes for your theme
    ============================================ */
 @layer utilities {
     
-  /* ===== PRIMARY COLOR UTILITIES ===== */
+  /* ===== ADAPTIVE PRIMARY UTILITIES (Auto-adjust for light/dark) ===== */
+  .text-primary {  color: var(--color-primary-text); }
+  .text-primary-muted { color: var(--color-primary-text-muted); }
+  .bg-primary { background-color: var(--color-primary-bg); }
+  .border-primary { border-color: var(--color-primary-border); }
+
+
+  /* ===== FIXED PRIMARY COLOR SHADES (Don't adapt) ===== */
   /* Backgrounds - Primary color shades */
   .bg-primary-50 { background-color: var(--color-primary-50); }    /* Very light accent backgrounds */
   .bg-primary-100 { background-color: var(--color-primary-100); }  /* Light backgrounds, badges */
   .bg-primary-200 { background-color: var(--color-primary-200); }  /* Subtle hover states */
-  .bg-primary { background-color: var(--color-primary-500); }      /* Main buttons, primary actions */
+  .bg-primary-500 { background-color: var(--color-primary-500); }  /* Main buttons (fixed shade) */
   .bg-primary-600 { background-color: var(--color-primary-600); }  /* Hover state for primary buttons */
   .bg-primary-700 { background-color: var(--color-primary-700); }  /* Active/pressed state */
   .bg-primary-800 { background-color: var(--color-primary-800); }  /* Dark accents */
@@ -96,13 +126,13 @@
   /* Text - Primary color shades */
   .text-primary-300 { color: var(--color-primary-300); }  /* Light text on dark backgrounds */
   .text-primary-400 { color: var(--color-primary-400); }  /* Links, secondary emphasis */
-  .text-primary { color: var(--color-primary-500); }      /* Main links, call-to-action text */
+  .text-primary-500 { color: var(--color-primary-500); }  /* Main links (fixed shade) */
   .text-primary-600 { color: var(--color-primary-600); }  /* Hover state for links */
   .text-primary-700 { color: var(--color-primary-700); }  /* Strong emphasis */
   
   /* Borders - Primary color shades */
   .border-primary-200 { border-color: var(--color-primary-200); }  /* Subtle borders */
-  .border-primary { border-color: var(--color-primary-500); }      /* Main borders, focused inputs */
+  .border-primary-500 { border-color: var(--color-primary-500); }  /* Main borders (fixed) */
   .border-primary-600 { border-color: var(--color-primary-600); }  /* Strong borders */
   
   
@@ -116,6 +146,8 @@
   /* ===== TEXT UTILITIES ===== */
   /* Text colors */
   .text-base { color: var(--color-text-base); }      /* Headings, primary content, important text, navigation items */
+  .text-heading { color: var(--color-text-base); }   /* Alias for headings */
+  .text-body { color: var(--color-text-base); }      /* Alias for body text */
   .text-muted { color: var(--color-text-muted); }    /* Body text, descriptions, Paragraph text, form labels, secondary info */
   .text-subtle { color: var(--color-text-subtle); }  /* Captions, metadata, timestamps, helper text, placeholder text */
   
@@ -124,6 +156,23 @@
   /* Border colors */
   .border-base { border-color: var(--color-border); }      /* Card borders, input borders, table borders */
   .border-strong { border-color: var(--color-border-strong); } /* Emphasized borders, Section dividers, selected state borders */
+  
+
+  /* ===== SEMANTIC STATUS COLORS ===== */
+  /* Danger/Error */
+  .bg-danger { background-color: #ef4444; }
+  .text-danger { color: #ef4444; }
+  .border-danger { border-color: #ef4444; }
+  
+  /* Warning */
+  .bg-warning { background-color: #f59e0b; }
+  .text-warning { color: #f59e0b; }
+  .border-warning { border-color: #f59e0b; }
+  
+  /* Success */
+  .bg-success { background-color: #10b981; }
+  .text-success { color: #10b981; }
+  .border-success { border-color: #10b981; }
   
 
   /* ===== HOVER STATES ===== */
@@ -156,6 +205,12 @@
     border: 1px solid var(--color-border);
     border-radius: 0.5rem;
     padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
   }
   
   /* Button variants */
@@ -165,11 +220,17 @@
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
   }
   
   .btn-primary:hover {
     background-color: var(--color-primary-600);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0);
   }
   
   .btn-secondary {
@@ -179,7 +240,7 @@
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
   }
   
   .btn-secondary:hover {
@@ -192,10 +253,11 @@
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
   }
   
   .btn-ghost:hover {
     background-color: var(--color-bg-muted);
   }
+  
 }
