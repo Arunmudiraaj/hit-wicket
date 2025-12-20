@@ -1,3 +1,60 @@
 Added custom colors app wide and using it
 
 next build components and connect with serever for match making
+
+
+
+
+
+29-09-2025
+merge useGameSocket.ts and useGameInitialization.ts onto one, where only game events will be there
+move events from hooks/useSocketConnection.ts to game socket hooks. so it only has the game related events
+
+
+10/05/25
+put handlers logic in socket/socketHandlers.ts instead of useGameSocket.ts and useSocketConnection.ts 
+and start testing
+
+
+nov 9th 2025
+when two players hit start game button, they get matched. game gets created in server, and in browser 
+user gets navigated to game page
+there fix the ui and start with the functionality in game page
+
+nov 15th 2025
+define colors in app and start continue to build game page screen 
+
+nov 19th 2025
+work on game page (design) and do clean up of game page
+
+nov 22nd 2025
+work on game page (design) and do clean up of game page
+
+nov 29th 2025
+almost css file got finalized with global css variables
+work on game page (design) and do clean up of game page
+
+dec 17th 2025
+finalized the index css. just check all classes are being applied. and proceed
+you mostly be using these style colors
+  --color-primary-text: var(--color-primary-600);
+  --color-primary-text-muted: var(--color-primary-400);
+  --color-primary-bg: var(--color-primary-500);
+  --color-primary-bg-subtle: var(--color-primary-50);
+  --color-primary-border: var(--color-primary-300);
+
+  /* LIGHT MODE - Background Colors */
+  --color-base-bg: #ffffff;
+  --color-elevated-bg: #f9fafb;
+  --color-muted-bg: #f3f4f6;
+  
+  /* LIGHT MODE - Text Colors */
+  --color-base-text: #111827;
+  --color-muted-text: #6b7280;
+  --color-subtle-text: #9ca3af;
+  
+  /* LIGHT MODE - Border Colors */
+  --color-base-border: #e5e7eb;
+  --color-strong-border: #d1d5db;
+
+  

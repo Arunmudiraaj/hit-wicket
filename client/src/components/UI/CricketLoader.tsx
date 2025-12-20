@@ -18,15 +18,15 @@ const CricketLoader: React.FC<CricketLoaderProps> = ({ size = 'md', text = 'Load
     <div className="flex flex-col items-center justify-center p-4">
       {/* Simple spinning cricket ball */}
       <div 
-        className={`${config.ball} bg-danger rounded-full mb-4 animate-spin`}
+        className={`${config.ball} bg-primary-500 rounded-full mb-4 animate-spin relative`}
         style={{ animationDuration: '1s' }}
       >
         {/* Cricket ball seam */}
-        <div className="absolute top-1/2 left-0 right-0 h-1 bg-danger-dark transform -translate-y-0.5"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-primary-700 transform -translate-y-0.5"></div>
       </div>
 
       {/* Loading text */}
-      <div className={`${config.text} font-medium text-light animate-pulse`}>
+      <div className={`${config.text} font-medium text-muted-text animate-pulse`}>
         {text}
       </div>
     </div>

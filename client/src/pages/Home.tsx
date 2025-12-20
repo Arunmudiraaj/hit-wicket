@@ -48,12 +48,12 @@ export default function Home() {
         closeOnBackdrop={false}
       >
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">Finding a Match</h2>
-          <p className="">Please wait while we find an opponent for you</p>
+          <h2 className="text-2xl font-semibold mb-4 text-base-text">Finding a Match</h2>
+          <p className="text-muted-text mb-4">Please wait while we find an opponent for you</p>
           <CricketLoader/>
           <button
             onClick={() => setFindMatchLoading(false)}
-            className="text-red-600 font-bold cursor-pointer hover:text-red-700"
+            className="px-4 py-2 rounded-xl font-semibold text-muted-text bg-muted-bg hover:bg-elevated-bg hover:text-base-text transition-all duration-200 mt-4"
           >
             Cancel
           </button>
