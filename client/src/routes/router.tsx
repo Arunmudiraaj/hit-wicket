@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy, type JSX } from 'react';
-import Loader from '../components/shared/Loader';
+import Loader from '../components/Loader';
 import MainLayout from '../layouts/MainLayout';
 import { APP_ROUTES, EXTRA_ROUTES } from '../constants/constants';
 
