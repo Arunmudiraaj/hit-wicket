@@ -1,24 +1,22 @@
-import Header from '../components/Header';
+// layouts/MainLayout.tsx
 import { Outlet } from 'react-router-dom';
-import Footer from '../components/Footer';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const MainLayout = () => {
   return (
-    <div className="min-h-screen bg-base-bg">
-      {/* Header - Fixed positioning is handled inside Header component */}
+    <div className="flex min-h-screen flex-col bg-base-bg">
       <Header />
-
-      {/* Main Content - Add padding for header */}
-      <main className="bg-base-bg pt-16 sm:pt-18 lg:pt-20 min-h-screen">
-        <div className="max-w-7xl mx-auto">
+      
+      <main className="flex-1 pt-16 sm:pt-18 lg:pt-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
           <Outlet />
         </div>
       </main>
       
-      {/* Footer */}
       <Footer />
     </div>
   );
-}
+};
 
-export default MainLayout
+export default MainLayout;

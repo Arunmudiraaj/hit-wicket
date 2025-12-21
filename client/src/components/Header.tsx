@@ -26,7 +26,7 @@ export default function Header() {
   }, [location.pathname])
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b shadow-lg bg-base-bg/80 backdrop-blur">
+    <header className="fixed top-0 z-50 w-full shadow-lg bg-base-bg/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
