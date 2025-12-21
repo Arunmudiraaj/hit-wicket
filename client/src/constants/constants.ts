@@ -5,4 +5,5 @@ export const APP_ROUTES = {
 
 export const EXTRA_ROUTES = {
     GAME: { path: '/game/:matchId', label: 'Game' },
+    RESULT: { path: '/result/:matchId', label: 'Result' },
 }

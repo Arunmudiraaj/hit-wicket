@@ -8,7 +8,8 @@ import { APP_ROUTES, EXTRA_ROUTES } from '../constants/constants';
 const Home = lazy(() => import('../pages/Home'));
 const About = lazy(() => import('../pages/About'));
 const NotFound = lazy(() => import('../pages/NotFound'));
-const Game = lazy(() => import('../pages/Game'));
+const Game = lazy(() => import('../pages/Game/Game'));
+const Result = lazy(() => import('../pages/Result'));
 
 const withSuspense = (Component: React.LazyExoticComponent<() => JSX.Element>) => (
   <Suspense fallback={<Loader />}>
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
       { path: '*', element: withSuspense(NotFound) },
     ],
   },
+  { path: EXTRA_ROUTES.RESULT.path, element: withSuspense(Result) },
   { path: EXTRA_ROUTES.GAME.path, element: withSuspense(Game) }
 ]);
 

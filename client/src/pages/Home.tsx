@@ -14,7 +14,6 @@ import {
 import { Button } from "../components/ui/button";
 
 export default function Home() {
-
   const [findMatchLoading, setFindMatchLoading] = useState(false);
   const { playerId, playerName } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ export default function Home() {
     emitPlayNewGame(playerId);
   };
 
-  const gameStartHandler = (game: {gameId: string}) => {
+  const gameStartHandler = (game: { gameId: string }) => {
     try {
       const gameId = game.gameId;
       setFindMatchLoading(false);
@@ -44,28 +43,37 @@ export default function Home() {
   }, [socket]);
 
   return (
-    <div className="p-4 max-w-md mx-auto flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-      <Button 
+    <div className="flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4">
+      <Button
         onClick={handlePlayNewGame}
-        className=" btn-primary text-base lg:py-5 lg:px-10 lg:text-2xl py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out"
+        size="lg"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 text-base lg:text-2xl py-3 px-6 lg:py-6 lg:px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out font-semibold"
       >
         Play Now
       </Button>
 
       <Dialog open={findMatchLoading} onOpenChange={setFindMatchLoading}>
-        <DialogContent showCloseButton={false}>
-          <DialogTitle>Finding a Match</DialogTitle>
-          <DialogDescription>
+        <DialogContent 
+          showCloseButton={false}
+          className="bg-card border-border shadow-xl"
+        >
+          <DialogTitle className="text-foreground text-lg font-semibold">
+            Finding a Match
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground text-sm">
             Please wait while we find an opponent for you
           </DialogDescription>
-          <div className="flex flex-col items-center gap-4">
+          
+          <div className="flex flex-col items-center gap-6 py-4">
             <CricketLoader />
-            <button
+            
+            <Button
               onClick={() => setFindMatchLoading(false)}
-              className="px-4 py-2 rounded-xl font-semibold text-muted-text bg-muted-bg hover:bg-elevated-bg hover:text-base-text transition-all duration-200"
+              variant="secondary"
+              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg font-medium transition-colors"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
