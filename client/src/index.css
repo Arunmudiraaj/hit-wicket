@@ -285,6 +285,33 @@
   to { transform: translateY(100%); }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  50% { opacity: .5; }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8,0,1,1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0,0,0.2,1);
+  }
+}
+
+
 /* Animation utility classes */
 @layer utilities {
   /* Base animation classes */
@@ -347,6 +374,32 @@
   .slide-out-to-bottom {
     animation-name: slideOutToBottom;
   }
+
+  /* Spin, ping, pulse, bounce animations */
+  .spin {
+    animation-name: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  .ping {
+    animation-name: ping;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  .pulse {
+    animation-name: pulse;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  .bounce {
+    animation-name: bounce;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+  }
+  
 
   /* Duration utilities */
   .duration-100 {
