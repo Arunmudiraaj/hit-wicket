@@ -10,38 +10,38 @@
    Copy-paste theme from tweakcn.com here
    ============================================ */
 :root {
-  --background: #e8ebed;
-  --foreground: #333333;
-  --card: #ffffff;
-  --card-foreground: #333333;
-  --popover: #ffffff;
-  --popover-foreground: #333333;
-  --primary: #e05d38;
-  --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #4b5563;
-  --muted: #f9fafb;
-  --muted-foreground: #6b7280;
-  --accent: #d6e4f0;
-  --accent-foreground: #1e3a8a;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #dcdfe2;
-  --input: #f4f5f7;
-  --ring: #e05d38;
-  --chart-1: #86a7c8;
-  --chart-2: #eea591;
-  --chart-3: #5a7ca6;
-  --chart-4: #466494;
-  --chart-5: #334c82;
-  --sidebar: #dddfe2;
-  --sidebar-foreground: #333333;
-  --sidebar-primary: #e05d38;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #d6e4f0;
-  --sidebar-accent-foreground: #1e3a8a;
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: #e05d38;
+  --background: hsl(204.0000 12.1951% 91.9608%);
+  --foreground: hsl(0 0% 20%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 20%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 20%);
+  --primary: hsl(13.2143 73.0435% 54.9020%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(220.0000 14.2857% 95.8824%);
+  --secondary-foreground: hsl(215 13.7931% 34.1176%);
+  --muted: hsl(210 20.0000% 98.0392%);
+  --muted-foreground: hsl(220 8.9362% 46.0784%);
+  --accent: hsl(207.6923 46.4286% 89.0196%);
+  --accent-foreground: hsl(224.4444 64.2857% 32.9412%);
+  --destructive: hsl(0 84.2365% 60.1961%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(210 9.3750% 87.4510%);
+  --input: hsl(220 15.7895% 96.2745%);
+  --ring: hsl(13.2143 73.0435% 54.9020%);
+  --chart-1: hsl(210 37.5000% 65.4902%);
+  --chart-2: hsl(12.9032 73.2283% 75.0980%);
+  --chart-3: hsl(213.1579 29.9213% 50.1961%);
+  --chart-4: hsl(216.9231 35.7798% 42.7451%);
+  --chart-5: hsl(221.0127 43.6464% 35.4902%);
+  --sidebar: hsl(216 7.9365% 87.6471%);
+  --sidebar-foreground: hsl(0 0% 20%);
+  --sidebar-primary: hsl(13.2143 73.0435% 54.9020%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(207.6923 46.4286% 89.0196%);
+  --sidebar-accent-foreground: hsl(224.4444 64.2857% 32.9412%);
+  --sidebar-border: hsl(220 13.0435% 90.9804%);
+  --sidebar-ring: hsl(13.2143 73.0435% 54.9020%);
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -65,38 +65,38 @@
 }
 
 .dark {
-  --background: #1c2433;
-  --foreground: #e5e5e5;
-  --card: #2a3040;
-  --card-foreground: #e5e5e5;
-  --popover: #262b38;
-  --popover-foreground: #e5e5e5;
-  --primary: #e05d38;
-  --primary-foreground: #ffffff;
-  --secondary: #2a303e;
-  --secondary-foreground: #e5e5e5;
-  --muted: #2a303e;
-  --muted-foreground: #a3a3a3;
-  --accent: #2a3656;
-  --accent-foreground: #bfdbfe;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #3d4354;
-  --input: #3d4354;
-  --ring: #e05d38;
-  --chart-1: #86a7c8;
-  --chart-2: #e6a08f;
-  --chart-3: #5a7ca6;
-  --chart-4: #466494;
-  --chart-5: #334c82;
-  --sidebar: #2a303f;
-  --sidebar-foreground: #e5e5e5;
-  --sidebar-primary: #e05d38;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2a3656;
-  --sidebar-accent-foreground: #bfdbfe;
-  --sidebar-border: #3d4354;
-  --sidebar-ring: #e05d38;
+  --background: hsl(219.1304 29.1139% 15.4902%);
+  --foreground: hsl(0 0% 89.8039%);
+  --card: hsl(223.6364 20.7547% 20.7843%);
+  --card-foreground: hsl(0 0% 89.8039%);
+  --popover: hsl(223.3333 19.1489% 18.4314%);
+  --popover-foreground: hsl(0 0% 89.8039%);
+  --primary: hsl(13.2143 73.0435% 54.9020%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(222 19.2308% 20.3922%);
+  --secondary-foreground: hsl(0 0% 89.8039%);
+  --muted: hsl(222 19.2308% 20.3922%);
+  --muted-foreground: hsl(0 0% 63.9216%);
+  --accent: hsl(223.6364 34.3750% 25.0980%);
+  --accent-foreground: hsl(213.3333 96.9231% 87.2549%);
+  --destructive: hsl(0 84.2365% 60.1961%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(224.3478 15.8621% 28.4314%);
+  --input: hsl(224.3478 15.8621% 28.4314%);
+  --ring: hsl(13.2143 73.0435% 54.9020%);
+  --chart-1: hsl(210 37.5000% 65.4902%);
+  --chart-2: hsl(11.7241 63.5036% 73.1373%);
+  --chart-3: hsl(213.1579 29.9213% 50.1961%);
+  --chart-4: hsl(216.9231 35.7798% 42.7451%);
+  --chart-5: hsl(221.0127 43.6464% 35.4902%);
+  --sidebar: hsl(222.8571 20.0000% 20.5882%);
+  --sidebar-foreground: hsl(0 0% 89.8039%);
+  --sidebar-primary: hsl(13.2143 73.0435% 54.9020%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(223.6364 34.3750% 25.0980%);
+  --sidebar-accent-foreground: hsl(213.3333 96.9231% 87.2549%);
+  --sidebar-border: hsl(224.3478 15.8621% 28.4314%);
+  --sidebar-ring: hsl(13.2143 73.0435% 54.9020%);
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -194,6 +194,13 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-info: var(--info);
+}
+
+/* Add more utility classes */
+@layer utilities {
+  .border {
+    border-color: var(--color-border);
+  }
 }
 
 /* ============================================

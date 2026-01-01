@@ -1,17 +1,17 @@
-import { useAppSelector } from "../hooks/useTypedRedux";
-import { emitPlayNewGame } from "../socket/socketEmitters";
+import { useAppSelector } from "../../hooks/useTypedRedux";
+import { emitPlayNewGame } from "../../socket/socketEmitters";
 import { useEffect, useState } from "react";
-import CricketLoader from "../components/CricketLoader";
-import { useSocket } from "../socket/socket";
+import CricketLoader from "../../components/CricketLoader";
+import { useSocket } from "../../socket/socket";
 import { useNavigate } from "react-router-dom";
-import { SOCKET_EVENTS } from "../socket/events";
+import { SOCKET_EVENTS } from "../../socket/events";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "../components/ui/dialog";
-import { Button } from "../components/ui/button";
+} from "../../components/ui/dialog";
+import { Button } from "../../components/ui/button";
 
 export default function Home() {
   const [findMatchLoading, setFindMatchLoading] = useState(false);

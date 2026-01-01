@@ -7,10 +7,10 @@ interface TopBarProps {
 
 function TopBar({ matchId, currentInning, totalInnings, onLeaveGame }: TopBarProps) {
   return (
-    <div className="flex justify-between items-center px-4 py-3 bg-card/80 backdrop-blur-md border-b border-border">
+    <div className="flex justify-between items-center px-4 py-3 bg-card/80 backdrop-blur-md border-b border">
       <button
         onClick={onLeaveGame}
-        className="px-4 py-2 rounded-lg font-semibold bg-destructive text-destructive-foreground hover:opacity-90 transition-all duration-200 shadow-sm text-sm"
+        className="px-4 py-2 rounded-lg font-semibold bg-destructive text-destructive-foreground hover:opacity-90 transition-all duration-200 shadow-sm text-sm cursor-pointer"
       >
         Quit
       </button>

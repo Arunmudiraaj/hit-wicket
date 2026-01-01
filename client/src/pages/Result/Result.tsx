@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../hooks/useTypedRedux";
-import { setLastGameId } from "../store/slices/sessionSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/useTypedRedux";
+import { setLastGameId } from "../../store/slices/sessionSlice";
 import { Button } from "@/components/ui/button";
 import {
   Card,

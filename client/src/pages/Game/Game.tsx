@@ -3,10 +3,9 @@ import StadiumBackground from "./components/StadiumBackground";
 import TopBar from "./components/TopBar";
 import Scoreboard from "./components/Scoreboard";
 import BallHistory from "./components/BallHistory";
-import MatchInfo from "./components/MatchInfo";
 import ChoiceSelector from "./components/ChoiceSelector";
-
-const stadiumImgPath = "/cricket-stadium.svg";
+import PlayersInfo from "./components/PlayersInfo";
+import EventPopup from "./components/EventPopUp";
 
 export default function Game() {
   const matchId = "DEMO123";
@@ -24,10 +23,10 @@ export default function Game() {
         balls: [
           {
             ballNumber: 1,
-            batsmanChoice: 4,
+            batsmanChoice: 1,
             bowlerChoice: 2,
             outcome: "runs" as const,
-            runs: 4,
+            runs: 1,
           },
           {
             ballNumber: 2,
@@ -39,9 +38,9 @@ export default function Game() {
           {
             ballNumber: 3,
             batsmanChoice: 5,
-            bowlerChoice: 2,
-            outcome: "runs" as const,
-            runs: 5,
+            bowlerChoice: 5,
+            outcome: "wicket" as const,
+            runs: 0,
           },
         ],
         ballsLeft: 3,
@@ -78,45 +77,42 @@ export default function Game() {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background">
+
+
+    <div className="relative h-screen w-screen overflow-hidden">
       <StadiumBackground />
 
-      <div className="relative h-screen w-full overflow-hidden flex flex-col max-w-7xl mx-auto">
-        <TopBar
-          matchId={matchId}
-          currentInning={game.currentInning}
-          totalInnings={game.totalInnings}
-          onLeaveGame={handleLeaveGame}
+      <div className="relative h-full w-full overflow-hidden max-w-7xl mx-auto flex-col flex">
+      <TopBar
+        matchId={matchId}
+        currentInning={game.currentInning}
+        totalInnings={game.totalInnings}
+        onLeaveGame={handleLeaveGame}
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 py-4">
+        <Scoreboard
+          score={currentInning.score}
+          wicketsLost={currentInning.wicketsLost}
+          ballsPlayed={currentInning.balls.length}
+          totalBalls={currentInning.totalBalls}
+          ballsLeft={currentInning.ballsLeft}
         />
+        <BallHistory balls={currentInning.balls} />
+      </div>
 
-        <div className="grid grid-cols-2 gap-3 px-4 py-4">
-          <Scoreboard
-            score={currentInning.score}
-            wicketsLost={currentInning.wicketsLost}
-            ballsPlayed={currentInning.balls.length}
-            totalBalls={currentInning.totalBalls}
-            ballsLeft={currentInning.ballsLeft}
-          />
-          <BallHistory balls={currentInning.balls} />
-        </div>
 
-        <div className="flex-1 flex items-center justify-center px-4">
-          <MatchInfo
-            role={game.myRole}
-            opponent={game.opponent}
-            selectedChoice={selectedChoice}
-            isChoiceSubmitted={isChoiceSubmitted}
-            onSubmitChoice={handleSubmitChoice}
-          />
-        </div>
 
+      <div className="mt-auto">
+        <PlayersInfo />
         <ChoiceSelector
           choices={choices}
-          selectedChoice={selectedChoice}
           canPlay={canPlay}
           isChoiceSubmitted={isChoiceSubmitted}
           onChoiceClick={handleChoiceClick}
         />
+      </div>
+      <EventPopup event={selectedChoice} onComplete={()=>setSelectedChoice(null)}/>
       </div>
     </div>
   );

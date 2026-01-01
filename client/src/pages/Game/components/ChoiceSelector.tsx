@@ -1,6 +1,5 @@
 interface ChoiceSelectorProps {
   choices: number[];
-  selectedChoice: number | null;
   canPlay: boolean;
   isChoiceSubmitted: boolean;
   onChoiceClick: (choice: number) => void;
@@ -8,32 +7,22 @@ interface ChoiceSelectorProps {
 
 function ChoiceSelector({
   choices,
-  selectedChoice,
   canPlay,
   isChoiceSubmitted,
   onChoiceClick,
 }: ChoiceSelectorProps) {
   return (
-    <div className="px-4 py-6 bg-card/80 backdrop-blur-md border-t border-border">
+    <div className="px-4 py-6">
       <div className="max-w-4xl mx-auto">
-        <div className="text-sm text-center text-muted-foreground mb-3 font-medium">
-          Select your choice
-        </div>
         <div className="grid grid-cols-5 gap-3">
           {choices.map((choice) => {
-            const isSelected = selectedChoice === choice;
             return (
               <button
                 key={choice}
                 onClick={() => onChoiceClick(choice)}
                 disabled={!canPlay || isChoiceSubmitted}
                 className={`
-                  aspect-square rounded-lg font-bold text-3xl transition-all shadow-sm
-                  ${
-                    isSelected
-                      ? "bg-primary text-primary-foreground ring-2 ring-ring scale-105"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:scale-105"
-                  }
+                  aspect-square bg-background/30 text-black dark:text-white relative rounded-4xl font-bold text=black text-3xl transition-all shadow-sm hover:scale-110
                   ${
                     !canPlay || isChoiceSubmitted
                       ? "opacity-50 cursor-not-allowed"
@@ -42,7 +31,12 @@ function ChoiceSelector({
                   disabled:hover:scale-100
                 `}
               >
-                {choice}
+                <img
+                  src={`/cricket-ball.svg`}
+                  alt={`${choice} runs`}
+                  className="w-full h-full absolute top-0 left-0 pointer-events-none select-none"
+                />
+                <div className="relative z-10 text-4xl">{choice}</div>
               </button>
             );
           })}

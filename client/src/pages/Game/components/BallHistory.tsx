@@ -16,15 +16,14 @@ function BallHistory({ balls }: BallHistoryProps) {
   const getBallStyle = (ball: Ball) => {
     if (ball.outcome === "wicket")
       return "bg-destructive text-destructive-foreground ring-2 ring-destructive/50";
-    if (ball.runs === 0) return "bg-muted text-muted-foreground";
-    if (ball.runs === 4) return "bg-primary text-primary-foreground";
+    if (ball.runs === 4) return "bg-primary text-primary-foreground ring-2 ring-primary/50";
     if (ball.runs === 6)
       return "bg-primary text-primary-foreground ring-2 ring-primary/50";
-    return "bg-accent text-accent-foreground";
+    return "bg-accent text-accent-foreground ring-2 ring-accent/50";
   };
 
   return (
-    <Card className="bg-card/80 backdrop-blur-md">
+    <Card className="bg-card/80 backdrop-blur-md py-4">
       <CardContent className="p-4">
         <div className="text-sm mb-2 text-muted-foreground font-medium">
           Recent Balls

@@ -21,7 +21,7 @@ const CricketLoader: React.FC<CricketLoaderProps> = ({
     <div className="flex flex-col items-center justify-center p-6">
       {/* Cricket ball with spin animation */}
       <div 
-        className={`${config.ball} bg-primary rounded-full mb-4 animate-spin relative shadow-lg`}
+        className={`${config.ball} bg-danger rounded-full mb-4 animate-spin relative shadow-lg`}
         style={{ animationDuration: '1s' }}
       >
         {/* Cricket ball seam */}

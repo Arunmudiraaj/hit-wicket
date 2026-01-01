@@ -4,8 +4,9 @@ function StadiumBackground() {
       <img
         src="/cricket-stadium.svg"
         alt="Stadium"
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none opacity-20 dark:opacity-10"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none opacity-40"
       />
+      {/* Depth Effect */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
