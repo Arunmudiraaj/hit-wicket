@@ -1,12 +1,12 @@
 export const GAME_EVENTS = {
-    // client -> server
+    GUEST_INIT: 'guest:init',
     REGISTER: 'game:register',
     JOIN_QUEUE: "game:play_new_game",
     PLAYER_CHOICE: "player:choice",
     LEAVE: 'game:leave',
     ERROR: 'game:error',
     DISCONNECT: 'game:disconnect',
-    // server -> client
+
     GAME_STATE_UPDATE_EVENT: 'game:update',
     REQUEST_STATE: "game:requestState",
     GAME_STARTED: "game:started",

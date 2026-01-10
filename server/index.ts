@@ -6,7 +6,7 @@ import connectDB from './config/db.js';
 import { initSocket } from './socket/index.js';
 
 dotenv.config();
-cors({ origin: "*" });
+cors({ origin: process.env.CLIENT_URL || '' });
 
 const app = express();
 const server = http.createServer(app);

@@ -4,7 +4,7 @@ import { emitGameUpdate } from "../socket/socketEmitters.js";
 import { formatGameForClient, generateUniqueGameId } from "../utils/utils.js";
 import { BALL_OUTCOME, GAME_MODE, GAME_STATUS, ROLES } from "../constants/dataConstants.js";
 import pkg from 'lodash';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { getIO } from "../socket/index.js";
 import { GAME_EVENTS } from "../socket/events.js";
 const { cloneDeep } = pkg;
@@ -15,8 +15,9 @@ let io: Server;
 setTimeout(() => { io = getIO() }, 0);
 
 
-export const matchPlayers = (user: GamePlayer, data: any) => {
-  console.log("Player joining queue:", data);
+export const matchPlayers = (socket:Socket) => {
+  const guestId = socket.data.guestId;
+  const user: GamePlayer = { userId: guestId, socket };
 
   if (queue.length > 0) {
     const opponent = queue.shift()!;
@@ -39,19 +40,15 @@ export const matchPlayers = (user: GamePlayer, data: any) => {
       gameState: game,
       roles,
       sockets: {
-        [user.userId]: user.socket.id,
-        [opponent.userId]: opponent.socket.id,
-      },
-      socketToPlayerId: {
-        [user.socket.id]: user.userId,
-        [opponent.socket.id]: opponent.userId,
+        [user.userId]: user.socket,
+        [opponent.userId]: opponent.socket,
       },
       pendingChoices: {}
     };
 
     liveGames.set(gameId, liveGame);
 
-    // ✅ Add both players to the same room
+    // Add both players to the same room
     user.socket.join(gameId);
     opponent.socket.join(gameId);
 
@@ -61,8 +58,8 @@ export const matchPlayers = (user: GamePlayer, data: any) => {
       u.socket.emit(GAME_EVENTS.GAME_MATCH_FOUND, { gameId, role });
     });
 
-    // ✅ Notify room that game has started
-    io.to(gameId).emit(GAME_EVENTS.GAME_STARTED, { gameId, players: game.players });
+    // Start the game after a short delay to allow clients to prepare
+    setTimeout(() => io.to(gameId).emit(GAME_EVENTS.GAME_STARTED, { gameId, players: game.players }), 2000);
 
   } else {
     queue.push(user);

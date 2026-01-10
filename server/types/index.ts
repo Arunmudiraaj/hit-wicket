@@ -65,8 +65,7 @@ export interface LiveGame {
     batsmanId: string; // userId or guest id
     bowlerId: string;
   };
-  sockets: Record<string, string>; // { playerId: socketId }
-  socketToPlayerId?: Record<string, string>; // { socketId: playerId }
+  sockets: Record<string, Socket>; // { playerId: socketId }
   pendingChoices?: PendingChoices;
 }
 
