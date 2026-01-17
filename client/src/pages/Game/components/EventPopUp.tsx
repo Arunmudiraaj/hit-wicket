@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 interface EventPopupProps {
-  event: number | null;
+  event: string | null;
   onComplete?: () => void;
 }
 const EventPopup = ({ event, onComplete }: EventPopupProps) => {

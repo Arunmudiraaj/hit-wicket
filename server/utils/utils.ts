@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid';
-import { GameState, LiveGame } from '../types/index.js';
+import { GameState, LiveGame } from '../../shared/types/game.js';
 
 const generateId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 7);
 
@@ -26,22 +26,23 @@ export const formatGameForClient = (liveGame: LiveGame): GameState => {
     gameId: liveGame.gameState.gameId,
     players: liveGame.gameState.players,
     status: liveGame.gameState.status,
-    currentInning: liveGame.gameState.currentInning,
+    currentInningIndex: liveGame.gameState.currentInningIndex,
     totalInnings: liveGame.gameState.totalInnings,
     innings: liveGame.gameState.innings,
     winner: liveGame.gameState.winner,
+    mode: liveGame.gameState.mode,
+    createdAt: liveGame.gameState.createdAt,
   };
 }
 
 
 export const getErrorMessage = (err: unknown): string => {
-    if (err instanceof Error) return err.message;
-    return String(err);
-  };
+  if (err instanceof Error) return err.message;
+  return String(err);
+};
 
 
 
 
 
-  
-  
+

@@ -1,20 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
-
-interface Ball {
-  ballNumber: number;
-  batsmanChoice: number;
-  bowlerChoice: number;
-  outcome: "runs" | "wicket";
-  runs: number;
-}
+import type { BallEvent } from "@shared/types/game";
+import { BALL_OUTCOME } from "@shared/constants/game-rules";
 
 interface BallHistoryProps {
-  balls: Ball[];
+  balls: BallEvent[];
 }
 
 function BallHistory({ balls }: BallHistoryProps) {
-  const getBallStyle = (ball: Ball) => {
-    if (ball.outcome === "wicket")
+  const getBallStyle = (ball: BallEvent) => {
+    if (ball.outcome === BALL_OUTCOME.OUT)
       return "bg-destructive text-destructive-foreground ring-2 ring-destructive/50";
     if (ball.runs === 4) return "bg-primary text-primary-foreground ring-2 ring-primary/50";
     if (ball.runs === 6)
@@ -42,7 +36,7 @@ function BallHistory({ balls }: BallHistoryProps) {
                     ball
                   )}`}
                 >
-                  {ball.outcome === "wicket" ? "W" : ball.runs}
+                  {ball.outcome === BALL_OUTCOME.OUT ? "W" : ball.runs}
                 </div>
               ))
           )}

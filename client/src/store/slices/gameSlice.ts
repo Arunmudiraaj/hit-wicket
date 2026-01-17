@@ -1,21 +1,47 @@
-// client/store/slices/gameSlice.ts
+/**
+ * Game Slice - Redux state for the current game
+ */
 
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ClientGameState, Inning, BallEvent, PlayerRole, GameResult } from '../../types';
+import type {
+  ClientGameState,
+  ConnectionStatus,
+  GameStatus
+} from '@shared/types/game';
+import type { PlayerRole } from '@shared/types/player';
+import { GAME_STATUS, ROLES } from '@shared/constants/game-rules';
 
 const initialState: ClientGameState = {
   gameId: '',
   players: ['', ''],
-  status: 'waiting',
+  status: GAME_STATUS.WAITING as GameStatus,
   innings: [],
-  currentInning: 0,
+  currentInningIndex: 0,
   totalInnings: 2,
   winner: undefined,
-  myRole: 'batsman',
-  opponent: '',
+  mode: {
+    id: 'default',
+    name: 'Quick Match',
+    description: '',
+    overs: 1,
+    ballsPerOver: 6,
+    wickets: 1,
+    isRanked: false,
+  },
+  createdAt: 0,
+
+  // Client-specific
+  myPlayerId: '',
+  myRole: ROLES.BATSMAN as PlayerRole,
+  opponentId: '',
   result: null,
-  currentBall: 0,
+  connectionStatus: 'connected' as ConnectionStatus,
+  opponentDisconnectedAt: undefined,
+  currentBallNumber: 1,
+  choiceDeadline: undefined,
+  hasSubmittedChoice: false,
+  opponentHasSubmittedChoice: false,
 };
 
 const gameSlice = createSlice({
@@ -24,12 +50,11 @@ const gameSlice = createSlice({
   reducers: {
     resetGame: () => initialState,
 
-    setGameState: (state, action: PayloadAction<ClientGameState>) => {
-      const next = action.payload;
-      return next; // keep simple; session slice handles lastGameId
+    setGameState: (_state, action: PayloadAction<ClientGameState>) => {
+      return action.payload;
     },
 
-    setStatus: (state, action: PayloadAction<ClientGameState['status']>) => {
+    setStatus: (state, action: PayloadAction<GameStatus>) => {
       state.status = action.payload;
     },
 
@@ -38,40 +63,43 @@ const gameSlice = createSlice({
     },
 
     setOpponent: (state, action: PayloadAction<string>) => {
-      state.opponent = action.payload;
+      state.opponentId = action.payload;
     },
 
-    setMatchId: (state, action: PayloadAction<string>) => {
+    setGameId: (state, action: PayloadAction<string>) => {
       state.gameId = action.payload;
     },
 
-    setResult: (state, action: PayloadAction<GameResult>) => {
-      state.result = action.payload;
+    setConnectionStatus: (state, action: PayloadAction<ConnectionStatus>) => {
+      state.connectionStatus = action.payload;
     },
 
-    setCurrentBall: (state, action: PayloadAction<number>) => {
-      state.currentBall = action.payload;
+    setOpponentDisconnectedAt: (state, action: PayloadAction<number | undefined>) => {
+      state.opponentDisconnectedAt = action.payload;
     },
 
-    addBallEvent: (state, action: PayloadAction<{ inningIndex: number; ball: BallEvent }>) => {
-      const { inningIndex, ball } = action.payload;
-      state.innings[inningIndex]?.balls.push(ball);
+    setChoiceDeadline: (state, action: PayloadAction<number | undefined>) => {
+      state.choiceDeadline = action.payload;
     },
 
-    updateInning: (state, action: PayloadAction<{ inningIndex: number; inning: Partial<Inning> }>) => {
-      const { inningIndex, inning } = action.payload;
-      state.innings[inningIndex] = {
-        ...state.innings[inningIndex],
-        ...inning,
-      };
+    setHasSubmittedChoice: (state, action: PayloadAction<boolean>) => {
+      state.hasSubmittedChoice = action.payload;
     },
 
-    addNewInning: (state, action: PayloadAction<Inning>) => {
-      state.innings.push(action.payload);
+    setOpponentHasSubmittedChoice: (state, action: PayloadAction<boolean>) => {
+      state.opponentHasSubmittedChoice = action.payload;
     },
 
-    setWinner: (state, action: PayloadAction<string>) => {
+    setCurrentBallNumber: (state, action: PayloadAction<number>) => {
+      state.currentBallNumber = action.payload;
+    },
+
+    setWinner: (state, action: PayloadAction<string | undefined>) => {
       state.winner = action.payload;
+    },
+
+    setResult: (state, action: PayloadAction<'win' | 'loss' | 'draw' | null>) => {
+      state.result = action.payload;
     },
   },
 });
@@ -82,13 +110,15 @@ export const {
   setStatus,
   setMyRole,
   setOpponent,
-  setMatchId,
-  setResult,
-  setCurrentBall,
-  addBallEvent,
-  updateInning,
-  addNewInning,
+  setGameId,
+  setConnectionStatus,
+  setOpponentDisconnectedAt,
+  setChoiceDeadline,
+  setHasSubmittedChoice,
+  setOpponentHasSubmittedChoice,
+  setCurrentBallNumber,
   setWinner,
+  setResult,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

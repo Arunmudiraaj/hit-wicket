@@ -1,48 +1,100 @@
-import { useEffect } from "react";
-import socket from "../socket/socket";
-import { useAppSelector, useAppDispatch } from "./useTypedRedux";
-import { emitRequestState } from "../socket/socketEmitters";
-import { setLastGameId } from "../store/slices/sessionSlice";
-import { SOCKET_EVENTS } from "../socket/events";
+/**
+ * useSocketConnection - Global socket connection hook
+ * Manages socket connection lifecycle and global event handlers
+ */
 
-export const useSocketConnection = () => {
+import { useEffect } from 'react';
+import socket from '../socket/socket';
+import { useAppSelector, useAppDispatch } from './useTypedRedux';
+import { emitRequestState } from '../socket/socketEmitters';
+import { setLastGameId, setPlayerId } from '../store/slices/sessionSlice';
+import { resetGame } from '../store/slices/gameSlice';
+import { SOCKET_EVENTS } from '@shared/constants/events';
+import {
+  handleGuestInit,
+  handleMatchFound,
+  handleGameStarted,
+  handleGameUpdate,
+  handleBallStarted,
+  handleWaitingForOpponent,
+  handleGameEnded,
+  handleOpponentDisconnected,
+  handleOpponentReconnected,
+  handleError,
+} from '../socket/socketHandlers';
+
+export const useSocketConnection = (): void => {
   const dispatch = useAppDispatch();
   const { playerId, lastGameId } = useAppSelector((s) => s.session);
 
   useEffect(() => {
-    if (!socket.connected) socket.connect();
+    // Connect if not connected
+    if (!socket.connected) {
+      // Pass playerId if we have one for reconnection
+      if (playerId) {
+        socket.auth = { guestId: playerId };
+      }
+      socket.connect();
+    }
 
-    const onConnect = () => {
-      // if we had an ongoing game, try to rejoin (reload/refresh)
+    // Connection events
+    const onConnect = (): void => {
+      console.log('Socket connected');
+
+      // If we had an ongoing game, try to rejoin
       if (lastGameId) {
-        emitRequestState(lastGameId, playerId);
+        emitRequestState(lastGameId);
       }
     };
 
-    const onGameEnded = () => {
-      dispatch(setLastGameId(null));
+    const onDisconnect = (): void => {
+      console.log('Socket disconnected');
     };
 
-    const onError = (err: any) => {
-      console.error("[socket error]", err);
+    // Guest init - store our player ID
+    const onGuestInit = (data: { guestId: string }): void => {
+      dispatch(setPlayerId(data.guestId));
+      handleGuestInit(data);
     };
 
-    socket.on(SOCKET_EVENTS.SOCKET_CONNECT, onConnect);
+    // Game ended - clear last game
+    const onGameEnded = (data: any): void => {
+      handleGameEnded(data);
+      // Keep lastGameId for a moment to allow viewing result
+      setTimeout(() => {
+        dispatch(setLastGameId(null));
+        dispatch(resetGame());
+      }, 5000);
+    };
+
+    // Attach listeners
+    socket.on(SOCKET_EVENTS.CONNECT, onConnect);
+    socket.on(SOCKET_EVENTS.DISCONNECT, onDisconnect);
+    socket.on(SOCKET_EVENTS.GUEST_INIT, onGuestInit);
+    socket.on(SOCKET_EVENTS.MATCH_FOUND, handleMatchFound);
+    socket.on(SOCKET_EVENTS.GAME_STARTED, handleGameStarted);
+    socket.on(SOCKET_EVENTS.GAME_UPDATE, handleGameUpdate);
+    socket.on(SOCKET_EVENTS.BALL_STARTED, handleBallStarted);
+    socket.on(SOCKET_EVENTS.WAITING_FOR_OPPONENT, handleWaitingForOpponent);
     socket.on(SOCKET_EVENTS.GAME_ENDED, onGameEnded);
-    socket.on(SOCKET_EVENTS.GAME_ERROR, onError);
-    socket.on(SOCKET_EVENTS.SOCKET_DISCONNECT, () => {
-      console.log("Socket disconnected");
-    });
+    socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
+    socket.on(SOCKET_EVENTS.OPPONENT_RECONNECTED, handleOpponentReconnected);
+    socket.on(SOCKET_EVENTS.ERROR, handleError);
 
-    // We do NOT disconnect on route change; only if app unmounts.
+    // Cleanup on unmount
     return () => {
-      socket.off(SOCKET_EVENTS.SOCKET_CONNECT, onConnect);
+      socket.off(SOCKET_EVENTS.CONNECT, onConnect);
+      socket.off(SOCKET_EVENTS.DISCONNECT, onDisconnect);
+      socket.off(SOCKET_EVENTS.GUEST_INIT, onGuestInit);
+      socket.off(SOCKET_EVENTS.MATCH_FOUND, handleMatchFound);
+      socket.off(SOCKET_EVENTS.GAME_STARTED, handleGameStarted);
+      socket.off(SOCKET_EVENTS.GAME_UPDATE, handleGameUpdate);
+      socket.off(SOCKET_EVENTS.BALL_STARTED, handleBallStarted);
+      socket.off(SOCKET_EVENTS.WAITING_FOR_OPPONENT, handleWaitingForOpponent);
       socket.off(SOCKET_EVENTS.GAME_ENDED, onGameEnded);
-      socket.off(SOCKET_EVENTS.GAME_ERROR, onError);
-
-      // Leave socket connected across pages; disconnect only on full app teardown/log out if you want.
-      // socket.disconnect();
-      
+      socket.off(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
+      socket.off(SOCKET_EVENTS.OPPONENT_RECONNECTED, handleOpponentReconnected);
+      socket.off(SOCKET_EVENTS.ERROR, handleError);
     };
   }, [dispatch, playerId, lastGameId]);
 };

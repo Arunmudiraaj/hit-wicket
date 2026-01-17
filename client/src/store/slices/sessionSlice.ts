@@ -20,6 +20,10 @@ const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
+    setPlayerId(state, action: PayloadAction<string>) {
+      state.playerId = action.payload;
+      storage.setPlayerId(action.payload);
+    },
     setPlayerName(state, action: PayloadAction<string>) {
       state.playerName = action.payload;
       storage.setPlayerName(action.payload);
@@ -32,5 +36,5 @@ const sessionSlice = createSlice({
   },
 });
 
-export const { setPlayerName, setLastGameId } = sessionSlice.actions;
+export const { setPlayerId, setPlayerName, setLastGameId } = sessionSlice.actions;
 export default sessionSlice.reducer;

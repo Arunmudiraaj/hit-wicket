@@ -53,7 +53,7 @@ export default function Home() {
       </Button>
 
       <Dialog open={findMatchLoading} onOpenChange={setFindMatchLoading}>
-        <DialogContent 
+        <DialogContent
           showCloseButton={false}
           className="bg-card border-border shadow-xl"
         >
@@ -63,10 +63,10 @@ export default function Home() {
           <DialogDescription className="text-muted-foreground text-sm">
             Please wait while we find an opponent for you
           </DialogDescription>
-          
+
           <div className="flex flex-col items-center gap-6 py-4">
             <CricketLoader />
-            
+
             <Button
               onClick={() => setFindMatchLoading(false)}
               variant="secondary"

@@ -1,0 +1,14 @@
+{
+    "name": "@hit-wicket/shared",
+    "version": "1.0.0",
+    "description": "Shared types, constants, and validation for Hit-Wicket game",
+    "main": "index.ts",
+    "type": "module",
+    "scripts": {},
+    "dependencies": {
+        "zod": "^3.24.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.8.3"
+    }
+}
