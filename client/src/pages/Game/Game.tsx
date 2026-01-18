@@ -11,13 +11,16 @@ import { emitSubmitChoice, emitLeaveGame } from '@/socket/socketEmitters';
 import { setHasSubmittedChoice } from '@/store/slices/gameSlice';
 import { GAME_STATUS, VALID_CHOICES } from '@shared/constants/game-rules';
 
-import StadiumBackground from './components/StadiumBackground';
-import TopBar from './components/TopBar';
-import Scoreboard from './components/Scoreboard';
-import BallHistory from './components/BallHistory';
-import ChoiceSelector from './components/ChoiceSelector';
-import PlayersInfo from './components/PlayersInfo';
-import EventPopup from './components/EventPopUp';
+import { RoleIndicator } from "./role-indicator"
+import { Scorecard } from "./scorecard"
+import { Timer } from "./timer"
+import { NumberSelection } from "./number-selection"
+import { BallHistory } from "./ball-history"
+import { PlayerCard } from "./player-card"
+import { BallResultOverlay } from "./ball-result-overlay"
+import { CommentaryPanel } from "./commentary-panel"
+import { Button } from "@/components/ui/button"
+import { Settings, LogOut } from "lucide-react"
 
 export default function Game() {
   const navigate = useNavigate();
@@ -128,58 +131,62 @@ export default function Game() {
     );
   };
 
-  return (
-    <div className="relative h-screen w-screen overflow-hidden">
-      <StadiumBackground />
-
-      {renderDisconnectedOverlay()}
-      {renderWaitingOverlay()}
-
-      <div className="relative h-full w-full overflow-hidden max-w-7xl mx-auto flex-col flex">
-        <TopBar
-          matchId={game.gameId}
-          currentInning={game.currentInningIndex}
-          totalInnings={game.totalInnings}
-          onLeaveGame={handleLeaveGame}
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 py-4">
-          {currentInning && (
-            <>
-              <Scoreboard
-                score={currentInning.score}
-                wicketsLost={currentInning.wicketsLost}
-                ballsPlayed={currentInning.ballsPlayed}
-                totalBalls={currentInning.totalBalls}
-                ballsLeft={currentInning.totalBalls - currentInning.ballsPlayed}
-              />
-              <BallHistory balls={currentInning.balls} />
-            </>
-          )}
+    return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between p-4 border-b border-border">
+        <RoleIndicator role={playerRole} />
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={onSettings}>
+            <Settings className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onQuit}>
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
+      </header>
 
-        <div className="mt-auto">
-          <PlayersInfo
-            myRole={game.myRole}
-            isMyTurn={!game.hasSubmittedChoice}
+      {/* Main Content */}
+      <main className="flex-1 p-4 flex flex-col gap-4 max-w-2xl mx-auto w-full">
+        {/* Players */}
+        <div className="grid grid-cols-2 gap-3">
+          <PlayerCard
+            player={gameState.player1}
+            role={player1Role}
+            isCurrentPlayer={currentPlayer.id === gameState.player1.id}
           />
-          <ChoiceSelector
-            choices={[...VALID_CHOICES]}
-            canPlay={canPlay}
-            isChoiceSubmitted={game.hasSubmittedChoice}
-            selectedChoice={selectedChoice}
-            onChoiceClick={handleChoiceClick}
-            onSubmit={handleSubmitChoice}
+          <PlayerCard
+            player={gameState.player2}
+            role={player2Role}
+            isCurrentPlayer={currentPlayer.id === gameState.player2.id}
           />
         </div>
 
-        {lastBallResult && (
-          <EventPopup
-            event={lastBallResult === 'out' ? 'OUT!' : 'RUNS!'}
-            onComplete={() => setLastBallResult(null)}
-          />
+        {/* Scorecard */}
+        <Scorecard innings={currentInnings} target={gameState.target} isChasing={isChasing} />
+
+        {/* Timer and Ball History */}
+        <div className="flex items-center justify-between gap-4">
+          <BallHistory history={currentInnings.ballHistory} />
+          <Timer duration={10} isPaused={isWaitingForOpponent} />
+        </div>
+
+        {/* Number Selection */}
+        <div className="flex-1 flex items-center justify-center py-4">
+          <NumberSelection onSelect={handleNumberSelect} disabled={isWaitingForOpponent} role={playerRole} />
+        </div>
+
+        {/* Commentary */}
+        <CommentaryPanel ballHistory={currentInnings.ballHistory} />
+
+        {/* Waiting indicator */}
+        {isWaitingForOpponent && (
+          <div className="text-center text-muted-foreground animate-pulse">Waiting for opponent...</div>
         )}
-      </div>
+      </main>
+
+      {/* Ball Result Overlay */}
+      {showResult && <BallResultOverlay result={lastBallResult} onComplete={handleResultComplete} />}
     </div>
-  );
+  )
 }

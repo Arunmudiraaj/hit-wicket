@@ -1,0 +1,92 @@
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Trophy, RotateCcw, Home, Share2 } from "lucide-react"
+import type { ClientGameState } from "@shared/types/game"
+
+type MatchSummaryProps = {
+  gameState: ClientGameState
+  onRematch: () => void
+  onExit: () => void
+}
+
+export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps) {
+  const isWinner = gameState.winner === gameState.myPlayerId
+  const isTie = gameState.winner === null
+  const opponent = gameState.opponentId
+
+  const resultText = isTie ? "It's a Tie!" : isWinner ? "Victory!" : "Defeat"
+  const resultColor = isTie ? "text-accent" : isWinner ? "text-primary" : "text-destructive"
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md bg-card rounded-2xl border border-border p-6 flex flex-col items-center gap-6">
+        {/* Result */}
+        <div className="flex flex-col items-center gap-2">
+          {isWinner && <Trophy className="w-16 h-16 text-accent animate-bounce" />}
+          <h1 className={cn("text-4xl font-bold", resultColor)}>{resultText}</h1>
+        </div>
+
+        {/* Players */}
+        <div className="w-full flex items-center justify-between gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar className="w-16 h-16 border-2 border-primary">
+              <AvatarImage src={"/placeholder.svg"} />
+              <AvatarFallback>YOU</AvatarFallback>
+            </Avatar>
+            <span className="font-semibold text-foreground">You</span>
+            <span className="text-2xl font-bold text-primary tabular-nums">
+              {gameState.innings[0]?.score}/{gameState.innings[0]?.wicketsLost}
+            </span>
+          </div>
+
+          <div className="text-2xl text-muted-foreground font-bold">VS</div>
+
+          <div className="flex flex-col items-center gap-2">
+            <Avatar className="w-16 h-16 border-2 border-border">
+              <AvatarImage src={"/placeholder.svg"} />
+              <AvatarFallback>OPP</AvatarFallback>
+            </Avatar>
+            <span className="font-semibold text-foreground">Opponent</span>
+            <span className="text-2xl font-bold text-muted-foreground tabular-nums">
+              {gameState.innings[1]?.score}/{gameState.innings[1]?.wicketsLost}
+            </span>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="w-full grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-xl">
+          <div className="flex flex-col items-center">
+            <span className="text-muted-foreground text-sm">Total Balls</span>
+            <span className="text-xl font-bold text-foreground tabular-nums">
+              {gameState.innings[0]?.ballsPlayed + gameState.innings[1]?.ballsPlayed}
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-muted-foreground text-sm">Total Runs</span>
+            <span className="text-xl font-bold text-foreground tabular-nums">
+              {gameState.innings[0]?.score + gameState.innings[1]?.score}
+            </span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="w-full flex flex-col gap-3">
+          <Button onClick={onRematch} className="w-full" size="lg">
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Rematch
+          </Button>
+          <Button onClick={onExit} variant="outline" className="w-full bg-transparent" size="lg">
+            <Home className="w-4 h-4 mr-2" />
+            Exit to Lobby
+          </Button>
+          <Button variant="ghost" className="w-full" size="lg">
+            <Share2 className="w-4 h-4 mr-2" />
+            Share Result
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

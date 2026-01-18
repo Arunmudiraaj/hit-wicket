@@ -1,49 +1,45 @@
-import { Card, CardContent } from "@/components/ui/card";
-import type { BallEvent } from "@shared/types/game";
-import { BALL_OUTCOME } from "@shared/constants/game-rules";
 
-interface BallHistoryProps {
-  balls: BallEvent[];
+import { cn } from "@/lib/utils"
+
+type BallHistoryProps = {
+  history: BallResult[]
+  className?: string
 }
 
-function BallHistory({ balls }: BallHistoryProps) {
-  const getBallStyle = (ball: BallEvent) => {
-    if (ball.outcome === BALL_OUTCOME.OUT)
-      return "bg-destructive text-destructive-foreground ring-2 ring-destructive/50";
-    if (ball.runs === 4) return "bg-primary text-primary-foreground ring-2 ring-primary/50";
-    if (ball.runs === 6)
-      return "bg-primary text-primary-foreground ring-2 ring-primary/50";
-    return "bg-accent text-accent-foreground ring-2 ring-accent/50";
-  };
+export function BallHistory({ history, className }: BallHistoryProps) {
+  const recentBalls = history.slice(-6)
 
   return (
-    <Card className="bg-card/80 backdrop-blur-md py-4">
-      <CardContent className="p-4">
-        <div className="text-sm mb-2 text-muted-foreground font-medium">
-          Recent Balls
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {balls.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No balls yet</div>
-          ) : (
-            balls
-              .slice(-8)
-              .reverse()
-              .map((ball) => (
-                <div
-                  key={ball.ballNumber}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${getBallStyle(
-                    ball
-                  )}`}
-                >
-                  {ball.outcome === BALL_OUTCOME.OUT ? "W" : ball.runs}
-                </div>
-              ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+    <div className={cn("flex flex-col gap-2", className)}>
+      <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Recent Balls</span>
+      <div className="flex items-center gap-2">
+        {recentBalls.length === 0 ? (
+          <span className="text-muted-foreground text-sm">No balls yet</span>
+        ) : (
+          recentBalls.map((ball, idx) => (
+            <div
+              key={idx}
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm",
+                "transition-all duration-300",
+                ball.isOut
+                  ? "bg-destructive/20 text-destructive border-2 border-destructive animate-out-shake"
+                  : ball.runs === 0
+                    ? "bg-muted text-muted-foreground border border-border"
+                    : ball.runs === 4 || ball.runs === 5
+                      ? "bg-primary/20 text-primary border-2 border-primary animate-score-pop"
+                      : "bg-primary/10 text-primary border border-primary/50",
+              )}
+            >
+              {ball.isOut ? "W" : ball.runs}
+            </div>
+          ))
+        )}
+        {/* Empty placeholders */}
+        {Array.from({ length: Math.max(0, 6 - recentBalls.length) }).map((_, idx) => (
+          <div key={`empty-${idx}`} className="w-10 h-10 rounded-full border border-dashed border-border" />
+        ))}
+      </div>
+    </div>
+  )
 }
-
-export default BallHistory;
