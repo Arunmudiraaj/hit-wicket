@@ -49,10 +49,10 @@ export default function Home() {
           <span className="font-bold text-xl text-foreground">Hitwicket</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onProfile}>
+          <Button variant="ghost" size="icon" onClick={() => {}}>
             <User className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={onSettings}>
+          <Button variant="ghost" size="icon" onClick={() => {}}>
             <Settings className="w-5 h-5" />
           </Button>
         </div>
@@ -63,7 +63,7 @@ export default function Home() {
         <div className="flex items-center justify-center gap-2 py-4">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           <span className="text-muted-foreground">
-            <span className="text-foreground font-semibold tabular-nums">{onlinePlayers.toLocaleString()}</span> players
+            <span className="text-foreground font-semibold tabular-nums">{3}</span> players
             online
           </span>
         </div>
@@ -71,8 +71,8 @@ export default function Home() {
         {/* Play Options */}
         <div className="flex flex-col gap-4">
           {/* Random Match */}
-          <Button onClick={handleRandomMatch} disabled={isSearching} className="w-full h-16 text-lg" size="lg">
-            {isSearching ? (
+          <Button onClick={handlePlayNewGame} disabled={findMatchLoading} className="w-full h-16 text-lg" size="lg">
+            {findMatchLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Finding opponent...
@@ -95,11 +95,11 @@ export default function Home() {
             <div className="flex gap-2">
               <Input
                 placeholder="Enter invite code"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
+                value={"34532"}
+                onChange={(e) => { }}
                 className="flex-1"
               />
-              <Button onClick={handleJoinWithCode} disabled={!inviteCode.trim()}>
+              <Button onClick={() => { }} disabled={false}>
                 Join
               </Button>
             </div>
@@ -125,11 +125,11 @@ export default function Home() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={onLeaderboard}>
+          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => { }}>
             <Trophy className="w-6 h-6 text-accent" />
             <span>Leaderboard</span>
           </Button>
-          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={onProfile}>
+          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => { }}>
             <User className="w-6 h-6 text-primary" />
             <span>My Profile</span>
           </Button>
@@ -143,13 +143,7 @@ export default function Home() {
               <button
                 key={i}
                 className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors min-w-[80px]"
-                onClick={() =>
-                  onStartGame({
-                    id: `recent${i}`,
-                    name: `Player${i}`,
-                    avatar: `/placeholder.svg?height=64&width=64&query=player ${i}`,
-                    isOnline: Math.random() > 0.5,
-                  })
+                onClick={() => ({})
                 }
               >
                 <Avatar className="w-12 h-12">

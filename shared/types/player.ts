@@ -6,18 +6,14 @@ import type { ROLES } from '../constants/game-rules';
 
 export type PlayerRole = (typeof ROLES)[keyof typeof ROLES];
 
-export interface GuestPlayer {
-    guestId: string;
-    socketId?: string;
-}
-
-export interface AuthenticatedPlayer {
+export interface Player {
     userId: string;
-    username: string;
+    userName: string;
     socketId?: string;
+    profilePicture?: string;
+    isOnline?: boolean;
 }
 
-export type Player = GuestPlayer | AuthenticatedPlayer;
 
 /**
  * Check if a player is authenticated

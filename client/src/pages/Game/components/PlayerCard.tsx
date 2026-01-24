@@ -1,6 +1,7 @@
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import type { Player, PlayerRole } from "@shared/types/player"
 
 type PlayerCardProps = {
   player: Player
@@ -19,20 +20,20 @@ export function PlayerCard({ player, role, isCurrentPlayer, className }: PlayerC
       )}
     >
       <Avatar className="w-12 h-12 border-2 border-border">
-        <AvatarImage src={player.avatar || "/placeholder.svg"} alt={player.name} />
+        <AvatarImage src={player.profilePicture || "/placeholder.svg"} alt={player.userName} />
         <AvatarFallback className="bg-muted text-muted-foreground">
-          {player.name.slice(0, 2).toUpperCase()}
+          {player.userName.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
-        <span className="font-semibold text-foreground">{isCurrentPlayer ? "You" : player.name}</span>
+        <span className="font-semibold text-foreground">{isCurrentPlayer ? "You" : player.userName}</span>
         <span
           className={cn(
             "text-xs font-medium uppercase tracking-wider",
-            role === "batting" ? "text-primary" : "text-accent",
+            role === "batter" ? "text-primary" : "text-accent",
           )}
         >
-          {role === "batting" ? "Batting" : "Bowling"}
+          {role === "batter" ? "Batting" : "Bowling"}
         </span>
       </div>
       {player.isOnline && <span className="ml-auto w-2 h-2 rounded-full bg-primary" />}

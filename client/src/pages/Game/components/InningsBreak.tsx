@@ -20,16 +20,21 @@ export function InningsBreak({ gameState, onContinue }: InningsBreakProps) {
         <div className="w-full bg-muted/50 rounded-xl p-4 flex flex-col items-center gap-2">
           <span className="text-muted-foreground text-sm">First Innings Score</span>
           <span className="text-4xl font-bold text-foreground tabular-nums">
-            {gameState.innings[0]?.score}/{gameState.innings?.[0]?.wicketsLost}
+            {/* {gameState.innings[0]?.score}/{gameState.innings?.[0]?.wicketsLost} */}
+            12/3
           </span>
           <span className="text-sm text-muted-foreground">
-            in {Math.floor(gameState.innings[0]?.ballsPlayed / 6)}.{gameState.innings[0]?.ballsPlayed % 6} overs
+            {/* in {Math.floor(gameState.innings[0]?.ballsPlayed / 6)}.{gameState.innings[0]?.ballsPlayed % 6} overs */}
+            in 6.2 overs
           </span>
         </div>
 
         <div className="w-full bg-primary/10 rounded-xl p-4 flex flex-col items-center gap-2 border border-primary/30">
           <span className="text-primary text-sm font-medium">Target</span>
-          <span className="text-4xl font-bold text-primary tabular-nums">{gameState.innings[1]?.score}</span>
+          <span className="text-4xl font-bold text-primary tabular-nums">
+            {/* {gameState.innings[1]?.score} */}
+            43
+            </span>
           <span className="text-sm text-muted-foreground">runs needed to win</span>
         </div>
 

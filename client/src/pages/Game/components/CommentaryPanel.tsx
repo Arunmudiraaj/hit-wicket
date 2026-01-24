@@ -2,14 +2,15 @@
 import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import type { BallEvent } from "@shared/types/game"
 
 type CommentaryPanelProps = {
-  ballHistory: BallResult[]
+  ballHistory: BallEvent[]
   className?: string
 }
 
-const generateCommentary = (ball: BallResult, ballNumber: number): string => {
-  if (ball.isOut) {
+const generateCommentary = (ball: BallEvent, ballNumber: number): string => {
+  if (ball.outcome === "out") {
     return `Ball ${ballNumber}: OUT! Both chose ${ball.batterChoice}. The batter is dismissed!`
   }
   if (ball.runs === 0) {
@@ -22,6 +23,7 @@ const generateCommentary = (ball: BallResult, ballNumber: number): string => {
 }
 
 export function CommentaryPanel({ ballHistory, className }: CommentaryPanelProps) {
+  ballHistory = []
   const [isExpanded, setIsExpanded] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -55,7 +57,7 @@ export function CommentaryPanel({ ballHistory, className }: CommentaryPanelProps
                 key={idx}
                 className={cn(
                   "text-sm",
-                  ball.isOut
+                  ball.outcome === "out"
                     ? "text-destructive font-semibold"
                     : ball.runs >= 4
                       ? "text-primary font-medium"

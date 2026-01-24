@@ -4,10 +4,20 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Trophy, Medal } from "lucide-react"
-import type { LeaderboardEntry } from "@/lib/game-types"
 
 type LeaderboardScreenProps = {
   onBack: () => void
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  username: string;
+  avatar: string;
+  matchesPlayed: number;
+  wins: number;
+  winPercentage: number;
+  isCurrentUser?: boolean;
 }
 
 const mockLeaderboard: LeaderboardEntry[] = [

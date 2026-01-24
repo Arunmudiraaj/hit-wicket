@@ -1,5 +1,6 @@
 
 import { cn } from "@/lib/utils"
+import type { BallResult } from "@shared/types/game"
 
 type BallHistoryProps = {
   history: BallResult[]
@@ -7,7 +8,7 @@ type BallHistoryProps = {
 }
 
 export function BallHistory({ history, className }: BallHistoryProps) {
-  const recentBalls = history.slice(-6)
+  const recentBalls = [] // history.slice(-6)
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>

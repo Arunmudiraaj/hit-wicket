@@ -1,6 +1,7 @@
 export const APP_ROUTES = {
     ABOUT: { path: '/about', label: 'About' },
     LEADERBOARD: { path: '/leaderboard', label: 'Leaderboard' },
+    SETTINGS: { path: '/settings', label: 'Settings' },
 }
 
 export const EXTRA_ROUTES = {

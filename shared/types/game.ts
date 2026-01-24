@@ -20,7 +20,7 @@ export type GameResult = (typeof GAME_RESULT)[keyof typeof GAME_RESULT] | null;
 
 export interface BallEvent {
     ballNumber: number;
-    batsmanChoice: number;
+    batterChoice: number;
     bowlerChoice: number;
     outcome: BallOutcome;
     runs: number;
@@ -36,7 +36,7 @@ export interface Inning {
     wicketsLost: number;
     totalWickets: number;
     isAllOut: boolean;
-    isComplete: boolean;
+    isCompleted: boolean;
 }
 
 // ============================================
@@ -139,6 +139,6 @@ export function createInning(
         wicketsLost: 0,
         totalWickets: mode.wickets,
         isAllOut: false,
-        isComplete: false,
+        isCompleted: false,
     };
 }

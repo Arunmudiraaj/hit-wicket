@@ -2,7 +2,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import sessionReducer from './slices/sessionSlice';
 import gameReducer from './slices/gameSlice';
-// Add more slices here as needed
 
 export const store = configureStore({
   reducer: {

@@ -1,7 +1,17 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Edit2, Trophy, Target, Zap } from "lucide-react"
-import type { UserStats } from "@/lib/game-types"
+
+export interface UserStats {
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  highestScore: number;
+  averageRuns: number;
+  strikeRate: number;
+  wicketsTaken: number;
+  economyRate: number;
+}
 
 type ProfileScreenProps = {
   onBack: () => void

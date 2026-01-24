@@ -1,10 +1,10 @@
-"use client"
 
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import type { BallEvent } from "@shared/types/game"
 
 type BallResultOverlayProps = {
-  result: BallResult | null
+  result: BallEvent | null
   onComplete?: () => void
 }
 
@@ -29,16 +29,16 @@ export function BallResultOverlay({ result, onComplete }: BallResultOverlayProps
       <div
         className={cn(
           "flex flex-col items-center gap-4 p-8 rounded-2xl",
-          result.isOut
+          result.outcome === "out"
             ? "bg-destructive/20 border-2 border-destructive animate-out-shake"
             : "bg-primary/20 border-2 border-primary animate-score-pop",
         )}
       >
         <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">
-          {result.isOut ? "Matched!" : "Safe!"}
+          {result.outcome === "out" ? "Matched!" : "Safe!"}
         </div>
-        <div className={cn("text-6xl font-bold", result.isOut ? "text-destructive" : "text-primary")}>
-          {result.isOut ? "OUT!" : `+${result.runs}`}
+        <div className={cn("text-6xl font-bold", result.outcome === "out" ? "text-destructive" : "text-primary")}>
+          {result.outcome === "out" ? "OUT!" : `+${result.runs}`}
         </div>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span>Batter: {result.batterChoice}</span>

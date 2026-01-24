@@ -10,8 +10,8 @@ type ScorecardProps = {
 }
 
 export function Scorecard({ innings, target, isChasing, className }: ScorecardProps) {
-  const oversDisplay = `${Math.floor(innings.balls / 6)}.${innings.balls % 6}`
-  const runsNeeded = target ? target - innings.runs : null
+  const oversDisplay = 0 // `${Math.floor(innings.ballsPlayed / 6)}.${innings.ballsPlayed % 6}`
+  const runsNeeded = 99 // target ? target - innings.score : null
 
   return (
     <div className={cn("bg-card rounded-xl p-4 border border-border", className)}>
@@ -23,9 +23,15 @@ export function Scorecard({ innings, target, isChasing, className }: ScorecardPr
       </div>
 
       <div className="flex items-baseline gap-2 mb-4">
-        <span className="text-5xl font-bold text-foreground tabular-nums">{innings.runs}</span>
+        <span className="text-5xl font-bold text-foreground tabular-nums">
+          {/* {innings.score} */}
+          76
+        </span>
         <span className="text-2xl text-muted-foreground">/</span>
-        <span className="text-2xl text-destructive font-semibold">{innings.wickets}</span>
+        <span className="text-2xl text-destructive font-semibold">
+          {/* {innings.wicketsLost} */}
+          4
+          </span>
       </div>
 
       <div className="flex items-center justify-between text-sm">
@@ -36,7 +42,7 @@ export function Scorecard({ innings, target, isChasing, className }: ScorecardPr
           </div>
           <div>
             <span className="text-muted-foreground">Balls: </span>
-            <span className="text-foreground font-semibold tabular-nums">{innings.balls}/30</span>
+            <span className="text-foreground font-semibold tabular-nums">{8}/30</span>
           </div>
         </div>
         {isChasing && runsNeeded !== null && runsNeeded > 0 && (

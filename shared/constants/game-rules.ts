@@ -14,7 +14,7 @@ export const GAME_STATUS = {
 } as const;
 
 export const ROLES = {
-    BATSMAN: 'batsman',
+    BATSMAN: 'batter',
     BOWLER: 'bowler',
 } as const;
 

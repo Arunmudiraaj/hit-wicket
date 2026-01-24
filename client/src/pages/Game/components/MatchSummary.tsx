@@ -37,7 +37,8 @@ export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps
             </Avatar>
             <span className="font-semibold text-foreground">You</span>
             <span className="text-2xl font-bold text-primary tabular-nums">
-              {gameState.innings[0]?.score}/{gameState.innings[0]?.wicketsLost}
+              {/* {gameState.innings[0]?.score}/{gameState.innings[0]?.wicketsLost} */}
+              12/3
             </span>
           </div>
 
@@ -50,7 +51,8 @@ export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps
             </Avatar>
             <span className="font-semibold text-foreground">Opponent</span>
             <span className="text-2xl font-bold text-muted-foreground tabular-nums">
-              {gameState.innings[1]?.score}/{gameState.innings[1]?.wicketsLost}
+              {/* {gameState.innings[1]?.score}/{gameState.innings[1]?.wicketsLost} */}
+              42/3
             </span>
           </div>
         </div>
@@ -60,13 +62,15 @@ export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground text-sm">Total Balls</span>
             <span className="text-xl font-bold text-foreground tabular-nums">
-              {gameState.innings[0]?.ballsPlayed + gameState.innings[1]?.ballsPlayed}
+              {/* {gameState.innings[0]?.ballsPlayed + gameState.innings[1]?.ballsPlayed} */}
+              6
             </span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground text-sm">Total Runs</span>
             <span className="text-xl font-bold text-foreground tabular-nums">
-              {gameState.innings[0]?.score + gameState.innings[1]?.score}
+              {/* {gameState.innings[0]?.score + gameState.innings[1]?.score} */}
+              54
             </span>
           </div>
         </div>

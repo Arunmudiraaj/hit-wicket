@@ -9,16 +9,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/hooks/useTypedRedux';
 import { emitSubmitChoice, emitLeaveGame } from '@/socket/socketEmitters';
 import { setHasSubmittedChoice } from '@/store/slices/gameSlice';
-import { GAME_STATUS, VALID_CHOICES } from '@shared/constants/game-rules';
+import { GAME_STATUS } from '@shared/constants/game-rules';
 
-import { RoleIndicator } from "./role-indicator"
-import { Scorecard } from "./scorecard"
-import { Timer } from "./timer"
-import { NumberSelection } from "./number-selection"
-import { BallHistory } from "./ball-history"
-import { PlayerCard } from "./player-card"
-import { BallResultOverlay } from "./ball-result-overlay"
-import { CommentaryPanel } from "./commentary-panel"
+import { RoleIndicator } from "./components/RoleIndicator"
+import { Scorecard } from "./components/Scorecard"
+import { Timer } from "./components/Timer"
+import { NumberSelection } from "./components/NumberSelection"
+import { BallHistory } from "./components/BallHistory"
+import { PlayerCard } from "./components/PlayerCard"
+import { BallResultOverlay } from "./components/BallResultOverlay"
+import { CommentaryPanel } from "./components/CommentaryPanel"
 import { Button } from "@/components/ui/button"
 import { Settings, LogOut } from "lucide-react"
 
@@ -54,8 +54,8 @@ export default function Game() {
 
   // Detect ball completion for popup
   useEffect(() => {
-    if (currentInning && currentInning.balls.length > 0) {
-      const lastBall = currentInning.balls[currentInning.balls.length - 1];
+    if (currentInning && currentInning?.balls.length > 0) {
+      const lastBall = currentInning?.balls[currentInning.balls.length - 1];
       setLastBallResult(lastBall.outcome as 'out' | 'run');
 
       // Clear popup after delay
@@ -86,10 +86,9 @@ export default function Game() {
   };
 
   // Show loading if no game data
-  if (!game.gameId) {
+  if (false) {
     return (
       <div className="relative h-screen w-screen overflow-hidden flex items-center justify-center">
-        <StadiumBackground />
         <div className="relative z-10 text-white text-xl">
           Loading game...
         </div>
@@ -135,12 +134,12 @@ export default function Game() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border">
-        <RoleIndicator role={playerRole} />
+        <RoleIndicator role={game.myRole} />
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onSettings}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
             <Settings className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={onQuit}>
+          <Button variant="ghost" size="icon" onClick={handleLeaveGame}>
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
@@ -151,42 +150,45 @@ export default function Game() {
         {/* Players */}
         <div className="grid grid-cols-2 gap-3">
           <PlayerCard
-            player={gameState.player1}
-            role={player1Role}
-            isCurrentPlayer={currentPlayer.id === gameState.player1.id}
+            player={{userId:"sdgsd", userName:"Arun"}}
+            role={game.myRole}
+            isCurrentPlayer={true}
           />
           <PlayerCard
-            player={gameState.player2}
-            role={player2Role}
-            isCurrentPlayer={currentPlayer.id === gameState.player2.id}
+            player={{userId:"sdgsd", userName:"Arun opponent"}}
+            role={game.myRole}
+            isCurrentPlayer={false}
           />
         </div>
 
         {/* Scorecard */}
-        <Scorecard innings={currentInnings} target={gameState.target} isChasing={isChasing} />
+        <Scorecard innings={game.innings[game.currentInningIndex]} target={game.totalInnings} isChasing={false} />
 
         {/* Timer and Ball History */}
         <div className="flex items-center justify-between gap-4">
-          <BallHistory history={currentInnings.ballHistory} />
-          <Timer duration={10} isPaused={isWaitingForOpponent} />
+          <BallHistory history={game.innings[game.currentInningIndex]?.balls} />
+          <Timer duration={10} isPaused={game.hasSubmittedChoice} />
         </div>
 
         {/* Number Selection */}
         <div className="flex-1 flex items-center justify-center py-4">
-          <NumberSelection onSelect={handleNumberSelect} disabled={isWaitingForOpponent} role={playerRole} />
+          <NumberSelection onSelect={(choice) => {
+            setSelectedChoice(choice);
+            handleSubmitChoice();
+          }} disabled={game.hasSubmittedChoice} role={game.myRole} />
         </div>
 
         {/* Commentary */}
-        <CommentaryPanel ballHistory={currentInnings.ballHistory} />
+        <CommentaryPanel ballHistory={game.innings[game.currentInningIndex]?.balls} />
 
         {/* Waiting indicator */}
-        {isWaitingForOpponent && (
+        {!game.opponentHasSubmittedChoice && (
           <div className="text-center text-muted-foreground animate-pulse">Waiting for opponent...</div>
         )}
       </main>
 
       {/* Ball Result Overlay */}
-      {showResult && <BallResultOverlay result={lastBallResult} onComplete={handleResultComplete} />}
+      {game.hasSubmittedChoice && <BallResultOverlay result={game.innings[game.currentInningIndex]?.balls[3]} onComplete={() => {}} />}
     </div>
   )
 }

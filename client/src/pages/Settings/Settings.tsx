@@ -1,24 +1,35 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Volume2, VolumeX, Sparkles, Moon, Sun, HelpCircle, LogOut, User } from "lucide-react"
 
-type SettingsScreenProps = {
-  onBack: () => void
-}
-
-export function SettingsScreen({ onBack }: SettingsScreenProps) {
+export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [animationsEnabled, setAnimationsEnabled] = useState(true)
+  const [theme, setThemeState] = useState("dark")
+  const isDarkMode = theme === "dark"
+
+  useEffect(() => {
+    // Apply theme class to document
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+    // Persist to localStorage
+    localStorage.setItem("hitwicket-theme", theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setThemeState((prev) => (prev === "dark" ? "light" : "dark"))
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center gap-4 p-4 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+        <Button variant="ghost" size="icon">
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold text-foreground">Settings</h1>
@@ -54,7 +65,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
               <Switch id="animations" checked={animationsEnabled} onCheckedChange={setAnimationsEnabled} />
             </div>
 
-            {/* <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {isDarkMode ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-accent" />}
                 <Label htmlFor="darkMode" className="text-foreground">
@@ -62,7 +73,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
                 </Label>
               </div>
               <Switch id="darkMode" checked={isDarkMode} onCheckedChange={toggleTheme} />
-            </div> */}
+            </div>
           </div>
         </div>
 

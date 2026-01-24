@@ -25,7 +25,7 @@ export default function Result() {
 
   const getResultContent = () => {
     switch (myResult) {
-      case "won":
+      case "win":
         return {
           emoji: "🎉",
           title: "Victory!",
@@ -33,7 +33,7 @@ export default function Result() {
           bgClass: "bg-success/10 border-success/20",
           textClass: "text-success"
         };
-      case "lost":
+      case "loss":
         return {
           emoji: "😿",
           title: "Defeat",
@@ -41,7 +41,7 @@ export default function Result() {
           bgClass: "bg-destructive/10 border-destructive/20",
           textClass: "text-destructive"
         };
-      case "tie":
+      case "draw":
         return {
           emoji: "🤝",
           title: "Draw",

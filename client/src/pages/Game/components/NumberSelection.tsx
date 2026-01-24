@@ -1,6 +1,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import type { PlayerRole } from "@shared/types/player"
 
 type NumberSelectionProps = {
   onSelect: (num: number) => void
@@ -25,7 +26,7 @@ export function NumberSelection({ onSelect, disabled, role, className }: NumberS
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
       <p className="text-muted-foreground text-sm font-medium uppercase tracking-wider">
-        {role === "batting" ? "Choose your runs" : "Bowl a number"}
+        {role === "batter" ? "Choose your runs" : "Bowl a number"}
       </p>
       <div className="flex items-center gap-3">
         {NUMBERS.map((num) => (
@@ -39,7 +40,7 @@ export function NumberSelection({ onSelect, disabled, role, className }: NumberS
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
               disabled && "opacity-50 cursor-not-allowed",
               selectedNumber === num && "scale-110",
-              role === "batting"
+              role === "batter"
                 ? "bg-primary/10 border-primary text-primary hover:bg-primary/20 active:bg-primary active:text-primary-foreground"
                 : "bg-accent/10 border-accent text-accent hover:bg-accent/20 active:bg-accent active:text-accent-foreground",
             )}
