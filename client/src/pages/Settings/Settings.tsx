@@ -3,26 +3,31 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Volume2, VolumeX, Sparkles, Moon, Sun, HelpCircle, LogOut, User } from "lucide-react"
+import { useAppSelector } from "@/hooks/useTypedRedux"
+import { THEME } from "@/constants/constants"
+import { useDispatch } from "react-redux"
+import { toggleTheme } from "@/store/slices/themeSlice"
 
 export default function SettingsScreen() {
+  const dispatch = useDispatch()
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [animationsEnabled, setAnimationsEnabled] = useState(true)
-  const [theme, setThemeState] = useState("dark")
-  const isDarkMode = theme === "dark"
+  const theme = useAppSelector((state: { theme: { mode: string } }) => state.theme.mode);
+  const isDarkMode = theme === THEME.DARK
 
   useEffect(() => {
     // Apply theme class to document
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark")
+    if (theme === THEME.DARK) {
+      document.documentElement.classList.add(THEME.DARK)
     } else {
-      document.documentElement.classList.remove("dark")
+      document.documentElement.classList.remove(THEME.DARK)
     }
     // Persist to localStorage
-    localStorage.setItem("hitwicket-theme", theme)
+    localStorage.setItem(THEME.STORAGE_KEY, theme)
   }, [theme])
 
-  const toggleTheme = () => {
-    setThemeState((prev) => (prev === "dark" ? "light" : "dark"))
+  const toggleThemeHandler = () => {
+    dispatch(toggleTheme())
   }
 
   return (
@@ -72,7 +77,7 @@ export default function SettingsScreen() {
                   Dark Mode
                 </Label>
               </div>
-              <Switch id="darkMode" checked={isDarkMode} onCheckedChange={toggleTheme} />
+              <Switch id="darkMode" checked={isDarkMode} onCheckedChange={toggleThemeHandler} />
             </div>
           </div>
         </div>
