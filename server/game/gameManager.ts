@@ -26,9 +26,9 @@ import {
   ChoiceTimers
 } from '../../shared/types/game.js';
 import { PlayerRole } from '../../shared/types/player.js';
-import { SOCKET_EVENTS } from '../../shared/constants/events.js';
-import { TIMEOUTS, ROLES, GAME_STATUS } from '../../shared/constants/game-rules.js';
-import { getDefaultGameMode } from '../../shared/constants/game-modes.js';
+import { SOCKET_EVENTS } from '../../shared/constants/socketEvents.js';
+import { TIMEOUTS, ROLES, GAME_STATUS } from '../../shared/constants/game.js';
+import { getDefaultGameMode } from '../constants/constants.js';
 import {
   MatchFoundPayload,
   GameStartedPayload,

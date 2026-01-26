@@ -5,7 +5,7 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import socketHandlers from './socketHandlers.js';
-import { SOCKET_EVENTS } from '../../shared/constants/events.js';
+import { SOCKET_EVENTS } from '../../shared/constants/socketEvents.js';
 import { setIO } from '../game/gameManager.js';
 
 let io: SocketIOServer;

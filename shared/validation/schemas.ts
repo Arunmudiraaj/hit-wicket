@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { VALID_CHOICES } from '../constants/game-rules.js';
+import { VALID_CHOICES } from '../constants/game.js';
 
 // ============================================
 // Choice Validation

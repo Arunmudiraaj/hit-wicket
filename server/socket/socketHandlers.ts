@@ -6,7 +6,7 @@
  */
 
 import { Server, Socket } from 'socket.io';
-import { SOCKET_EVENTS } from '../../shared/constants/events.js';
+import { SOCKET_EVENTS } from '../../shared/constants/socketEvents.js';
 import {
   SubmitChoiceSchema,
   LeaveGameSchema,

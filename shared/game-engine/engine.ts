@@ -7,9 +7,9 @@
  */
 
 import type { GameState, BallEvent, Inning, GameEndReason, createInning } from '../types/game.js';
-import type { GameMode, getDefaultGameMode } from '../constants/game-modes.js';
+import type { GameMode, getDefaultGameMode } from '../../server/constants/constants.js';
 import type { EngineResult, GameEvent, EngineBallPlayedEvent, EngineWicketFallenEvent, EngineInningEndedEvent, EngineRolesSwappedEvent, EngineGameEndedEvent, EnginePlayerForfeitEvent, EnginePlayerTimeoutEvent } from './types.js';
-import { BALL_OUTCOME, GAME_STATUS } from '../constants/game-rules.js';
+import { BALL_OUTCOME, GAME_STATUS } from '../constants/game.js';
 
 // ============================================
 // Game Creation

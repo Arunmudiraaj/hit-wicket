@@ -1,5 +1,5 @@
 /**
- * Game Rules Constants - Single source of truth for game rules
+ * Game Rules Constants - Single source of truth for game
  */
 
 export const BALL_OUTCOME = {

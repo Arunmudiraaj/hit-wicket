@@ -1,17 +1,5 @@
-/**
- * Game Mode Configurations
- * Each mode defines the rules for a match type
- */
+import { GameMode } from "types/types.js";
 
-export interface GameMode {
-    id: string;
-    name: string;
-    description: string;
-    overs: number;
-    ballsPerOver: number;
-    wickets: number;
-    isRanked: boolean;
-}
 
 export const GAME_MODES: Record<string, GameMode> = {
     DEFAULT: {

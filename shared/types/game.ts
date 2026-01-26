@@ -2,9 +2,10 @@
  * Game Types - Core game state types used by both client and server
  */
 
-import type { BALL_OUTCOME, GAME_STATUS, GAME_RESULT } from '../constants/game-rules';
-import type { PlayerRole } from './player';
-import type { GameMode } from '../constants/game-modes';
+import type { BALL_OUTCOME, GAME_STATUS, GAME_RESULT } from '../constants/game';
+import type { GameMode } from '../../server/constants/constants';
+import type { ROLES } from '../constants/game';
+
 
 // ============================================
 // Core Types
@@ -118,6 +119,16 @@ export interface DisconnectedPlayer {
 export interface ChoiceTimers {
     batsmanTimer?: ReturnType<typeof setTimeout>;
     bowlerTimer?: ReturnType<typeof setTimeout>;
+}
+
+export type PlayerRole = (typeof ROLES)[keyof typeof ROLES];
+
+export interface Player {
+    userId: string;
+    userName: string;
+    socketId?: string;
+    profilePicture?: string;
+    isOnline?: boolean;
 }
 
 // ============================================
