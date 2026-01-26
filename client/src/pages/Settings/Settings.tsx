@@ -51,7 +51,7 @@ export default function SettingsScreen() {
                 {soundEnabled ? (
                   <Volume2 className="w-5 h-5 text-primary" />
                 ) : (
-                  <VolumeX className="w-5 h-5 text-muted-foreground" />
+                  <VolumeX className="w-5 h-5 text-primary" />
                 )}
                 <Label htmlFor="sound" className="text-foreground">
                   Sound Effects
@@ -62,7 +62,7 @@ export default function SettingsScreen() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-accent" />
+                <Sparkles className="w-5 h-5 text-primary" />
                 <Label htmlFor="animations" className="text-foreground">
                   Animations
                 </Label>
@@ -72,7 +72,7 @@ export default function SettingsScreen() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {isDarkMode ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-accent" />}
+                {isDarkMode ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
                 <Label htmlFor="darkMode" className="text-foreground">
                   Dark Mode
                 </Label>

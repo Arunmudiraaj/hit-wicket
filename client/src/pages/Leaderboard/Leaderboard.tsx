@@ -4,10 +4,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Trophy, Medal } from "lucide-react"
-
-type LeaderboardScreenProps = {
-  onBack: () => void
-}
+import { useNavigate } from "react-router-dom"
 
 export interface LeaderboardEntry {
   rank: number;
@@ -98,8 +95,9 @@ const mockLeaderboard: LeaderboardEntry[] = [
 
 type FilterType = "all" | "weekly" | "monthly"
 
-export function LeaderboardScreen({ onBack }: LeaderboardScreenProps) {
+export default function LeaderboardScreen() {
   const [filter, setFilter] = useState<FilterType>("all")
+  const navigate = useNavigate();
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="w-5 h-5 text-accent" />
@@ -112,7 +110,7 @@ export function LeaderboardScreen({ onBack }: LeaderboardScreenProps) {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center gap-4 p-4 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold text-foreground">Leaderboard</h1>

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Edit2, Trophy, Target, Zap } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 export interface UserStats {
   matchesPlayed: number;
@@ -11,10 +12,6 @@ export interface UserStats {
   strikeRate: number;
   wicketsTaken: number;
   economyRate: number;
-}
-
-type ProfileScreenProps = {
-  onBack: () => void
 }
 
 const mockStats: UserStats = {
@@ -28,14 +25,15 @@ const mockStats: UserStats = {
   economyRate: 6.8,
 }
 
-export function ProfileScreen({ onBack }: ProfileScreenProps) {
+export default function ProfileScreen() {
   const winRate = ((mockStats.wins / mockStats.matchesPlayed) * 100).toFixed(1)
+  const navigate = useNavigate()
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center gap-4 p-4 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold text-foreground">Profile</h1>

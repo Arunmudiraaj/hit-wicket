@@ -18,6 +18,7 @@ export default function Home() {
   const handlePlayNewGame = () => {
     setFindMatchLoading(true);
     emitPlayNewGame(playerId);
+    navigate(`/game/32`);
   };
 
   const gameStartHandler = (game: { gameId: string }) => {
@@ -49,10 +50,10 @@ export default function Home() {
           <span className="font-bold text-xl text-foreground">Hitwicket</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => {}}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/profile/65")}>
             <User className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => {}}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
             <Settings className="w-5 h-5" />
           </Button>
         </div>
@@ -125,12 +126,12 @@ export default function Home() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => { }}>
-            <Trophy className="w-6 h-6 text-accent" />
+          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => navigate("/leaderboard")}>
+            <Trophy className="w-6 h-6 text-amber-500" />
             <span>Leaderboard</span>
           </Button>
-          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => { }}>
-            <User className="w-6 h-6 text-primary" />
+          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => navigate("/profile/u")}>
+            <User className="w-6 h-6 text-accent-foreground" />
             <span>My Profile</span>
           </Button>
         </div>

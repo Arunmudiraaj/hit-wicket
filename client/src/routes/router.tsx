@@ -10,6 +10,8 @@ const NotFound = lazy(() => import('../pages/NotFound/NotFound'));
 const Game = lazy(() => import('../pages/Game/Game'));
 const SettingsScreen = lazy(() => import('../pages/Settings/Settings'));
 const Result = lazy(() => import('../pages/Result/Result'));
+const Profile = lazy(() => import('../pages/Profile/Profile'));
+const LeaderboardScreen = lazy(() => import('../pages/Leaderboard/Leaderboard'));
 
 const withSuspense = (Component: React.LazyExoticComponent<() => JSX.Element>) => (
   <Suspense fallback={<Loader />}>
@@ -18,11 +20,13 @@ const withSuspense = (Component: React.LazyExoticComponent<() => JSX.Element>) =
 );
 
 const router = createBrowserRouter([
-  { path: '/', element: withSuspense(Home) },
+  { path: APP_ROUTES.HOME.path, element: withSuspense(Home) },
   { path: EXTRA_ROUTES.RESULT.path, element: withSuspense(Result) },
   { path: EXTRA_ROUTES.GAME.path, element: withSuspense(Game) },
   { path: APP_ROUTES.ABOUT.path, element: withSuspense(About) },
   { path: APP_ROUTES.SETTINGS.path, element: withSuspense(SettingsScreen) },
+  { path: EXTRA_ROUTES.PROFILE.path, element: withSuspense(Profile) },
+  { path: APP_ROUTES.LEADERBOARD.path, element: withSuspense(LeaderboardScreen) },
   { path: '*', element: withSuspense(NotFound) },
 ]);
 

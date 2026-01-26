@@ -22,8 +22,8 @@
   --secondary-foreground: oklch(0.15 0.01 260);
   --muted: oklch(0.94 0.01 260);
   --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.65 0.15 55);
-  --accent-foreground: oklch(0.15 0.01 260);
+  --accent: oklch(0.89 0.04 155);
+  --accent-foreground: oklch(0.38 0.08 150);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
   --success: oklch(0.5 0.2 145);
@@ -65,8 +65,8 @@
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.22 0.01 260);
   --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.75 0.15 55);
-  --accent-foreground: oklch(0.13 0.01 260);
+  --accent: oklch(0.89 0.04 155);
+  --accent-foreground: oklch(0.38 0.08 150);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
   --success: oklch(0.65 0.2 145);
@@ -74,7 +74,7 @@
   --warning: oklch(0.75 0.15 55);
   --warning-foreground: oklch(0.13 0.01 260);
   --border: oklch(0.28 0.01 260);
-  --input: oklch(0.22 0.01 260);
+  --input: oklch(28.258% 0.01318 253.083);
   --ring: oklch(0.65 0.2 145);
   --chart-1: oklch(0.65 0.2 145);
   --chart-2: oklch(0.75 0.15 55);
@@ -101,7 +101,7 @@
    the variables from :root and .dark above
    ============================================ */
 
-   @theme inline {
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -169,86 +169,147 @@
 
 /* Keyframes for animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes slideInFromRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideOutToRight {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes slideInFromLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideOutToLeft {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
 }
 
 @keyframes slideInFromTop {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideOutToTop {
-  from { transform: translateY(0); }
-  to { transform: translateY(-100%); }
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-100%);
+  }
 }
 
 @keyframes slideInFromBottom {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideOutToBottom {
-  from { transform: translateY(0); }
-  to { transform: translateY(100%); }
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes ping {
-  75%, 100% {
+
+  75%,
+  100% {
     transform: scale(2);
     opacity: 0;
   }
 }
 
 @keyframes pulse {
-  50% { opacity: .5; }
+  50% {
+    opacity: .5;
+  }
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(-25%);
-    animation-timing-function: cubic-bezier(0.8,0,1,1);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
+
   50% {
     transform: none;
-    animation-timing-function: cubic-bezier(0,0,0.2,1);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
 }
 
 @keyframes pulse-glow {
+
   0%,
   100% {
     box-shadow: 0 0 0 0 oklch(0.65 0.2 145 / 0.4);
   }
+
   50% {
     box-shadow: 0 0 20px 10px oklch(0.65 0.2 145 / 0.2);
   }
@@ -258,22 +319,27 @@
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.2);
   }
+
   100% {
     transform: scale(1);
   }
 }
 
 @keyframes out-shake {
+
   0%,
   100% {
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(-5px);
   }
+
   75% {
     transform: translateX(5px);
   }
@@ -282,6 +348,7 @@
 
 /* Animation utility classes */
 @layer utilities {
+
   /* Base animation classes */
   .animate-in {
     animation-duration: 0.2s;
@@ -350,18 +417,21 @@
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   }
+
   .ping {
     animation-name: ping;
     animation-duration: 1s;
     animation-iteration-count: infinite;
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
+
   .pulse {
     animation-name: pulse;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
+
   .bounce {
     animation-name: bounce;
     animation-duration: 1s;
@@ -369,17 +439,17 @@
   }
 
   .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
 
-.animate-score-pop {
-  animation: score-pop 0.3s ease-out;
-}
+  .animate-score-pop {
+    animation: score-pop 0.3s ease-out;
+  }
 
-.animate-out-shake {
-  animation: out-shake 0.3s ease-in-out;
-}
-  
+  .animate-out-shake {
+    animation: out-shake 0.3s ease-in-out;
+  }
+
 
   /* Duration utilities */
   .duration-100 {
