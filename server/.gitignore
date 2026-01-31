@@ -1,0 +1,19 @@
+# Server Environment
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment files (keep .env.sample)
+.env
+!.env.sample
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/

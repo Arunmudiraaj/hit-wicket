@@ -1,8 +1,24 @@
 {
+  "name": "hit-wicket",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build:server": "npm run build --workspace=server",
+    "build:client": "npm run build --workspace=client",
+    "build:shared": "npm run build --workspace=shared",
+    "test:clients": "node server/scripts/test-client.js & node server/scripts/test-client.js"
+  },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "typescript": "~5.8.3"
   }
 }

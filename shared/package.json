@@ -1,14 +1,29 @@
 {
     "name": "@hit-wicket/shared",
     "version": "1.0.0",
-    "description": "Shared types, constants, and validation for Hit-Wicket game",
-    "main": "index.ts",
+    "private": true,
     "type": "module",
-    "scripts": {},
-    "dependencies": {
-        "zod": "^3.24.0"
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./constants/*": {
+            "types": "./dist/constants/*.d.ts",
+            "import": "./dist/constants/*.js"
+        },
+        "./types/*": {
+            "types": "./dist/types/*.d.ts",
+            "import": "./dist/types/*.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
     },
     "devDependencies": {
-        "typescript": "^5.8.3"
+        "typescript": "~5.8.3"
     }
 }
