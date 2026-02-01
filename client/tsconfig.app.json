@@ -6,7 +6,7 @@
         "src/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "../shared/src/*"
       ]
     },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",

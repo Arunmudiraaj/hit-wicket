@@ -1,7 +1,8 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import type { PlayerRole } from "@shared/types/player"
+import type { PlayerRole } from "@shared/constants/game-rules"
+import { ROLES } from "@shared/constants/game-rules"
 
 type NumberSelectionProps = {
   onSelect: (num: number) => void
@@ -10,10 +11,11 @@ type NumberSelectionProps = {
   className?: string
 }
 
-const NUMBERS = [0, 1, 2, 4, 5]
+const NUMBERS = [1, 2, 3, 4, 5, 6]
 
 export function NumberSelection({ onSelect, disabled, role, className }: NumberSelectionProps) {
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null)
+  const isBatsman = role === ROLES.BATSMAN;
 
   const handleSelect = (num: number) => {
     if (disabled) return
@@ -26,9 +28,9 @@ export function NumberSelection({ onSelect, disabled, role, className }: NumberS
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
       <p className="text-muted-foreground text-sm font-medium uppercase tracking-wider">
-        {role === "batter" ? "Choose your runs" : "Bowl a number"}
+        {isBatsman ? "Choose your runs" : "Bowl a number"}
       </p>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap justify-center">
         {NUMBERS.map((num) => (
           <button
             key={num}
@@ -40,7 +42,7 @@ export function NumberSelection({ onSelect, disabled, role, className }: NumberS
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
               disabled && "opacity-50 cursor-not-allowed",
               selectedNumber === num && "scale-110",
-              role === "batter"
+              isBatsman
                 ? "bg-primary/10 border-primary text-primary hover:bg-primary/20 active:bg-primary active:text-primary-foreground"
                 : "bg-accent/10 border-accent text-accent hover:bg-accent/20 active:bg-accent active:text-accent-foreground",
             )}

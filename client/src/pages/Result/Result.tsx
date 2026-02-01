@@ -1,6 +1,13 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/useTypedRedux";
 import { setLastGameId } from "../../store/slices/sessionSlice";
+import { clearGame } from "../../store/slices/gameSlice";
+import {
+  selectGameId,
+  selectGameResult,
+  selectAllInnings,
+  selectEndReason,
+} from "../../store/selectors/gameSelectors";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,11 +22,16 @@ export default function Result() {
   const { matchId } = useParams<{ matchId: string }>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const game = useAppSelector((s) => s.game);
-  const myResult = game?.result;
+
+  // Get from selectors (prefer Redux state if available, fallback to URL param)
+  const gameId = useAppSelector(selectGameId) ?? matchId;
+  const myResult = useAppSelector(selectGameResult);
+  const innings = useAppSelector(selectAllInnings);
+  const endReason = useAppSelector(selectEndReason);
 
   const playAgain = () => {
     dispatch(setLastGameId(null));
+    dispatch(clearGame());
     navigate("/");
   };
 
@@ -62,6 +74,10 @@ export default function Result() {
 
   const resultContent = getResultContent();
 
+  // Build score summary
+  const inning1 = innings[0];
+  const inning2 = innings[1];
+
   return (
     <div className="flex bg-background text-foreground items-center justify-center h-[100vh] p-4">
       <Card className={`w-full max-w-lg bg-card border-border shadow-lg ${resultContent.bgClass}`}>
@@ -71,14 +87,42 @@ export default function Result() {
             {resultContent.title}
           </CardTitle>
           <CardDescription className="text-muted-foreground text-base">
-            Match ID: <span className="font-mono">{matchId}</span>
+            Match ID: <span className="font-mono">{gameId}</span>
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="text-center">
+        <CardContent className="text-center space-y-4">
           <p className="text-lg text-foreground font-medium">
             {resultContent.message}
           </p>
+
+          {/* Score Summary */}
+          {(inning1 || inning2) && (
+            <div className="flex justify-center gap-8 text-sm">
+              {inning1 && (
+                <div className="text-center">
+                  <div className="text-muted-foreground">Inning 1</div>
+                  <div className="text-2xl font-bold text-foreground">
+                    {inning1.score}/{inning1.wicketsLost}
+                  </div>
+                </div>
+              )}
+              {inning2 && (
+                <div className="text-center">
+                  <div className="text-muted-foreground">Inning 2</div>
+                  <div className="text-2xl font-bold text-foreground">
+                    {inning2.score}/{inning2.wicketsLost}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {endReason && endReason !== 'COMPLETED' && (
+            <p className="text-sm text-muted-foreground">
+              Ended by: {endReason.toLowerCase()}
+            </p>
+          )}
         </CardContent>
 
         <CardFooter className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -89,7 +133,7 @@ export default function Result() {
           >
             Play Again
           </Button>
-          
+
           <Button
             onClick={() => navigate("/leaderboard")}
             variant="outline"

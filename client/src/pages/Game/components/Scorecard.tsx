@@ -3,15 +3,20 @@ import { cn } from "@/lib/utils"
 import type { Inning } from "@shared/types/game"
 
 type ScorecardProps = {
-  innings: Inning
+  innings: Inning | null
   target?: number | null
   isChasing?: boolean
   className?: string
 }
 
 export function Scorecard({ innings, target, isChasing, className }: ScorecardProps) {
-  const oversDisplay = 0 // `${Math.floor(innings.ballsPlayed / 6)}.${innings.ballsPlayed % 6}`
-  const runsNeeded = 99 // target ? target - innings.score : null
+  const score = innings?.score ?? 0;
+  const wicketsLost = innings?.wicketsLost ?? 0;
+  const ballsPlayed = innings?.ballsPlayed ?? 0;
+  const totalBalls = innings?.totalBalls ?? 6;
+
+  const oversDisplay = `${Math.floor(ballsPlayed / 6)}.${ballsPlayed % 6}`;
+  const runsNeeded = target ? Math.max(0, target - score) : null;
 
   return (
     <div className={cn("bg-card rounded-xl p-4 border border-border", className)}>
@@ -24,14 +29,12 @@ export function Scorecard({ innings, target, isChasing, className }: ScorecardPr
 
       <div className="flex items-baseline gap-2 mb-4">
         <span className="text-5xl font-bold text-foreground tabular-nums">
-          {/* {innings.score} */}
-          76
+          {score}
         </span>
         <span className="text-2xl text-muted-foreground">/</span>
         <span className="text-2xl text-destructive font-semibold">
-          {/* {innings.wicketsLost} */}
-          4
-          </span>
+          {wicketsLost}
+        </span>
       </div>
 
       <div className="flex items-center justify-between text-sm">
@@ -42,7 +45,7 @@ export function Scorecard({ innings, target, isChasing, className }: ScorecardPr
           </div>
           <div>
             <span className="text-muted-foreground">Balls: </span>
-            <span className="text-foreground font-semibold tabular-nums">{8}/30</span>
+            <span className="text-foreground font-semibold tabular-nums">{ballsPlayed}/{totalBalls}</span>
           </div>
         </div>
         {isChasing && runsNeeded !== null && runsNeeded > 0 && (

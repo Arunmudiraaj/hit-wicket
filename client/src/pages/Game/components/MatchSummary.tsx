@@ -3,18 +3,35 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Trophy, RotateCcw, Home, Share2 } from "lucide-react"
-import type { ClientGameState } from "@shared/types/game"
+import type { Inning } from "@shared/types/game"
+import type { PlayerPublic } from "@shared/types/player"
 
 type MatchSummaryProps = {
-  gameState: ClientGameState
+  innings: [Inning | null, Inning | null]
+  winnerId: string | null | undefined
+  myPlayerId: string
+  myName: string
+  opponent: PlayerPublic | null
   onRematch: () => void
   onExit: () => void
 }
 
-export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps) {
-  const isWinner = gameState.winner === gameState.myPlayerId
-  const isTie = gameState.winner === null
-  const opponent = gameState.opponentId
+export function MatchSummary({
+  innings,
+  winnerId,
+  myPlayerId,
+  myName,
+  opponent,
+  onRematch,
+  onExit
+}: MatchSummaryProps) {
+  const isWinner = winnerId === myPlayerId
+  const isTie = winnerId === null || winnerId === undefined
+
+  const inning1 = innings[0];
+  const inning2 = innings[1];
+  const myScore = inning1?.batsmanId === myPlayerId ? inning1 : inning2;
+  const opponentScore = inning1?.batsmanId !== myPlayerId ? inning1 : inning2;
 
   const resultText = isTie ? "It's a Tie!" : isWinner ? "Victory!" : "Defeat"
   const resultColor = isTie ? "text-accent" : isWinner ? "text-primary" : "text-destructive"
@@ -35,10 +52,9 @@ export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps
               <AvatarImage src={"/placeholder.svg"} />
               <AvatarFallback>YOU</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-foreground">You</span>
+            <span className="font-semibold text-foreground">{myName || 'You'}</span>
             <span className="text-2xl font-bold text-primary tabular-nums">
-              {/* {gameState.innings[0]?.score}/{gameState.innings[0]?.wicketsLost} */}
-              12/3
+              {myScore?.score ?? 0}/{myScore?.wicketsLost ?? 0}
             </span>
           </div>
 
@@ -49,10 +65,9 @@ export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps
               <AvatarImage src={"/placeholder.svg"} />
               <AvatarFallback>OPP</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-foreground">Opponent</span>
+            <span className="font-semibold text-foreground">{opponent?.name || 'Opponent'}</span>
             <span className="text-2xl font-bold text-muted-foreground tabular-nums">
-              {/* {gameState.innings[1]?.score}/{gameState.innings[1]?.wicketsLost} */}
-              42/3
+              {opponentScore?.score ?? 0}/{opponentScore?.wicketsLost ?? 0}
             </span>
           </div>
         </div>
@@ -62,15 +77,13 @@ export function MatchSummary({ gameState, onRematch, onExit }: MatchSummaryProps
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground text-sm">Total Balls</span>
             <span className="text-xl font-bold text-foreground tabular-nums">
-              {/* {gameState.innings[0]?.ballsPlayed + gameState.innings[1]?.ballsPlayed} */}
-              6
+              {(inning1?.ballsPlayed ?? 0) + (inning2?.ballsPlayed ?? 0)}
             </span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground text-sm">Total Runs</span>
             <span className="text-xl font-bold text-foreground tabular-nums">
-              {/* {gameState.innings[0]?.score + gameState.innings[1]?.score} */}
-              54
+              {(inning1?.score ?? 0) + (inning2?.score ?? 0)}
             </span>
           </div>
         </div>

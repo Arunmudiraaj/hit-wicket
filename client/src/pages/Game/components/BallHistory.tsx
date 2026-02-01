@@ -8,7 +8,8 @@ type BallHistoryProps = {
 }
 
 export function BallHistory({ history, className }: BallHistoryProps) {
-  const recentBalls = [] // history.slice(-6)
+  // Show last 6 balls
+  const recentBalls = history.slice(-6);
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
@@ -23,16 +24,16 @@ export function BallHistory({ history, className }: BallHistoryProps) {
               className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm",
                 "transition-all duration-300",
-                ball.isOut
-                  ? "bg-destructive/20 text-destructive border-2 border-destructive animate-out-shake"
+                ball.isWicket
+                  ? "bg-destructive/20 text-destructive border-2 border-destructive"
                   : ball.runs === 0
                     ? "bg-muted text-muted-foreground border border-border"
-                    : ball.runs === 4 || ball.runs === 5
-                      ? "bg-primary/20 text-primary border-2 border-primary animate-score-pop"
+                    : ball.runs >= 4
+                      ? "bg-primary/20 text-primary border-2 border-primary"
                       : "bg-primary/10 text-primary border border-primary/50",
               )}
             >
-              {ball.isOut ? "W" : ball.runs}
+              {ball.isWicket ? "W" : ball.runs}
             </div>
           ))
         )}

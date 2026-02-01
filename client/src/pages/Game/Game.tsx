@@ -1,15 +1,32 @@
 /**
  * Game Page
  * 
- * Main game interface connected to Redux state
+ * Main game interface connected to Redux state via selectors
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '@/hooks/useTypedRedux';
-import { emitSubmitChoice, emitLeaveGame } from '@/socket/socketEmitters';
-import { setHasSubmittedChoice } from '@/store/slices/gameSlice';
-import { GAME_STATUS } from '@shared/constants/game-rules';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAppSelector } from '@/hooks/useTypedRedux';
+import { emitSubmitChoice, emitLeaveGame, emitRequestState } from '@/socket/socketEmitters';
+import {
+  selectGameId,
+  selectGamePhase,
+  selectMyRole,
+  selectCanPlay,
+  selectHasSubmittedChoice,
+  selectOpponentHasSubmitted,
+  selectCurrentInning,
+  selectScoreData,
+  selectRecentBalls,
+  selectConnectionStatus,
+  selectOpponentDisconnectedAt,
+  selectIsGameOver,
+  selectGameResult,
+  selectOpponent,
+  selectCurrentBallNumber,
+  selectTarget,
+} from '@/store/selectors/gameSelectors';
+import type { Choice } from '@shared/constants/game-rules';
 
 import { RoleIndicator } from "./components/RoleIndicator"
 import { Scorecard } from "./components/Scorecard"
@@ -24,39 +41,53 @@ import { Settings, LogOut } from "lucide-react"
 
 export default function Game() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const { matchId } = useParams<{ matchId: string }>();
 
-  // Get game state from Redux
-  const game = useAppSelector(state => state.game);
-  const { playerId } = useAppSelector(state => state.session);
+  // Get game state from selectors
+  const gameId = useAppSelector(selectGameId);
+  const phase = useAppSelector(selectGamePhase);
+  const myRole = useAppSelector(selectMyRole);
+  const canPlay = useAppSelector(selectCanPlay);
+  const hasSubmittedChoice = useAppSelector(selectHasSubmittedChoice);
+  const opponentHasSubmitted = useAppSelector(selectOpponentHasSubmitted);
+  const currentInning = useAppSelector(selectCurrentInning);
+  const scoreData = useAppSelector(selectScoreData);
+  const recentBalls = useAppSelector(selectRecentBalls);
+  const connectionStatus = useAppSelector(selectConnectionStatus);
+  const opponentDisconnectedAt = useAppSelector(selectOpponentDisconnectedAt);
+  const isGameOver = useAppSelector(selectIsGameOver);
+  const gameResult = useAppSelector(selectGameResult);
+  const opponent = useAppSelector(selectOpponent);
+  const currentBallNumber = useAppSelector(selectCurrentBallNumber);
+  const target = useAppSelector(selectTarget);
+  const { playerId, playerName } = useAppSelector(state => state.session);
 
   // Local UI state
-  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [lastBallResult, setLastBallResult] = useState<'out' | 'run' | null>(null);
 
-  // Derived state
-  const currentInning = game.innings[game.currentInningIndex];
-  const canPlay = game.status === GAME_STATUS.ONGOING
-    && game.connectionStatus === 'connected'
-    && !game.hasSubmittedChoice;
-  const isWaiting = game.hasSubmittedChoice && !game.opponentHasSubmittedChoice;
+  // Request state if we have a matchId but no game state (page refresh)
+  useEffect(() => {
+    if (matchId && !gameId) {
+      emitRequestState(matchId);
+    }
+  }, [matchId, gameId]);
 
   // Handle game end - navigate to result
   useEffect(() => {
-    if (game.status === GAME_STATUS.FINISHED && game.result) {
+    if (isGameOver && gameResult) {
       // Give time to see final state
       const timer = setTimeout(() => {
-        navigate('/result');
+        navigate(`/result/${gameId}`);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [game.status, game.result, navigate]);
+  }, [isGameOver, gameResult, gameId, navigate]);
 
   // Detect ball completion for popup
   useEffect(() => {
-    if (currentInning && currentInning?.balls.length > 0) {
-      const lastBall = currentInning?.balls[currentInning.balls.length - 1];
-      setLastBallResult(lastBall.outcome as 'out' | 'run');
+    if (recentBalls.length > 0) {
+      const lastBall = recentBalls[recentBalls.length - 1];
+      setLastBallResult(lastBall.isWicket ? 'out' : 'run');
 
       // Clear popup after delay
       const timer = setTimeout(() => {
@@ -64,32 +95,25 @@ export default function Game() {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [currentInning?.balls.length]);
+  }, [recentBalls.length]);
 
-  const handleChoiceClick = (choice: number) => {
-    if (!canPlay) return;
-    setSelectedChoice(choice);
-  };
-
-  const handleSubmitChoice = () => {
-    if (selectedChoice === null || !canPlay) return;
-
-    // Emit choice to server
-    emitSubmitChoice(game.gameId, selectedChoice, game.currentBallNumber);
-    dispatch(setHasSubmittedChoice(true));
-    setSelectedChoice(null);
+  const handleChoiceSubmit = (choice: number) => {
+    if (!canPlay || !gameId) return;
+    emitSubmitChoice(gameId, choice as Choice, currentBallNumber);
   };
 
   const handleLeaveGame = () => {
-    emitLeaveGame(game.gameId);
+    if (gameId) {
+      emitLeaveGame(gameId);
+    }
     navigate('/');
   };
 
   // Show loading if no game data
-  if (false) {
+  if (!gameId || !phase) {
     return (
-      <div className="relative h-screen w-screen overflow-hidden flex items-center justify-center">
-        <div className="relative z-10 text-white text-xl">
+      <div className="relative h-screen w-screen overflow-hidden flex items-center justify-center bg-background">
+        <div className="relative z-10 text-foreground text-xl">
           Loading game...
         </div>
       </div>
@@ -98,10 +122,10 @@ export default function Game() {
 
   // Render opponent disconnected overlay
   const renderDisconnectedOverlay = () => {
-    if (game.connectionStatus !== 'opponent_disconnected') return null;
+    if (connectionStatus !== 'opponent_disconnected') return null;
 
-    const reconnectDeadline = game.opponentDisconnectedAt
-      ? game.opponentDisconnectedAt + 30000
+    const reconnectDeadline = opponentDisconnectedAt
+      ? opponentDisconnectedAt + 30000
       : Date.now() + 30000;
     const secondsLeft = Math.max(0, Math.ceil((reconnectDeadline - Date.now()) / 1000));
 
@@ -118,7 +142,7 @@ export default function Game() {
 
   // Render waiting overlay
   const renderWaitingOverlay = () => {
-    if (!isWaiting) return null;
+    if (!hasSubmittedChoice || opponentHasSubmitted) return null;
 
     return (
       <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-40">
@@ -130,11 +154,11 @@ export default function Game() {
     );
   };
 
-    return (
+  return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border">
-        <RoleIndicator role={game.myRole} />
+        <RoleIndicator role={myRole ?? 'batsman'} />
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
             <Settings className="w-5 h-5" />
@@ -146,49 +170,64 @@ export default function Game() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 flex flex-col gap-4 max-w-2xl mx-auto w-full">
+      <main className="flex-1 p-4 flex flex-col gap-4 max-w-2xl mx-auto w-full relative">
+        {renderDisconnectedOverlay()}
+        {renderWaitingOverlay()}
+
         {/* Players */}
         <div className="grid grid-cols-2 gap-3">
           <PlayerCard
-            player={{userId:"sdgsd", userName:"Arun"}}
-            role={game.myRole}
+            player={{ userId: playerId, userName: playerName || 'You' }}
+            role={myRole ?? 'batsman'}
             isCurrentPlayer={true}
           />
           <PlayerCard
-            player={{userId:"sdgsd", userName:"Arun opponent"}}
-            role={game.myRole}
+            player={{ userId: opponent?.id ?? '', userName: opponent?.name ?? 'Opponent' }}
+            role={myRole === 'batsman' ? 'bowler' : 'batsman'}
             isCurrentPlayer={false}
           />
         </div>
 
         {/* Scorecard */}
-        <Scorecard innings={game.innings[game.currentInningIndex]} target={game.totalInnings} isChasing={false} />
+        <Scorecard
+          innings={currentInning}
+          target={target}
+          isChasing={scoreData.isChasing}
+        />
 
         {/* Timer and Ball History */}
         <div className="flex items-center justify-between gap-4">
-          <BallHistory history={game.innings[game.currentInningIndex]?.balls} />
-          <Timer duration={10} isPaused={game.hasSubmittedChoice} />
+          <BallHistory history={recentBalls} />
+          <Timer duration={15} isPaused={hasSubmittedChoice} />
         </div>
 
         {/* Number Selection */}
         <div className="flex-1 flex items-center justify-center py-4">
-          <NumberSelection onSelect={(choice) => {
-            setSelectedChoice(choice);
-            handleSubmitChoice();
-          }} disabled={game.hasSubmittedChoice} role={game.myRole} />
+          <NumberSelection
+            onSelect={handleChoiceSubmit}
+            disabled={!canPlay}
+            role={myRole ?? 'batsman'}
+          />
         </div>
 
         {/* Commentary */}
-        <CommentaryPanel ballHistory={game.innings[game.currentInningIndex]?.balls} />
+        <CommentaryPanel ballHistory={recentBalls} />
 
         {/* Waiting indicator */}
-        {!game.opponentHasSubmittedChoice && (
-          <div className="text-center text-muted-foreground animate-pulse">Waiting for opponent...</div>
+        {hasSubmittedChoice && !opponentHasSubmitted && (
+          <div className="text-center text-muted-foreground animate-pulse">
+            Waiting for opponent...
+          </div>
         )}
       </main>
 
       {/* Ball Result Overlay */}
-      {game.hasSubmittedChoice && <BallResultOverlay result={game.innings[game.currentInningIndex]?.balls[3]} onComplete={() => {}} />}
+      {lastBallResult && recentBalls.length > 0 && (
+        <BallResultOverlay
+          result={recentBalls[recentBalls.length - 1]}
+          onComplete={() => setLastBallResult(null)}
+        />
+      )}
     </div>
   )
 }

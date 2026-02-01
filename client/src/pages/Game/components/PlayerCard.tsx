@@ -1,16 +1,25 @@
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { Player, PlayerRole } from "@shared/types/player"
+import type { PlayerRole } from "@shared/constants/game-rules"
+import { ROLES } from "@shared/constants/game-rules"
+
+type PlayerInfo = {
+  userId: string
+  userName: string
+  profilePicture?: string
+}
 
 type PlayerCardProps = {
-  player: Player
+  player: PlayerInfo
   role: PlayerRole
   isCurrentPlayer?: boolean
   className?: string
 }
 
 export function PlayerCard({ player, role, isCurrentPlayer, className }: PlayerCardProps) {
+  const isBatsman = role === ROLES.BATSMAN;
+
   return (
     <div
       className={cn(
@@ -30,13 +39,12 @@ export function PlayerCard({ player, role, isCurrentPlayer, className }: PlayerC
         <span
           className={cn(
             "text-xs font-medium uppercase tracking-wider",
-            role === "batter" ? "text-primary" : "text-accent",
+            isBatsman ? "text-primary" : "text-accent",
           )}
         >
-          {role === "batter" ? "Batting" : "Bowling"}
+          {isBatsman ? "Batting" : "Bowling"}
         </span>
       </div>
-      {player.isOnline && <span className="ml-auto w-2 h-2 rounded-full bg-primary" />}
     </div>
   )
 }

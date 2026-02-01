@@ -1,43 +1,35 @@
 import { useAppSelector } from "../../hooks/useTypedRedux";
-import { emitPlayNewGame } from "../../socket/socketEmitters";
+import { emitJoinQueue } from "../../socket/socketEmitters";
 import { useEffect, useState } from "react";
-import { useSocket } from "../../socket/socket";
 import { useNavigate } from "react-router-dom";
-import { SOCKET_EVENTS } from "../../socket/events";
+import { selectGameId, selectGamePhase } from "../../store/selectors/gameSelectors";
 import { Button } from "../../components/ui/button";
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users, Shuffle, UserPlus, Link, Trophy, User, Settings, Loader2 } from "lucide-react"
+import { GAME_PHASE } from "@shared/constants/game-rules";
 
 export default function Home() {
   const [findMatchLoading, setFindMatchLoading] = useState(false);
-  const { playerId, playerName } = useAppSelector((s) => s.session);
+  const { playerName } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
-  const socket = useSocket();
+
+  // Watch for match found
+  const gameId = useAppSelector(selectGameId);
+  const phase = useAppSelector(selectGamePhase);
+
+  // Navigate when match is found (game exists and is playing)
+  useEffect(() => {
+    if (gameId && phase && phase !== GAME_PHASE.GAME_OVER) {
+      setFindMatchLoading(false);
+      navigate(`/game/${gameId}`);
+    }
+  }, [gameId, phase, navigate]);
 
   const handlePlayNewGame = () => {
     setFindMatchLoading(true);
-    emitPlayNewGame(playerId);
-    navigate(`/game/32`);
+    emitJoinQueue(playerName || undefined);
   };
-
-  const gameStartHandler = (game: { gameId: string }) => {
-    try {
-      const gameId = game.gameId;
-      setFindMatchLoading(false);
-      navigate(`/game/${gameId}`);
-    } catch (error) {
-      console.error("Error navigating to game:", error);
-    }
-  };
-
-  // Listen for game event from server
-  useEffect(() => {
-    socket.on(SOCKET_EVENTS.GAME_STARTED, gameStartHandler);
-    return () => {
-      socket.off(SOCKET_EVENTS.GAME_STARTED, gameStartHandler);
-    };
-  }, [socket]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -97,7 +89,7 @@ export default function Home() {
               <Input
                 placeholder="Enter invite code"
                 value={"34532"}
-                onChange={(e) => { }}
+                onChange={() => { }}
                 className="flex-1"
               />
               <Button onClick={() => { }} disabled={false}>

@@ -1,13 +1,19 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Target } from "lucide-react"
-import type { ClientGameState } from "@shared/types/game"
+import type { Inning } from "@shared/types/game"
 
 type InningsBreakProps = {
-  gameState: ClientGameState
+  firstInning: Inning | null
+  target: number | null
   onContinue: () => void
 }
 
-export function InningsBreak({ gameState, onContinue }: InningsBreakProps) {
+export function InningsBreak({ firstInning, target, onContinue }: InningsBreakProps) {
+  const score = firstInning?.score ?? 0;
+  const wickets = firstInning?.wicketsLost ?? 0;
+  const ballsPlayed = firstInning?.ballsPlayed ?? 0;
+  const oversDisplay = `${Math.floor(ballsPlayed / 6)}.${ballsPlayed % 6}`;
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-card rounded-2xl border border-border p-6 flex flex-col items-center gap-6">
@@ -20,21 +26,18 @@ export function InningsBreak({ gameState, onContinue }: InningsBreakProps) {
         <div className="w-full bg-muted/50 rounded-xl p-4 flex flex-col items-center gap-2">
           <span className="text-muted-foreground text-sm">First Innings Score</span>
           <span className="text-4xl font-bold text-foreground tabular-nums">
-            {/* {gameState.innings[0]?.score}/{gameState.innings?.[0]?.wicketsLost} */}
-            12/3
+            {score}/{wickets}
           </span>
           <span className="text-sm text-muted-foreground">
-            {/* in {Math.floor(gameState.innings[0]?.ballsPlayed / 6)}.{gameState.innings[0]?.ballsPlayed % 6} overs */}
-            in 6.2 overs
+            in {oversDisplay} overs
           </span>
         </div>
 
         <div className="w-full bg-primary/10 rounded-xl p-4 flex flex-col items-center gap-2 border border-primary/30">
           <span className="text-primary text-sm font-medium">Target</span>
           <span className="text-4xl font-bold text-primary tabular-nums">
-            {/* {gameState.innings[1]?.score} */}
-            43
-            </span>
+            {target ?? score + 1}
+          </span>
           <span className="text-sm text-muted-foreground">runs needed to win</span>
         </div>
 
