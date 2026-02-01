@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { BallResult } from "@shared/types/game"
+import { TIMING } from "@shared/constants/config"
 
 type BallResultOverlayProps = {
   result: BallResult | null
@@ -17,7 +18,7 @@ export function BallResultOverlay({ result, onComplete }: BallResultOverlayProps
       const timer = setTimeout(() => {
         setIsVisible(false)
         onComplete?.()
-      }, 1500)
+      }, TIMING.BALL_RESOLVE_DELAY_MS)
       return () => clearTimeout(timer)
     }
   }, [result, onComplete])

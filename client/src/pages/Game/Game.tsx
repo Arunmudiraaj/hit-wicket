@@ -27,6 +27,7 @@ import {
   selectTarget,
 } from '@/store/selectors/gameSelectors';
 import type { Choice } from '@shared/constants/game-rules';
+import { TIMING } from '@shared/constants/config';
 
 import { RoleIndicator } from "./components/RoleIndicator"
 import { Scorecard } from "./components/Scorecard"
@@ -78,7 +79,7 @@ export default function Game() {
       // Give time to see final state
       const timer = setTimeout(() => {
         navigate(`/result/${gameId}`);
-      }, 3000);
+      }, TIMING.INNING_BREAK_DURATION_MS);
       return () => clearTimeout(timer);
     }
   }, [isGameOver, gameResult, gameId, navigate]);
@@ -92,7 +93,7 @@ export default function Game() {
       // Clear popup after delay
       const timer = setTimeout(() => {
         setLastBallResult(null);
-      }, 1500);
+      }, TIMING.BALL_RESOLVE_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [recentBalls.length]);
@@ -125,8 +126,8 @@ export default function Game() {
     if (connectionStatus !== 'opponent_disconnected') return null;
 
     const reconnectDeadline = opponentDisconnectedAt
-      ? opponentDisconnectedAt + 30000
-      : Date.now() + 30000;
+      ? opponentDisconnectedAt + TIMING.DISCONNECT_GRACE_PERIOD_MS
+      : Date.now() + TIMING.DISCONNECT_GRACE_PERIOD_MS;
     const secondsLeft = Math.max(0, Math.ceil((reconnectDeadline - Date.now()) / 1000));
 
     return (
@@ -198,7 +199,7 @@ export default function Game() {
         {/* Timer and Ball History */}
         <div className="flex items-center justify-between gap-4">
           <BallHistory history={recentBalls} />
-          <Timer duration={15} isPaused={hasSubmittedChoice} />
+          <Timer duration={TIMING.CHOICE_TIMEOUT_MS / 1000} isPaused={hasSubmittedChoice} />
         </div>
 
         {/* Number Selection */}

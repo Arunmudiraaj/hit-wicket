@@ -12,15 +12,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { GameState } from '@shared/types/game';
+import type { ConnectionStatus } from '@shared/types/player';
 
-/**
- * Connection status for the game
- */
-export type ConnectionStatus =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'opponent_disconnected';
+// Re-export ConnectionStatus for consumers
+export type { ConnectionStatus };
 
 /**
  * Minimal game slice state

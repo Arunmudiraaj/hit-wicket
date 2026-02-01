@@ -17,7 +17,7 @@ export interface PlayerPublic {
 /**
  * Player connection status
  */
-export type ConnectionStatus = 'connected' | 'disconnected' | 'opponent_disconnected';
+export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'opponent_disconnected';
 
 /**
  * Re-export PlayerRole for convenience
