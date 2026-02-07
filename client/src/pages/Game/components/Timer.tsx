@@ -5,11 +5,10 @@ import { cn } from "@/lib/utils"
 type TimerProps = {
   duration: number
   onTimeout?: () => void
-  isPaused?: boolean
   className?: string
 }
 
-export function Timer({ duration, onTimeout, isPaused, className }: TimerProps) {
+export function Timer({ duration, onTimeout, className }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration)
 
   useEffect(() => {
@@ -17,7 +16,7 @@ export function Timer({ duration, onTimeout, isPaused, className }: TimerProps) 
   }, [duration])
 
   useEffect(() => {
-    if (isPaused || timeLeft <= 0) return
+    if (timeLeft <= 0) return
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -30,7 +29,7 @@ export function Timer({ duration, onTimeout, isPaused, className }: TimerProps) 
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isPaused, timeLeft, onTimeout])
+  }, [timeLeft, onTimeout])
 
   const percentage = (timeLeft / duration) * 100
   const isWarning = timeLeft <= 3

@@ -14,10 +14,12 @@ type PlayerCardProps = {
   player: PlayerInfo
   role: PlayerRole
   isCurrentPlayer?: boolean
+  hasSubmitted?: boolean
   className?: string
+  showChoiceMakeIndicator?: boolean
 }
 
-export function PlayerCard({ player, role, isCurrentPlayer, className }: PlayerCardProps) {
+export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, className, showChoiceMakeIndicator }: PlayerCardProps) {
   const isBatsman = role === ROLES.BATSMAN;
 
   return (
@@ -36,15 +38,33 @@ export function PlayerCard({ player, role, isCurrentPlayer, className }: PlayerC
       </Avatar>
       <div className="flex flex-col">
         <span className="font-semibold text-foreground">{isCurrentPlayer ? "You" : player.userName}</span>
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "text-xs font-medium uppercase tracking-wider",
+              isBatsman ? "text-primary" : "text-accent",
+            )}
+          >
+            {isBatsman ? "Batting" : "Bowling"}
+          </span>
+
+
+        </div>
+      </div>
+      {/* Status Badge */}
+      {showChoiceMakeIndicator && hasSubmitted !== undefined && (
         <span
           className={cn(
-            "text-xs font-medium uppercase tracking-wider",
-            isBatsman ? "text-primary" : "text-accent",
+            "text-[10px] ml-auto px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider transition-all",
+            hasSubmitted
+              ? "bg-primary text-primary-foreground border border-primary/30"
+              : "bg-muted text-muted-foreground border border-border animate-pulse"
           )}
         >
-          {isBatsman ? "Batting" : "Bowling"}
+          {hasSubmitted ? "Choice Made" : "Thinking..."}
         </span>
-      </div>
+      )}
+
     </div>
   )
 }

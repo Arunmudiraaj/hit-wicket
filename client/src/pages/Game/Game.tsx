@@ -65,6 +65,7 @@ export default function Game() {
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<'out' | 'run' | null>(null);
+  const showChoiceMakeIndicator = opponentHasSubmitted != hasSubmittedChoice;
 
   // Request state if we have a matchId but no game state (page refresh)
   useEffect(() => {
@@ -141,19 +142,6 @@ export default function Game() {
     );
   };
 
-  // Render waiting overlay
-  const renderWaitingOverlay = () => {
-    if (!hasSubmittedChoice || opponentHasSubmitted) return null;
-
-    return (
-      <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-40">
-        <div className="bg-slate-800 p-6 rounded-lg text-center">
-          <h2 className="text-xl text-white mb-2">Choice Submitted!</h2>
-          <p className="text-slate-300">Waiting for opponent...</p>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -173,7 +161,6 @@ export default function Game() {
       {/* Main Content */}
       <main className="flex-1 p-4 flex flex-col gap-4 max-w-2xl mx-auto w-full relative">
         {renderDisconnectedOverlay()}
-        {renderWaitingOverlay()}
 
         {/* Players */}
         <div className="grid grid-cols-2 gap-3">
@@ -181,11 +168,15 @@ export default function Game() {
             player={{ userId: playerId, userName: playerName || 'You' }}
             role={myRole ?? 'batsman'}
             isCurrentPlayer={true}
+            hasSubmitted={hasSubmittedChoice}
+            showChoiceMakeIndicator={showChoiceMakeIndicator}
           />
           <PlayerCard
             player={{ userId: opponent?.id ?? '', userName: opponent?.name ?? 'Opponent' }}
             role={myRole === 'batsman' ? 'bowler' : 'batsman'}
             isCurrentPlayer={false}
+            hasSubmitted={opponentHasSubmitted}
+            showChoiceMakeIndicator={showChoiceMakeIndicator}
           />
         </div>
 
@@ -199,7 +190,7 @@ export default function Game() {
         {/* Timer and Ball History */}
         <div className="flex items-center justify-between gap-4">
           <BallHistory history={recentBalls} />
-          <Timer duration={TIMING.CHOICE_TIMEOUT_MS / 1000} isPaused={hasSubmittedChoice} />
+          <Timer duration={TIMING.CHOICE_TIMEOUT_MS / 1000} />
         </div>
 
         {/* Number Selection */}
