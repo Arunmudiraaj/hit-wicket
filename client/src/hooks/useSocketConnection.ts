@@ -9,8 +9,11 @@ import { initSocketManager, cleanupSocketManager } from '../socket/socketManager
 
 export const useSocketConnection = (): void => {
   useEffect(() => {
-    // Initialize socket manager with store
-    initSocketManager(store);
+    // Get stored player ID
+    const savedPlayerId = localStorage.getItem('hit_wicket_player_id') || undefined;
+
+    // Initialize socket manager with store and saved ID
+    initSocketManager(store, savedPlayerId);
 
     // Cleanup on unmount
     return () => {

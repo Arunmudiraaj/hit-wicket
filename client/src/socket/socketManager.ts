@@ -59,6 +59,7 @@ function handleDisconnect(reason: string) {
  */
 function handleGuestInit(data: GuestInitPayload) {
     console.log('🎮 Guest initialized:', data.playerId);
+    localStorage.setItem('hit_wicket_player_id', data.playerId);
     storeRef?.dispatch(setPlayerId(data.playerId));
 }
 
@@ -106,7 +107,7 @@ function handleOpponentDisconnected(data: OpponentDisconnectedPayload) {
  * Initialize socket manager with Redux store
  * Attaches all event listeners and connects socket
  */
-export function initSocketManager(store: Store<RootState>) {
+export function initSocketManager(store: Store<RootState>, playerId?: string) {
     if (initialized) {
         console.warn('Socket manager already initialized');
         return;
@@ -123,6 +124,11 @@ export function initSocketManager(store: Store<RootState>) {
     socket.on(SOCKET_EVENTS.STATE, handleState);
     socket.on(SOCKET_EVENTS.ERROR, handleError);
     socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
+
+    // Set auth if player ID exists
+    if (playerId) {
+        socket.auth = { playerId };
+    }
 
     // Connect socket
     storeRef.dispatch(setConnectionStatus('connecting'));
