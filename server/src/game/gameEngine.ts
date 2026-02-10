@@ -47,9 +47,8 @@ export function applyBallToInning(
     const newWickets = ball.isWicket ? inning.wicketsLost + 1 : inning.wicketsLost;
     const newBallsPlayed = inning.ballsPlayed + 1;
 
-    // Add to history and keep last N for broadcast
-    const updatedHistory = [...fullHistory, ball];
-    const recentBalls = updatedHistory.slice(-BROADCAST_BALL_HISTORY_LENGTH);
+    // Keep last N for broadcast
+    const recentBalls = fullHistory.slice(-BROADCAST_BALL_HISTORY_LENGTH);
 
     // Check if inning is completed
     const isAllOut = newWickets >= inning.totalWickets;

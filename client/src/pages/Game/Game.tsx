@@ -64,8 +64,12 @@ export default function Game() {
   const { playerId, playerName } = useAppSelector(state => state.session);
 
   // Local UI state
-  const [lastBallResult, setLastBallResult] = useState<'out' | 'run' | null>(null);
+  const [lastBallResult, setLastBallResult] = useState<boolean>(false);
   const showChoiceMakeIndicator = opponentHasSubmitted != hasSubmittedChoice;
+
+  // Track last processed ball index to prevent replay on reload
+  // We need a mutable ref to track updates during the session
+  const processedRef = useState<{ index: number }>({ index: recentBalls.length })[0];
 
   // Request state if we have a matchId but no game state (page refresh)
   useEffect(() => {
@@ -87,15 +91,22 @@ export default function Game() {
 
   // Detect ball completion for popup
   useEffect(() => {
-    if (recentBalls.length > 0) {
-      const lastBall = recentBalls[recentBalls.length - 1];
-      setLastBallResult(lastBall.isWicket ? 'out' : 'run');
+    // Only show result if a NEW ball is added (length increased)
+    // and we haven't processed it yet
+    if (recentBalls.length > processedRef.index) {
+      setLastBallResult(true);
+
+      // Update our tracker
+      processedRef.index = recentBalls.length;
 
       // Clear popup after delay
       const timer = setTimeout(() => {
-        setLastBallResult(null);
+        setLastBallResult(false);
       }, TIMING.BALL_RESOLVE_DELAY_MS);
       return () => clearTimeout(timer);
+    } else if (recentBalls.length < processedRef.index) {
+      // Reset if game restarted or new game
+      processedRef.index = recentBalls.length;
     }
   }, [recentBalls.length]);
 
@@ -217,7 +228,7 @@ export default function Game() {
       {lastBallResult && recentBalls.length > 0 && (
         <BallResultOverlay
           result={recentBalls[recentBalls.length - 1]}
-          onComplete={() => setLastBallResult(null)}
+          onComplete={() => setLastBallResult(false)}
         />
       )}
     </div>
