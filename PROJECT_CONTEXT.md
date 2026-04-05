@@ -2,6 +2,8 @@
 
 > **Purpose:** Give any AI agent or developer full context to understand, modify, debug, or extend this project without further research. Pass this file at the start of every new conversation.
 
+> **⚠️ MANDATORY MAINTENANCE RULE:** If you make changes that affect this document's accuracy — new files, renamed files, new socket events, new Redux slices, changed architecture, new dependencies, new conventions, updated constants, or anything else described here — you **MUST update this document** before finishing your task. An outdated context document will mislead future agents and cause bugs.
+
 ---
 
 ## 1. What Is This?
@@ -406,3 +408,37 @@ VITE_PORT=3000
 | Reconnection fails | `socketServer.ts` → `handleGameReconnect()`, `socketAuth.ts` |
 | UI not rendering | Check the relevant selector, then the component props |
 | Overlay not showing | Check `Game.tsx` conditional rendering + phase check |
+
+---
+
+## 15. Document Maintenance Rules
+
+**This document is the single source of truth for project context.** Every AI agent or developer working on this project must keep it accurate.
+
+### When to Update This Document
+
+You **must** update `PROJECT_CONTEXT.md` if your changes affect any of the following:
+
+| Change Type | Sections to Update |
+|------------|-------------------|
+| New file or directory | §3 (Monorepo Structure) |
+| Renamed or deleted file | §3 (Monorepo Structure) |
+| New dependency or library | §2 (Tech Stack) |
+| New or changed socket event | §6 (Socket Events) |
+| New or changed Redux slice/selector | §7 (Client-Side Architecture) |
+| New or changed game phase/rule | §4 (Architecture), §5 (Key Data Types) |
+| New or changed component in Game page | §8 (Component Hierarchy) |
+| New or changed TIMING constant | §5 (Key Constants) |
+| New environment variable | §10 (Development Commands) |
+| Changed styling pattern or convention | §9 (Styling Conventions) |
+| Architectural/design decision change | §11 (Design Decisions) |
+| A known limitation is fixed | §12 (Known Limitations) |
+| New route or page added | §3 (Monorepo Structure) |
+
+### How to Update
+
+1. **Edit in place** — modify the relevant section(s) directly. Don't append notes at the bottom.
+2. **Keep it concise** — match the existing style. One-liners per file, tables for enums.
+3. **Don't remove sections** — only add, update, or mark items as completed/removed.
+4. **Update at the end of your task** — after all code changes are done, review your changes against this doc and update anything that's now stale.
+
