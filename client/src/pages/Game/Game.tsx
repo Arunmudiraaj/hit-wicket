@@ -25,8 +25,9 @@ import {
   selectOpponent,
   selectCurrentBallNumber,
   selectTarget,
+  selectAllInnings,
 } from '@/store/selectors/gameSelectors';
-import type { Choice } from '@shared/constants/game-rules';
+import { GAME_PHASE, ROLES, type Choice } from '@shared/constants/game-rules';
 import { TIMING } from '@shared/constants/config';
 
 import { RoleIndicator } from "./components/RoleIndicator"
@@ -36,6 +37,7 @@ import { NumberSelection } from "./components/NumberSelection"
 import { BallHistory } from "./components/BallHistory"
 import { PlayerCard } from "./components/PlayerCard"
 import { BallResultOverlay } from "./components/BallResultOverlay"
+import { InningsBreakOverlay } from "./components/InningsBreakOverlay"
 import { CommentaryPanel } from "./components/CommentaryPanel"
 import { Button } from "@/components/ui/button"
 import { Settings, LogOut } from "lucide-react"
@@ -62,6 +64,7 @@ export default function Game() {
   const currentBallNumber = useAppSelector(selectCurrentBallNumber);
   const target = useAppSelector(selectTarget);
   const { playerId, playerName } = useAppSelector(state => state.session);
+  const innings = useAppSelector(selectAllInnings);
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<boolean>(false);
@@ -225,10 +228,19 @@ export default function Game() {
       </main>
 
       {/* Ball Result Overlay */}
-      {lastBallResult && recentBalls.length > 0 && (
+      {lastBallResult && recentBalls.length > 0 && phase !== GAME_PHASE.INNING_BREAK && (
         <BallResultOverlay
           result={recentBalls[recentBalls.length - 1]}
           onComplete={() => setLastBallResult(false)}
+        />
+      )}
+
+      {/* Innings Break Overlay */}
+      {phase === GAME_PHASE.INNING_BREAK && scoreData.target && (
+        <InningsBreakOverlay
+          innings={innings}
+          target={scoreData.target}
+          myRole={myRole === ROLES.BATSMAN ? ROLES.BOWLER : ROLES.BATSMAN} // Predict next role or use current if updated
         />
       )}
     </div>
