@@ -1,4 +1,6 @@
-FOLLOW THESE STEPS FOR CLEANING UP THE CODE, ONLY WHEN I EXPLICTLY ASK YOU TO. 
+# Code Cleanup Instructions
+
+> **⚠️ IMPORTANT:** Do NOT apply these rules on your own. Follow these instructions **ONLY** when the user explicitly tells you to clean up code or references this file. During normal feature work or bug fixes, follow `CODING_STANDARDS.md` instead.
 
 I use this prompt for each folder/file to organize code 
 
