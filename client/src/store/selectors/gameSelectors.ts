@@ -236,6 +236,14 @@ export const selectOpponentDisconnectedAt = createSelector(
 );
 
 /**
+ * Select choice deadline
+ */
+export const selectChoiceDeadline = createSelector(
+    [selectServerState],
+    (state): number | null => state?.choiceDeadline ?? null
+);
+
+/**
  * Select game mode
  */
 export const selectGameMode = createSelector(

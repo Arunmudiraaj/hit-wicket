@@ -3,33 +3,40 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
 type TimerProps = {
+  deadline?: number | null
   duration: number
   onTimeout?: () => void
   className?: string
 }
 
-export function Timer({ duration, onTimeout, className }: TimerProps) {
+export function Timer({ deadline, duration, onTimeout, className }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration)
 
   useEffect(() => {
-    setTimeLeft(duration)
-  }, [duration])
+    if (!deadline) {
+      setTimeLeft(duration)
+      return
+    }
+    
+    const initialTimeLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+    setTimeLeft(initialTimeLeft)
+  }, [deadline, duration])
 
   useEffect(() => {
-    if (timeLeft <= 0) return
+    if (!deadline) return
 
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          onTimeout?.()
-          return 0
-        }
-        return prev - 1
-      })
+      const newTimeLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+      setTimeLeft(newTimeLeft)
+      
+      if (newTimeLeft <= 0) {
+        onTimeout?.()
+        clearInterval(interval)
+      }
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [timeLeft, onTimeout])
+  }, [deadline, onTimeout])
 
   const percentage = (timeLeft / duration) * 100
   const isWarning = timeLeft <= 3

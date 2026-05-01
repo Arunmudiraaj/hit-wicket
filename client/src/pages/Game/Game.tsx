@@ -26,6 +26,7 @@ import {
   selectCurrentBallNumber,
   selectTarget,
   selectAllInnings,
+  selectChoiceDeadline,
 } from '@/store/selectors/gameSelectors';
 import { GAME_PHASE, ROLES, type Choice } from '@shared/constants/game-rules';
 import { TIMING } from '@shared/constants/config';
@@ -65,6 +66,7 @@ export default function Game() {
   const target = useAppSelector(selectTarget);
   const { playerId, playerName } = useAppSelector(state => state.session);
   const innings = useAppSelector(selectAllInnings);
+  const choiceDeadline = useAppSelector(selectChoiceDeadline);
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<boolean>(false);
@@ -204,7 +206,7 @@ export default function Game() {
         {/* Timer and Ball History */}
         <div className="flex items-center justify-between gap-4">
           <BallHistory history={recentBalls} />
-          <Timer duration={TIMING.CHOICE_TIMEOUT_MS / 1000} />
+          <Timer duration={TIMING.CHOICE_TIMEOUT_MS / 1000} deadline={choiceDeadline} />
         </div>
 
         {/* Number Selection */}

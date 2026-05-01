@@ -459,8 +459,8 @@ class GameManager {
             // Reset for next ball
             currentGame.state = resetSubmitted(currentGame.state);
             currentGame.state = setPhase(currentGame.state, GAME_PHASE.WAITING_FOR_CHOICES);
-            this.broadcastState(gameId);
             this.startChoiceTimer(gameId);
+            this.broadcastState(gameId);
         }, TIMING.BALL_RESOLVE_DELAY_MS);
     }
 
@@ -484,8 +484,8 @@ class GameManager {
             // Start second inning
             currentGame.state = resetSubmitted(currentGame.state);
             currentGame.state = setPhase(currentGame.state, GAME_PHASE.WAITING_FOR_CHOICES);
-            this.broadcastState(gameId);
             this.startChoiceTimer(gameId);
+            this.broadcastState(gameId);
 
             log.info({ gameId }, 'Inning break ended, starting second inning');
         }, TIMING.INNING_BREAK_DURATION_MS);
@@ -502,7 +502,12 @@ class GameManager {
         const game = this.games.get(gameId);
         if (!game) return;
 
-        game.choiceDeadline = fromNow(TIMING.CHOICE_TIMEOUT_MS);
+        const deadline = fromNow(TIMING.CHOICE_TIMEOUT_MS);
+        game.choiceDeadline = deadline;
+        game.state = {
+            ...game.state,
+            choiceDeadline: deadline,
+        };
 
         game.choiceTimer = setTimeout(() => {
             this.handleChoiceTimeout(gameId);
@@ -518,6 +523,10 @@ class GameManager {
             game.choiceTimer = undefined;
         }
         game.choiceDeadline = undefined;
+        game.state = {
+            ...game.state,
+            choiceDeadline: undefined,
+        };
     }
 
     /**

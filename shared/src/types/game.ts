@@ -53,6 +53,8 @@ export interface GameState {
     mode: GameMode;
     createdAt: number;
     updatedAt: number;
+    /** Absolute timestamp (ms) when choice submission will timeout */
+    choiceDeadline?: number;
 }
 
 /**
