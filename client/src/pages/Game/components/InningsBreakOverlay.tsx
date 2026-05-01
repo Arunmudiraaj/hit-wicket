@@ -9,9 +9,10 @@ type InningsBreakOverlayProps = {
     innings: [Inning | null, Inning | null]
     target: number | null
     myRole: PlayerRole
+    deadline: number | null
 }
 
-export function InningsBreakOverlay({ innings, target, myRole }: InningsBreakOverlayProps) {
+export function InningsBreakOverlay({ innings, target, myRole, deadline }: InningsBreakOverlayProps) {
     const [timeLeft, setTimeLeft] = useState(Math.floor(TIMING.INNING_BREAK_DURATION_MS / 1000))
     const [showContent, setShowContent] = useState(false)
 
@@ -21,13 +22,21 @@ export function InningsBreakOverlay({ innings, target, myRole }: InningsBreakOve
     useEffect(() => {
         // Entrance animation
         requestAnimationFrame(() => setShowContent(true))
+    }, [])
+
+    useEffect(() => {
+        if (!deadline) return
+
+        const initialTimeLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+        setTimeLeft(initialTimeLeft)
 
         const timer = setInterval(() => {
-            setTimeLeft((prev) => Math.max(0, prev - 1))
+            const newTimeLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+            setTimeLeft(newTimeLeft)
         }, 1000)
 
         return () => clearInterval(timer)
-    }, [])
+    }, [deadline])
 
     if (!firstInning) return null
 

@@ -27,6 +27,8 @@ import {
   selectTarget,
   selectAllInnings,
   selectChoiceDeadline,
+  selectInningBreakDeadline,
+  selectWinnerId,
 } from '@/store/selectors/gameSelectors';
 import { GAME_PHASE, ROLES, type Choice } from '@shared/constants/game-rules';
 import { TIMING } from '@shared/constants/config';
@@ -40,6 +42,7 @@ import { PlayerCard } from "./components/PlayerCard"
 import { BallResultOverlay } from "./components/BallResultOverlay"
 import { InningsBreakOverlay } from "./components/InningsBreakOverlay"
 import { CommentaryPanel } from "./components/CommentaryPanel"
+import { MatchSummary } from "./components/MatchSummary"
 import { Button } from "@/components/ui/button"
 import { Settings, LogOut } from "lucide-react"
 
@@ -67,6 +70,8 @@ export default function Game() {
   const { playerId, playerName } = useAppSelector(state => state.session);
   const innings = useAppSelector(selectAllInnings);
   const choiceDeadline = useAppSelector(selectChoiceDeadline);
+  const inningBreakDeadline = useAppSelector(selectInningBreakDeadline);
+  const winnerId = useAppSelector(selectWinnerId);
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<boolean>(false);
@@ -83,16 +88,10 @@ export default function Game() {
     }
   }, [matchId, gameId]);
 
-  // Handle game end - navigate to result
+  // Handle game over logic
   useEffect(() => {
-    if (isGameOver && gameResult) {
-      // Give time to see final state
-      const timer = setTimeout(() => {
-        navigate(`/result/${gameId}`);
-      }, TIMING.INNING_BREAK_DURATION_MS);
-      return () => clearTimeout(timer);
-    }
-  }, [isGameOver, gameResult, gameId, navigate]);
+    // We previously had an auto-redirect here. Now we rely on the MatchSummary overlay.
+  }, [isGameOver]);
 
   // Detect ball completion for popup
   useEffect(() => {
@@ -243,6 +242,19 @@ export default function Game() {
           innings={innings}
           target={scoreData.target}
           myRole={myRole === ROLES.BATSMAN ? ROLES.BOWLER : ROLES.BATSMAN} // Predict next role or use current if updated
+          deadline={inningBreakDeadline}
+        />
+      )}
+
+      {/* Game Over Overlay */}
+      {isGameOver && (
+        <MatchSummary
+          innings={innings}
+          winnerId={winnerId}
+          myPlayerId={playerId}
+          myName={playerName ?? ''}
+          opponent={opponent}
+          onContinue={() => navigate(`/result/${gameId}`)}
         />
       )}
     </div>

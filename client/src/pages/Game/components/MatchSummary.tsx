@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Trophy, RotateCcw, Home, Share2 } from "lucide-react"
+import { Trophy } from "lucide-react"
 import type { Inning } from "@shared/types/game"
 import type { PlayerPublic } from "@shared/types/player"
 
@@ -12,8 +12,7 @@ type MatchSummaryProps = {
   myPlayerId: string
   myName: string
   opponent: PlayerPublic | null
-  onRematch: () => void
-  onExit: () => void
+  onContinue: () => void
 }
 
 export function MatchSummary({
@@ -22,8 +21,7 @@ export function MatchSummary({
   myPlayerId,
   myName,
   opponent,
-  onRematch,
-  onExit
+  onContinue
 }: MatchSummaryProps) {
   const isWinner = winnerId === myPlayerId
   const isTie = winnerId === null || winnerId === undefined
@@ -37,8 +35,8 @@ export function MatchSummary({
   const resultColor = isTie ? "text-accent" : isWinner ? "text-primary" : "text-destructive"
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-card rounded-2xl border border-border p-6 flex flex-col items-center gap-6">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 rounded-3xl border border-white/10 shadow-2xl p-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
         {/* Result */}
         <div className="flex flex-col items-center gap-2">
           {isWinner && <Trophy className="w-16 h-16 text-accent animate-bounce" />}
@@ -90,17 +88,8 @@ export function MatchSummary({
 
         {/* Actions */}
         <div className="w-full flex flex-col gap-3">
-          <Button onClick={onRematch} className="w-full" size="lg">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Rematch
-          </Button>
-          <Button onClick={onExit} variant="outline" className="w-full bg-transparent" size="lg">
-            <Home className="w-4 h-4 mr-2" />
-            Exit to Lobby
-          </Button>
-          <Button variant="ghost" className="w-full" size="lg">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share Result
+          <Button onClick={onContinue} className="w-full text-lg font-bold py-6" size="lg">
+            Continue to Results
           </Button>
         </div>
       </div>

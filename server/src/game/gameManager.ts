@@ -425,29 +425,39 @@ class GameManager {
 
         // Check for chase win (inning 2 only)
         if (checkChaseWin(game.state)) {
-            const winnerId = game.state.players[1].id; // Chasing team wins
-            game.state = endGame(game.state, END_REASON.COMPLETED, winnerId);
-            this.broadcastState(gameId);
-            this.cleanupGame(gameId);
+            setTimeout(() => {
+                const currentGame = this.games.get(gameId);
+                if (!currentGame || currentGame.state.phase === GAME_PHASE.GAME_OVER) return;
+                
+                const winnerId = currentGame.state.players[1].id; // Chasing team wins
+                currentGame.state = endGame(currentGame.state, END_REASON.COMPLETED, winnerId);
+                this.broadcastState(gameId);
+                this.cleanupGame(gameId);
+            }, TIMING.BALL_RESOLVE_DELAY_MS);
             return;
         }
 
         // Check if inning is complete
         if (isInningComplete(updatedInning)) {
-            if (game.state.currentInningIndex === 0) {
-                // Switch to second inning
-                game.state = createSecondInning(game.state);
-                this.broadcastState(gameId);
+            setTimeout(() => {
+                const currentGame = this.games.get(gameId);
+                if (!currentGame || currentGame.state.phase === GAME_PHASE.GAME_OVER) return;
 
-                // Start inning break timer
-                this.startInningBreak(gameId);
-            } else {
-                // Game over - determine winner
-                const winnerId = determineWinner(game.state);
-                game.state = endGame(game.state, END_REASON.COMPLETED, winnerId);
-                this.broadcastState(gameId);
-                this.cleanupGame(gameId);
-            }
+                if (currentGame.state.currentInningIndex === 0) {
+                    // Switch to second inning
+                    currentGame.state = createSecondInning(currentGame.state);
+                    this.broadcastState(gameId);
+
+                    // Start inning break timer
+                    this.startInningBreak(gameId);
+                } else {
+                    // Game over - determine winner
+                    const winnerId = determineWinner(currentGame.state);
+                    currentGame.state = endGame(currentGame.state, END_REASON.COMPLETED, winnerId);
+                    this.broadcastState(gameId);
+                    this.cleanupGame(gameId);
+                }
+            }, TIMING.BALL_RESOLVE_DELAY_MS);
             return;
         }
 
@@ -477,6 +487,13 @@ class GameManager {
 
         log.info({ gameId }, 'Starting inning break');
 
+        const deadline = Date.now() + TIMING.INNING_BREAK_DURATION_MS;
+        game.state = {
+            ...game.state,
+            inningBreakDeadline: deadline,
+        };
+        this.broadcastState(gameId);
+
         game.inningBreakTimer = setTimeout(() => {
             const currentGame = this.games.get(gameId);
             if (!currentGame || currentGame.state.phase !== GAME_PHASE.INNING_BREAK) return;
@@ -484,6 +501,7 @@ class GameManager {
             // Start second inning
             currentGame.state = resetSubmitted(currentGame.state);
             currentGame.state = setPhase(currentGame.state, GAME_PHASE.WAITING_FOR_CHOICES);
+            currentGame.state.inningBreakDeadline = undefined;
             this.startChoiceTimer(gameId);
             this.broadcastState(gameId);
 

@@ -55,6 +55,8 @@ export interface GameState {
     updatedAt: number;
     /** Absolute timestamp (ms) when choice submission will timeout */
     choiceDeadline?: number;
+    /** Absolute timestamp (ms) when inning break ends */
+    inningBreakDeadline?: number;
 }
 
 /**

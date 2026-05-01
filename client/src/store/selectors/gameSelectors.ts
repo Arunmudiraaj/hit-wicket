@@ -244,6 +244,14 @@ export const selectChoiceDeadline = createSelector(
 );
 
 /**
+ * Select inning break deadline
+ */
+export const selectInningBreakDeadline = createSelector(
+    [selectServerState],
+    (state): number | null => state?.inningBreakDeadline ?? null
+);
+
+/**
  * Select game mode
  */
 export const selectGameMode = createSelector(
