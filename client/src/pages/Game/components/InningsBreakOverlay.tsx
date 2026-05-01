@@ -41,10 +41,10 @@ export function InningsBreakOverlay({ innings, target, myRole, deadline }: Innin
     if (!firstInning) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md">
             <div
                 className={cn(
-                    "relative flex flex-col items-center w-full max-w-lg mx-6 p-8 rounded-3xl border border-white/10 bg-slate-900/90 shadow-2xl overflow-hidden transition-all duration-700 cubic-bezier(0.34, 1.56, 0.64, 1) transform",
+                    "relative flex flex-col items-center w-full max-w-lg mx-6 p-8 rounded-3xl border border-border bg-card/90 shadow-2xl overflow-hidden transition-all duration-700 cubic-bezier(0.34, 1.56, 0.64, 1) transform",
                     showContent ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-12"
                 )}
             >
@@ -53,7 +53,7 @@ export function InningsBreakOverlay({ innings, target, myRole, deadline }: Innin
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
 
                 {/* Header */}
-                <h2 className="text-3xl font-black italic text-white mb-2 uppercase tracking-wide drop-shadow-lg">
+                <h2 className="text-3xl font-black italic text-foreground mb-2 uppercase tracking-wide drop-shadow-lg">
                     Innings Break
                 </h2>
                 <div className="w-16 h-1 bg-primary rounded-full mb-8" />
@@ -61,17 +61,17 @@ export function InningsBreakOverlay({ innings, target, myRole, deadline }: Innin
                 {/* Score Summary */}
                 <div className="flex items-center gap-8 mb-8">
                     <div className="text-center">
-                        <div className="text-sm text-slate-400 uppercase tracking-wider mb-1">Score</div>
-                        <div className="text-4xl font-bold text-white">
+                        <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Score</div>
+                        <div className="text-4xl font-bold text-foreground">
                             {firstInning.score}/{firstInning.wicketsLost}
                         </div>
                     </div>
 
-                    <div className="h-10 w-[1px] bg-white/10" />
+                    <div className="h-10 w-[1px] bg-border" />
 
                     <div className="text-center">
-                        <div className="text-sm text-slate-400 uppercase tracking-wider mb-1">Overs</div>
-                        <div className="text-4xl font-bold text-white">
+                        <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Overs</div>
+                        <div className="text-4xl font-bold text-foreground">
                             {Math.floor(firstInning.ballsPlayed / 6)}.{firstInning.ballsPlayed % 6}
                         </div>
                     </div>
@@ -79,7 +79,7 @@ export function InningsBreakOverlay({ innings, target, myRole, deadline }: Innin
 
                 {/* Target Display */}
                 {target && (
-                    <div className="bg-white/5 border border-white/10 rounded-2xl px-12 py-4 mb-8 relative overflow-hidden group">
+                    <div className="bg-muted/30 border border-border rounded-2xl px-12 py-4 mb-8 relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                         <div className="text-center">
                             <div className="text-sm text-primary-foreground uppercase tracking-[0.2em] mb-1 font-bold">Target to Win</div>
@@ -92,15 +92,15 @@ export function InningsBreakOverlay({ innings, target, myRole, deadline }: Innin
 
                 {/* Next Role Indicator */}
                 <div className="text-center mb-8 animate-pulse">
-                    <div className="text-slate-400 text-sm mb-2">Switching Sides...</div>
-                    <div className="text-2xl text-white font-medium">
+                    <div className="text-muted-foreground text-sm mb-2">Switching Sides...</div>
+                    <div className="text-2xl text-foreground font-medium">
                         You are now <span className="text-primary font-bold">{myRole.toUpperCase()}</span>
                     </div>
                 </div>
 
                 {/* Countdown */}
-                <div className="text-slate-500 text-sm font-medium bg-black/30 px-4 py-2 rounded-full border border-white/5">
-                    Next inning starts in <span className="text-white font-bold">{timeLeft}s</span>
+                <div className="text-muted-foreground text-sm font-medium bg-muted/50 px-4 py-2 rounded-full border border-border">
+                    Next inning starts in <span className="text-foreground font-bold">{timeLeft}s</span>
                 </div>
 
             </div>

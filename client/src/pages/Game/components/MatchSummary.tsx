@@ -35,8 +35,8 @@ export function MatchSummary({
   const resultColor = isTie ? "text-accent" : isWinner ? "text-primary" : "text-destructive"
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-slate-900 rounded-3xl border border-white/10 shadow-2xl p-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-2xl p-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
         {/* Result */}
         <div className="flex flex-col items-center gap-2">
           {isWinner && <Trophy className="w-16 h-16 text-accent animate-bounce" />}
