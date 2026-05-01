@@ -42,9 +42,7 @@ export function NumberSelection({ onSelect, disabled, role, className }: NumberS
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
               disabled && "opacity-50 cursor-not-allowed",
               selectedNumber === num && "scale-110",
-              isBatsman
-                ? "bg-primary/10 border-primary text-primary hover:bg-primary/20 active:bg-primary active:text-primary-foreground"
-                : "bg-accent/10 border-accent text-accent hover:bg-accent/20 active:bg-accent active:text-accent-foreground",
+              "bg-primary/10 border-primary text-primary hover:bg-primary/20 active:bg-primary active:text-primary-foreground"
             )}
           >
             {num}
