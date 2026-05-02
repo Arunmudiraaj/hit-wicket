@@ -1,5 +1,6 @@
 import { useAppSelector } from "../../hooks/useTypedRedux";
-import { emitJoinQueue } from "../../socket/socketEmitters";
+import { emitJoinQueue, emitLeaveQueue } from "../../socket/socketEmitters";
+import { MatchmakingOverlay } from "./components/MatchmakingOverlay";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { selectGameId, selectGamePhase } from "../../store/selectors/gameSelectors";
@@ -31,8 +32,17 @@ export default function Home() {
     emitJoinQueue(playerName || undefined);
   };
 
+  const handleCancelMatchmaking = () => {
+    emitLeaveQueue();
+    setFindMatchLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Matchmaking Overlay */}
+      {findMatchLoading && (
+        <MatchmakingOverlay onCancel={handleCancelMatchmaking} playersOnline={3} />
+      )}
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3">
@@ -64,18 +74,9 @@ export default function Home() {
         {/* Play Options */}
         <div className="flex flex-col gap-4">
           {/* Random Match */}
-          <Button onClick={handlePlayNewGame} disabled={findMatchLoading} className="w-full h-16 text-lg" size="lg">
-            {findMatchLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Finding opponent...
-              </>
-            ) : (
-              <>
-                <Shuffle className="w-5 h-5 mr-2" />
-                Quick Match
-              </>
-            )}
+          <Button onClick={handlePlayNewGame} className="w-full h-16 text-lg" size="lg">
+            <Shuffle className="w-5 h-5 mr-2" />
+            Quick Match
           </Button>
 
           {/* Play with Friend */}

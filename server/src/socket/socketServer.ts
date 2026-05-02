@@ -10,6 +10,7 @@ import { socketAuthMiddleware } from './middleware/index.js';
 import { handleJoinQueue } from './handlers/joinQueue.js';
 import { handleSubmitChoice } from './handlers/submitChoice.js';
 import { handleLeaveGame } from './handlers/leaveGame.js';
+import { handleLeaveQueue } from './handlers/leaveQueue.js';
 import { handlePingState } from './handlers/pingState.js';
 import { gameManager } from '../game/gameManager.js';
 import { createLogger } from '../utils/logger.js';
@@ -54,6 +55,7 @@ export function createSocketServer(httpServer: HttpServer): SocketIOServer {
         socket.on(SOCKET_EVENTS.JOIN_QUEUE, handleJoinQueue(socket, playerId));
         socket.on(SOCKET_EVENTS.SUBMIT_CHOICE, handleSubmitChoice(socket, playerId));
         socket.on(SOCKET_EVENTS.LEAVE_GAME, handleLeaveGame(socket, playerId));
+        socket.on(SOCKET_EVENTS.LEAVE_QUEUE, handleLeaveQueue(socket, playerId));
         socket.on(SOCKET_EVENTS.PING_STATE, handlePingState(socket, playerId));
 
         // Disconnect handler

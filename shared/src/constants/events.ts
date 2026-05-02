@@ -8,6 +8,7 @@ export const SOCKET_EVENTS = {
     JOIN_QUEUE: 'join_queue',
     SUBMIT_CHOICE: 'submit_choice',
     LEAVE_GAME: 'leave_game',
+    LEAVE_QUEUE: 'leave_queue',
     PING_STATE: 'ping_state',
 
     // Server → Client

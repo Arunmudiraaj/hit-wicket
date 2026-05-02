@@ -135,7 +135,7 @@ class GameManager {
         if (!session) return;
 
         // Remove from queue if present
-        this.removeFromQueue(playerId);
+        this.leaveQueue(playerId);
 
         // Mark session as disconnected
         session.disconnectedAt = now();
@@ -192,7 +192,7 @@ class GameManager {
     /**
      * Remove player from queue
      */
-    private removeFromQueue(playerId: string): boolean {
+    public leaveQueue(playerId: string): boolean {
         const index = this.queue.findIndex((e) => e.playerId === playerId);
         if (index !== -1) {
             this.queue.splice(index, 1);

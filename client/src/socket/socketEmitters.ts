@@ -22,6 +22,14 @@ export const emitJoinQueue = (name?: string): void => {
 };
 
 /**
+ * Leave the matchmaking queue
+ */
+export const emitLeaveQueue = (): void => {
+  socket.emit(SOCKET_EVENTS.LEAVE_QUEUE);
+  console.log('🛑 Left queue');
+};
+
+/**
  * Submit choice for current ball
  */
 export const emitSubmitChoice = (
