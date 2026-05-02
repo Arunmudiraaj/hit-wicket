@@ -107,6 +107,7 @@ class GameManager {
         this.socketToPlayer.set(socket.id, playerId);
         log.info({ playerId, socketId: socket.id }, 'Player registered');
 
+        this.broadcastStats();
         return playerId;
     }
 
@@ -145,7 +146,12 @@ class GameManager {
             this.handleGameDisconnect(playerId, session.currentGameId);
         }
 
+        // Clean up from players map
+        this.players.delete(playerId);
+        this.socketToPlayer.delete(socketId);
+
         log.info({ playerId, socketId }, 'Player disconnected');
+        this.broadcastStats();
     }
 
     // ============================================
@@ -183,6 +189,8 @@ class GameManager {
         this.queue.push(entry);
         log.info({ playerId, queueSize: this.queue.length }, 'Player joined queue');
 
+        this.broadcastStats();
+
         // Try to match
         this.tryMatch();
 
@@ -197,6 +205,7 @@ class GameManager {
         if (index !== -1) {
             this.queue.splice(index, 1);
             log.info({ playerId, queueSize: this.queue.length }, 'Player removed from queue');
+            this.broadcastStats();
             return true;
         }
         return false;
@@ -270,6 +279,7 @@ class GameManager {
 
         // Emit initial state
         this.broadcastState(initialState.gameId);
+        this.broadcastStats();
     }
 
     /**
@@ -785,6 +795,7 @@ class GameManager {
         setTimeout(() => {
             this.games.delete(gameId);
             log.info({ gameId }, 'Game cleaned up');
+            this.broadcastStats();
         }, 60_000); // Keep for 1 minute after end
     }
 
@@ -798,6 +809,14 @@ class GameManager {
             players: this.players.size,
             queue: this.queue.length,
         };
+    }
+
+    /**
+     * Broadcast stats to all connected clients
+     */
+    broadcastStats(): void {
+        if (!this.io) return;
+        this.io.emit(SOCKET_EVENTS.STATS_UPDATE, this.getStats());
     }
 }
 

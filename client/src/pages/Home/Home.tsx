@@ -12,7 +12,7 @@ import { GAME_PHASE } from "@shared/constants/game-rules";
 
 export default function Home() {
   const [findMatchLoading, setFindMatchLoading] = useState(false);
-  const { playerName } = useAppSelector((s) => s.session);
+  const { playerName, onlinePlayers, activeGames } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
 
   // Watch for match found
@@ -41,7 +41,7 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col relative">
       {/* Matchmaking Overlay */}
       {findMatchLoading && (
-        <MatchmakingOverlay onCancel={handleCancelMatchmaking} playersOnline={3} />
+        <MatchmakingOverlay onCancel={handleCancelMatchmaking} playersOnline={onlinePlayers} activeGames={activeGames} />
       )}
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border">
@@ -63,12 +63,19 @@ export default function Home() {
 
       <main className="flex-1 p-4 max-w-md mx-auto w-full flex flex-col gap-6">
         {/* Online Players */}
-        <div className="flex items-center justify-center gap-2 py-4">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-muted-foreground">
-            <span className="text-foreground font-semibold tabular-nums">{3}</span> players
-            online
-          </span>
+        <div className="flex items-center justify-center gap-4 py-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-muted-foreground">
+              <span className="text-foreground font-semibold tabular-nums">{onlinePlayers}</span> players online
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <span className="text-muted-foreground">
+              <span className="text-foreground font-semibold tabular-nums">{activeGames}</span> live games
+            </span>
+          </div>
         </div>
 
         {/* Play Options */}

@@ -79,6 +79,15 @@ export interface StatePayload {
 }
 
 /**
+ * stats payload - live server statistics
+ */
+export interface StatsPayload {
+    games: number;
+    players: number;
+    queue: number;
+}
+
+/**
  * error payload
  */
 export interface ErrorPayload {

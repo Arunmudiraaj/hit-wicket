@@ -5,9 +5,10 @@ import { X } from "lucide-react";
 type MatchmakingOverlayProps = {
   onCancel: () => void;
   playersOnline?: number;
+  activeGames?: number;
 };
 
-export function MatchmakingOverlay({ onCancel, playersOnline = 3 }: MatchmakingOverlayProps) {
+export function MatchmakingOverlay({ onCancel, playersOnline = 0, activeGames = 0 }: MatchmakingOverlayProps) {
   const [dots, setDots] = useState('');
 
   // Animate dots
@@ -43,11 +44,20 @@ export function MatchmakingOverlay({ onCancel, playersOnline = 3 }: MatchmakingO
             Finding opponent<span className="inline-block w-6 text-left">{dots}</span>
           </h2>
           
-          <div className="flex items-center justify-center gap-2 bg-card border border-border px-4 py-2 rounded-full shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm text-muted-foreground font-medium">
-              <span className="text-foreground font-bold">{playersOnline}</span> players online
-            </span>
+          <div className="flex items-center justify-center gap-4 bg-card border border-border px-6 py-3 rounded-full shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-sm text-muted-foreground font-medium">
+                <span className="text-foreground font-bold">{playersOnline}</span> online
+              </span>
+            </div>
+            <div className="w-px h-4 bg-border" />
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <span className="text-sm text-muted-foreground font-medium">
+                <span className="text-foreground font-bold">{activeGames}</span> live games
+              </span>
+            </div>
           </div>
         </div>
 

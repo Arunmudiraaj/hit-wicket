@@ -15,6 +15,7 @@ export const SOCKET_EVENTS = {
     GUEST_INIT: 'guest_init',
     MATCH_FOUND: 'match_found',
     STATE: 'state',
+    STATS_UPDATE: 'stats_update',
     ERROR: 'error',
     OPPONENT_DISCONNECTED: 'opponent_disconnected',
 

@@ -48,6 +48,9 @@ export function createSocketServer(httpServer: HttpServer): SocketIOServer {
         // Send guest_init with player ID
         socket.emit(SOCKET_EVENTS.GUEST_INIT, { playerId });
 
+        // Send current stats immediately
+        socket.emit(SOCKET_EVENTS.STATS_UPDATE, gameManager.getStats());
+
         // Check if player has an active game to reconnect to
         gameManager.handleGameReconnect(playerId, socket);
 

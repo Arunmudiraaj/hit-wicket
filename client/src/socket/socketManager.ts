@@ -17,13 +17,14 @@ import {
     setConnectionStatus,
     setOpponentDisconnectedAt,
 } from '../store/slices/gameSlice';
-import { setPlayerId, setLastGameId } from '../store/slices/sessionSlice';
+import { setPlayerId, setLastGameId, setLiveStats } from '../store/slices/sessionSlice';
 import type {
     GuestInitPayload,
     MatchFoundPayload,
     StatePayload,
     ErrorPayload,
     OpponentDisconnectedPayload,
+    StatsPayload,
 } from '@shared/types/socket';
 import { emitRequestState } from './socketEmitters';
 
@@ -98,9 +99,16 @@ function handleError(data: ErrorPayload) {
  * Handle opponent_disconnected event
  */
 function handleOpponentDisconnected(data: OpponentDisconnectedPayload) {
-    console.log('⚠️ Opponent disconnected:', data.opponentId);
+    console.log('⚠️ Opponent disconnected, grace period started:', data.gracePeriodEndsAt);
     storeRef?.dispatch(setConnectionStatus('opponent_disconnected'));
-    storeRef?.dispatch(setOpponentDisconnectedAt(Date.now()));
+    storeRef?.dispatch(setOpponentDisconnectedAt(data.gracePeriodEndsAt));
+}
+
+/**
+ * Handle stats_update event
+ */
+function handleStatsUpdate(data: StatsPayload) {
+    storeRef?.dispatch(setLiveStats({ players: data.players, games: data.games }));
 }
 
 /**
@@ -124,6 +132,7 @@ export function initSocketManager(store: Store<RootState>, playerId?: string) {
     socket.on(SOCKET_EVENTS.STATE, handleState);
     socket.on(SOCKET_EVENTS.ERROR, handleError);
     socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
+    socket.on(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
 
     // Set auth if player ID exists
     if (playerId) {
@@ -152,6 +161,7 @@ export function cleanupSocketManager() {
     socket.off(SOCKET_EVENTS.STATE, handleState);
     socket.off(SOCKET_EVENTS.ERROR, handleError);
     socket.off(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
+    socket.off(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
 
     // Disconnect socket
     socket.disconnect();

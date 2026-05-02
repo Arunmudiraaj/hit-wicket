@@ -8,12 +8,16 @@ interface SessionState {
   playerId: string;
   playerName: string;
   lastGameId?: string | null;
+  onlinePlayers: number;
+  activeGames: number;
 }
 
 const initialState: SessionState = {
   playerId: getOrCreatePlayerId(),
   playerName: storage.getPlayerName() || "",
   lastGameId: storage.getLastGameId(),
+  onlinePlayers: 0,
+  activeGames: 0,
 };
 
 const sessionSlice = createSlice({
@@ -33,8 +37,12 @@ const sessionSlice = createSlice({
       if (action.payload) storage.setLastGameId(action.payload);
       else storage.clearLastGameId();
     },
+    setLiveStats(state, action: PayloadAction<{ players: number; games: number }>) {
+      state.onlinePlayers = action.payload.players;
+      state.activeGames = action.payload.games;
+    },
   },
 });
 
-export const { setPlayerId, setPlayerName, setLastGameId } = sessionSlice.actions;
+export const { setPlayerId, setPlayerName, setLastGameId, setLiveStats } = sessionSlice.actions;
 export default sessionSlice.reducer;
