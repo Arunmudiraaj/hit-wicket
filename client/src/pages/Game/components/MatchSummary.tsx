@@ -39,7 +39,7 @@ export function MatchSummary({
       <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-2xl p-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
         {/* Result */}
         <div className="flex flex-col items-center gap-2">
-          {isWinner && <Trophy className="w-16 h-16 text-accent animate-bounce" />}
+          {isWinner && <Trophy className="w-16 h-16 text-yellow-500 animate-bounce" />}
           <h1 className={cn("text-4xl font-bold", resultColor)}>{resultText}</h1>
         </div>
 
@@ -48,7 +48,7 @@ export function MatchSummary({
           <div className="flex flex-col items-center gap-2">
             <Avatar className="w-16 h-16 border-2 border-primary">
               <AvatarImage src={"/placeholder.svg"} />
-              <AvatarFallback>YOU</AvatarFallback>
+              <AvatarFallback className="bg-primary/20 text-primary">YOU</AvatarFallback>
             </Avatar>
             <span className="font-semibold text-foreground">{myName || 'You'}</span>
             <span className="text-2xl font-bold text-primary tabular-nums">
@@ -59,12 +59,12 @@ export function MatchSummary({
           <div className="text-2xl text-muted-foreground font-bold">VS</div>
 
           <div className="flex flex-col items-center gap-2">
-            <Avatar className="w-16 h-16 border-2 border-border">
+            <Avatar className="w-16 h-16 border-2 border-accent">
               <AvatarImage src={"/placeholder.svg"} />
-              <AvatarFallback>OPP</AvatarFallback>
+              <AvatarFallback className="bg-accent/20 text-accent">OPP</AvatarFallback>
             </Avatar>
             <span className="font-semibold text-foreground">{opponent?.name || 'Opponent'}</span>
-            <span className="text-2xl font-bold text-muted-foreground tabular-nums">
+            <span className="text-2xl font-bold text-accent tabular-nums">
               {opponentScore?.score ?? 0}/{opponentScore?.wicketsLost ?? 0}
             </span>
           </div>

@@ -26,13 +26,15 @@ export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, classN
     <div
       className={cn(
         "flex items-center gap-3 p-3 rounded-xl border transition-all",
-        isCurrentPlayer ? "bg-primary/10 border-primary/30" : "bg-card border-border",
+        isCurrentPlayer 
+          ? "bg-primary/10 border-primary/30" 
+          : "bg-accent/10 border-accent/30",
         className,
       )}
     >
-      <Avatar className="w-12 h-12 border-2 border-border">
+      <Avatar className={cn("w-12 h-12 border-2", isCurrentPlayer ? "border-primary/50" : "border-accent/50")}>
         <AvatarImage src={player.profilePicture || "/placeholder.svg"} alt={player.userName} />
-        <AvatarFallback className="bg-muted text-muted-foreground">
+        <AvatarFallback className={cn(isCurrentPlayer ? "bg-primary/20 text-primary" : "bg-accent/20 text-accent")}>
           {player.userName.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
@@ -42,7 +44,7 @@ export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, classN
           <span
             className={cn(
               "text-xs font-medium uppercase tracking-wider",
-              isBatsman ? "text-primary" : "text-accent",
+              isCurrentPlayer ? "text-primary" : "text-accent",
             )}
           >
             {isBatsman ? "Batting" : "Bowling"}
@@ -57,7 +59,9 @@ export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, classN
           className={cn(
             "text-[10px] ml-auto px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider transition-all",
             hasSubmitted
-              ? "bg-primary text-primary-foreground border border-primary/30"
+              ? (isCurrentPlayer 
+                  ? "bg-primary text-primary-foreground border border-primary/30" 
+                  : "bg-accent text-accent-foreground border border-accent/30")
               : "bg-muted text-muted-foreground border border-border animate-pulse"
           )}
         >
