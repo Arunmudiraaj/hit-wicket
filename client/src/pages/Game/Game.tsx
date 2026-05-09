@@ -162,7 +162,7 @@ export default function Game() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border">
-        <RoleIndicator role={myRole ?? 'batsman'} />
+        <RoleIndicator role={myRole ?? ROLES.BATSMAN} />
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
             <Settings className="w-5 h-5" />
@@ -181,14 +181,14 @@ export default function Game() {
         <div className="grid grid-cols-2 gap-3">
           <PlayerCard
             player={{ userId: playerId, userName: playerName || 'You' }}
-            role={myRole ?? 'batsman'}
+            role={myRole ?? ROLES.BATSMAN}
             isCurrentPlayer={true}
             hasSubmitted={hasSubmittedChoice}
             showChoiceMakeIndicator={showChoiceMakeIndicator}
           />
           <PlayerCard
             player={{ userId: opponent?.id ?? '', userName: opponent?.name ?? 'Opponent' }}
-            role={myRole === 'batsman' ? 'bowler' : 'batsman'}
+            role={myRole === ROLES.BATSMAN ? ROLES.BOWLER : ROLES.BATSMAN}
             isCurrentPlayer={false}
             hasSubmitted={opponentHasSubmitted}
             showChoiceMakeIndicator={showChoiceMakeIndicator}
@@ -213,7 +213,7 @@ export default function Game() {
           <NumberSelection
             onSelect={handleChoiceSubmit}
             disabled={!canPlay}
-            role={myRole ?? 'batsman'}
+            role={myRole ?? ROLES.BATSMAN}
           />
         </div>
 

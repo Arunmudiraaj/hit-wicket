@@ -10,12 +10,12 @@ const log = createLogger('socket-auth');
 
 /**
  * Basic socket auth middleware
- * In production, this would validate JWT/session tokens
+ * Validates Better Auth session token if present, otherwise falls back to guest logic
  */
-export function socketAuthMiddleware(
+export async function socketAuthMiddleware(
     socket: Socket,
-    next: () => void
-): void {
+    next: (err?: Error) => void
+): Promise<void> {
     // For now, just log the connection
     // In production, validate auth token from socket.handshake.auth or query
     const { auth, query } = socket.handshake;
@@ -26,7 +26,34 @@ export function socketAuthMiddleware(
         'Socket auth check'
     );
 
-    // Validate guest ID format if present
+    try {
+        const { auth } = await import('../../auth.js');
+        const headers = new Headers();
+        
+        // Convert IncomingHttpHeaders to Headers object
+        if (socket.request.headers) {
+            for (const [key, value] of Object.entries(socket.request.headers)) {
+                if (value) {
+                    headers.append(key, Array.isArray(value) ? value.join(',') : value);
+                }
+            }
+        }
+
+        const session = await auth.api.getSession({ headers });
+
+        if (session && session.user) {
+            // User is authenticated
+            log.debug({ userId: session.user.id }, 'Socket authenticated via Better Auth');
+            socket.handshake.auth = socket.handshake.auth || {};
+            socket.handshake.auth.playerId = session.user.id;
+            socket.handshake.auth.playerName = session.user.name;
+            return next();
+        }
+    } catch (err) {
+        log.error(err, 'Error checking Better Auth session in socket middleware');
+    }
+
+    // Validate guest ID format if present and not authenticated
     if (playerId) {
         // Must start with guest_ and have reasonable length
         // guest_ + 8 chars = 14 chars. optimizing for flexibility allow 10-30 chars
@@ -43,7 +70,7 @@ export function socketAuthMiddleware(
         }
     }
 
-    // Always allow (guest mode)
+    // Always allow (guest mode fallback)
     next();
 }
 

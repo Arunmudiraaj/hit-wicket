@@ -13,6 +13,7 @@ import {
     ERROR_CODES,
     ERROR_MESSAGES,
     TIMING,
+    ROLES,
 } from '@hit-wicket/shared';
 import type { LiveGame, QueueEntry, PlayerSession } from '../types/server.js';
 import {
@@ -34,6 +35,7 @@ import {
 } from './gameEngine.js';
 import { createLogger } from '../utils/logger.js';
 import { now, fromNow } from '../utils/time.js';
+import { persistGameStart, persistGameEnd } from './persistence.js';
 
 const log = createLogger('game-manager');
 
@@ -144,10 +146,13 @@ class GameManager {
         // Handle game disconnect if in a game
         if (session.currentGameId) {
             this.handleGameDisconnect(playerId, session.currentGameId);
+        } else {
+            // Only clean up if not in a game. If in a game, we need the session to persist
+            // so the player can reconnect within the grace period.
+            this.players.delete(playerId);
         }
 
-        // Clean up from players map
-        this.players.delete(playerId);
+        // Always remove socket mapping since socket is dead
         this.socketToPlayer.delete(socketId);
 
         log.info({ playerId, socketId }, 'Player disconnected');
@@ -259,19 +264,22 @@ class GameManager {
 
         log.info({ gameId: initialState.gameId }, 'Game created');
 
+        // Persist game start (fire and forget)
+        persistGameStart(initialState);
+
         // Emit match_found to both players
         this.emitToPlayer(p1Entry.playerId, SOCKET_EVENTS.MATCH_FOUND, {
             gameId: initialState.gameId,
             opponentId: p2Entry.playerId,
             opponentName: p2Entry.name,
-            role: 'batsman', // p1 bats first
+            role: ROLES.BATSMAN, // p1 bats first
         });
 
         this.emitToPlayer(p2Entry.playerId, SOCKET_EVENTS.MATCH_FOUND, {
             gameId: initialState.gameId,
             opponentId: p1Entry.playerId,
             opponentName: p1Entry.name,
-            role: 'bowler', // p2 bowls first
+            role: ROLES.BOWLER, // p2 bowls first
         });
 
         // Start choice timer
@@ -728,7 +736,7 @@ class GameManager {
 
         const io = this.getIO();
 
-        for (const [playerId, socketId] of game.sockets) {
+        for (const [_, socketId] of game.sockets) {
             const payload = {
                 game: game.state,
                 lastBall: lastBall
@@ -787,8 +795,14 @@ class GameManager {
             const session = this.players.get(playerId);
             if (session) {
                 session.currentGameId = undefined;
+                if (session.disconnectedAt) {
+                    this.players.delete(playerId);
+                }
             }
         }
+
+        // Persist game end state and stats (fire and forget)
+        persistGameEnd(game.state);
 
         // Keep game in memory for a bit (for reconnection/history)
         // In production, you'd archive to DB here

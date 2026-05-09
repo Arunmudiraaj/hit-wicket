@@ -7,13 +7,15 @@ import { selectGameId, selectGamePhase } from "../../store/selectors/gameSelecto
 import { Button } from "../../components/ui/button";
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users, Shuffle, UserPlus, Link, Trophy, User, Settings, Loader2 } from "lucide-react"
+import { Users, Shuffle, UserPlus, Link, Trophy, User, Settings, Loader2, LogOut, Github } from "lucide-react"
 import { GAME_PHASE } from "@shared/constants/game-rules";
+import { signIn, signOut, useSession } from "../../lib/auth";
 
 export default function Home() {
   const [findMatchLoading, setFindMatchLoading] = useState(false);
   const { playerName, onlinePlayers, activeGames } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
+  const { data: session, isPending } = useSession();
 
   // Watch for match found
   const gameId = useAppSelector(selectGameId);
@@ -53,11 +55,21 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigate("/profile/65")}>
-            <User className="w-5 h-5" />
+            {session?.user?.image ? (
+              <img src={session.user.image} alt="Profile" className="w-8 h-8 rounded-full" />
+            ) : (
+              <User className="w-5 h-5" />
+            )}
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
-            <Settings className="w-5 h-5" />
-          </Button>
+          {session ? (
+            <Button variant="ghost" size="icon" onClick={() => signOut()}>
+              <LogOut className="w-5 h-5 text-destructive" />
+            </Button>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
+              <Settings className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </header>
 
@@ -85,6 +97,25 @@ export default function Home() {
             <Shuffle className="w-5 h-5 mr-2" />
             Quick Match
           </Button>
+
+          {/* Authentication Section */}
+          {!session ? (
+            <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-4 mt-2">
+              <span className="font-semibold text-foreground text-center">Sign in to save your stats!</span>
+              <Button onClick={() => signIn.social({ provider: "google", callbackURL: window.location.origin })} variant="outline" className="w-full h-12 bg-transparent">
+                Sign in with Google
+              </Button>
+              <Button onClick={() => signIn.social({ provider: "github", callbackURL: window.location.origin })} variant="outline" className="w-full h-12 bg-transparent">
+                <Github className="w-5 h-5 mr-2" />
+                Sign in with GitHub
+              </Button>
+            </div>
+          ) : (
+             <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-2 mt-2">
+               <span className="text-foreground text-center font-medium">Welcome back, {session.user.name}!</span>
+               <span className="text-muted-foreground text-sm text-center">Your game stats are being saved securely.</span>
+             </div>
+          )}
 
           {/* Play with Friend */}
           <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-4">
@@ -116,12 +147,6 @@ export default function Home() {
               Create Invite Link
             </Button>
           </div>
-
-          {/* Guest Mode */}
-          <Button variant="secondary" className="w-full h-14" size="lg">
-            <UserPlus className="w-5 h-5 mr-2" />
-            Play as Guest
-          </Button>
         </div>
 
         {/* Quick Actions */}
@@ -144,8 +169,7 @@ export default function Home() {
               <button
                 key={i}
                 className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors min-w-[80px]"
-                onClick={() => ({})
-                }
+                onClick={() => {}}
               >
                 <Avatar className="w-12 h-12">
                   <AvatarImage src={`/generic-athlete.png?height=64&width=64&query=player ${i}`} />

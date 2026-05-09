@@ -59,3 +59,13 @@ export const GAME_MODES: Record<string, GameMode> = {
 export function getTotalBalls(mode: GameMode): number {
     return mode.overs * mode.ballsPerOver;
 }
+
+// Typed game mode ID constant — used by DB enum and shared across client + server
+export const GAME_MODE_ID = {
+    QUICK:   'quick',
+    CLASSIC: 'classic',
+    RANKED:  'ranked',
+} as const;
+
+export type GameModeId = (typeof GAME_MODE_ID)[keyof typeof GAME_MODE_ID];
+

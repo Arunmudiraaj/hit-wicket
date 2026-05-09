@@ -25,6 +25,8 @@
 | **Monorepo** | npm workspaces | Root `package.json` with 3 workspaces |
 | **Shared** | TypeScript | `@hit-wicket/shared` — types, constants, game rules |
 | **Server** | Node.js + Express + Socket.IO | `@hit-wicket/server` — game logic, matchmaking, state broadcasting |
+| **Auth** | Better Auth | Social login (Google, GitHub). Tables: `user`, `session`, `account`, `verification` |
+| **Database** | PostgreSQL + Drizzle ORM | 6 game-specific tables + 4 Better Auth tables. Enums via `pgEnum` |
 | **Client** | React 19 + Vite + TailwindCSS v4 | SPA with Redux Toolkit for state, Socket.IO Client for real-time |
 | **Validation** | Zod (server) | Schema validation for all socket payloads |
 | **Logging** | Pino + pino-pretty | Structured server-side logging |
@@ -46,26 +48,35 @@ hit-wicket/
 │   │   │   ├── config.ts         # TIMING constants (timeouts, delays)
 │   │   │   ├── errors.ts         # ERROR_CODES + messages
 │   │   │   ├── events.ts         # SOCKET_EVENTS enum
-│   │   │   ├── game-modes.ts     # GameMode interface + presets (QUICK, CLASSIC, RANKED)
-│   │   │   └── game-rules.ts     # GAME_PHASE, ROLES, BALL_OUTCOME, VALID_CHOICES, etc.
+│   │   │   ├── game-modes.ts     # GameMode interface + presets; GAME_MODE_ID (DB enum source)
+│   │   │   ├── game-rules.ts     # GAME_PHASE, ROLES, BALL_OUTCOME, GAME_STATUS_DB, END_REASON, etc.
+│   │   │   ├── achievements.ts   # ACHIEVEMENTS constant + AchievementDefinition interface
+│   │   │   └── settings.ts       # THEME_MODE constant (DB enum source)
 │   │   └── types/
 │   │       ├── game.ts           # GameState, Inning, BallResult + helper functions
 │   │       ├── player.ts         # PlayerPublic, ConnectionStatus, PlayerRole
 │   │       └── socket.ts         # All socket event payload types (C→S and S→C)
 │   └── package.json
 ├── server/                   # @hit-wicket/server — Express + Socket.IO backend
-│   ├── .env                  # PORT, CLIENT_ORIGIN, NODE_ENV, LOG_LEVEL
+│   ├── .env                  # PORT, CLIENT_ORIGIN, NODE_ENV, LOG_LEVEL, DATABASE_URL, BETTER_AUTH_*
+│   ├── drizzle.config.ts     # Drizzle Kit config (schema path, migrations output, DB URL)
 │   ├── src/
 │   │   ├── index.ts              # Entry point: creates Express app → HTTP server → Socket.IO
+│   │   ├── auth.ts               # Better Auth instance (Google + GitHub providers)
 │   │   ├── config/env.ts         # Loads .env, exports typed config object
+│   │   ├── db/
+│   │   │   ├── index.ts          # Drizzle client (postgres-js driver)
+│   │   │   ├── schema.ts         # ★ All table + pgEnum definitions
+│   │   │   ├── relations.ts      # Drizzle relations() for typed relational query API
+│   │   │   └── migrations/       # Auto-generated SQL migration files
 │   │   ├── http/
-│   │   │   ├── app.ts            # Express: CORS, JSON parsing, health routes
+│   │   │   ├── app.ts            # Express: CORS, JSON parsing, health routes, Better Auth handler
 │   │   │   ├── routes.ts         # GET /health endpoint
 │   │   │   └── server.ts         # Creates Node HTTP server from Express app
 │   │   ├── socket/
 │   │   │   ├── socketServer.ts   # Creates Socket.IO server, registers middleware + handlers
 │   │   │   ├── middleware/
-│   │   │   │   └── socketAuth.ts # Validates playerId format (guest_xxx), strips invalid IDs
+│   │   │   │   └── socketAuth.ts # Better Auth session check; falls back to guest_xxx validation
 │   │   │   └── handlers/
 │   │   │       ├── joinQueue.ts      # Validates & calls gameManager.joinQueue()
 │   │   │       ├── submitChoice.ts   # Validates & calls gameManager.submitChoice()
@@ -75,6 +86,7 @@ hit-wicket/
 │   │   │   ├── gameManager.ts    # ★ CORE: Singleton managing matchmaking, games, sessions
 │   │   │   ├── gameEngine.ts     # Pure functions: resolveBall, applyBallToInning, etc.
 │   │   │   ├── stateFactory.ts   # Creates initial GameState, Innings, resets submitted flags
+│   │   │   ├── persistence.ts    # ★ Saves games/innings/stats/achievements to DB on game end
 │   │   │   └── validators.ts     # Zod schemas for all socket payloads
 │   │   ├── types/server.ts       # Server-only types: LiveGame, PlayerSession, QueueEntry
 │   │   └── utils/
@@ -361,24 +373,28 @@ VITE_PORT=3000
 ## 11. Key Design Decisions
 
 1. **Server-authoritative state**: Clients receive and display GameState. No client-side game logic.
-2. **Singleton GameManager**: Single instance tracks all games, players, and the queue in memory. No database yet.
+2. **Singleton GameManager**: Single instance tracks all games, players, and the queue in memory.
 3. **Pure game engine**: `gameEngine.ts` contains only pure functions — easy to test/reason about.
 4. **Socket handlers are thin wrappers**: Validate payload with Zod → delegate to GameManager → emit error if needed.
 5. **Redux stores raw server state**: The `gameSlice` stores the `GameState` object as-is. All derived data comes from selectors.
 6. **Socket manager outside React tree**: Socket lifecycle is managed in a module, not in React components. Events dispatch to Redux.
-7. **Guest mode first**: No account system. Players are identified by `guest_xxxx` IDs persisted in localStorage.
+7. **Guest + Auth mode**: Players can be guests (`guest_xxxx`) or authenticated (Better Auth, Google/GitHub). Only auth users get DB persistence.
 8. **Roles determined by position**: `players[0]` bats in inning 1, `players[1]` bats in inning 2. No coin toss.
+9. **Persistence is fire-and-forget**: `persistGameStart` and `persistGameEnd` are called async without awaiting. DB failures never crash the game.
+10. **Per-mode player stats**: `player_stats` has composite PK `(userId, mode)` — enables both per-mode and global leaderboard queries.
+11. **DB enums from shared constants**: `pgEnum` values are sourced from `GAME_MODE_ID`, `GAME_STATUS_DB`, `END_REASON`, `THEME_MODE` in shared — single source of truth for client and server.
 
 ---
 
 ## 12. Known Limitations / TODOs
 
-- **No database**: All state is in-memory. Server restart loses all games/sessions.
-- **No auth**: Guest-only mode. Auth slice exists but is a placeholder.
-- **Hardcoded game mode**: Always uses `DEFAULT_GAME_MODE` (Quick: 1 over, 6 balls, 1 wicket).
+- **Auth not fully wired to game**: Authenticated user IDs flow into the game and DB, but the client UI doesn't yet show the logged-in user's profile data.
+- **Hardcoded game mode**: Always uses `DEFAULT_GAME_MODE` (Quick: 1 over, 6 balls, 1 wicket). Mode selection UI not yet connected.
 - **No invite/friend system**: "Play with Friend" UI exists on Home page but is non-functional.
 - **Online player count**: Hardcoded to 3 on the Home page.
-- **Profile/Leaderboard pages**: Exist as routes but have placeholder content.
+- **Profile/Leaderboard pages**: Exist as routes but have placeholder content — not yet wired to real DB data.
+- **Settings page**: Not yet wired to `user_settings` table.
+- **Achievements not yet displayed**: `user_achievements` table exists and is populated but UI not built.
 - **CHOICE_TIMEOUT_MS is very high**: Set to 25 min for dev convenience — must reduce for production.
 - **No unit tests**: Only manual testing scripts exist.
 - **Error toasts**: Errors from server are logged to console but not shown to user (TODO noted in code).

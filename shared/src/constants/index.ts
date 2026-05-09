@@ -7,3 +7,6 @@ export * from './game-rules.js';
 export * from './game-modes.js';
 export * from './errors.js';
 export * from './config.js';
+export * from './achievements.js';
+export * from './settings.js';
+

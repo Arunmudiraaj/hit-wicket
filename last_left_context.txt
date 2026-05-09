@@ -36,25 +36,45 @@ work on game page (design) and do clean up of game page
 
 dec 17th 2025
 finalized the index css. just check all classes are being applied. and proceed
-you mostly be using these style colors
-  --color-primary-text: var(--color-primary-600);
-  --color-primary-text-muted: var(--color-primary-400);
-  --color-primary-bg: var(--color-primary-500);
-  --color-primary-bg-subtle: var(--color-primary-50);
-  --color-primary-border: var(--color-primary-300);
 
-  /* LIGHT MODE - Background Colors */
-  --color-base-bg: #ffffff;
-  --color-elevated-bg: #f9fafb;
-  --color-muted-bg: #f3f4f6;
-  
-  /* LIGHT MODE - Text Colors */
-  --color-base-text: #111827;
-  --color-muted-text: #6b7280;
-  --color-subtle-text: #9ca3af;
-  
-  /* LIGHT MODE - Border Colors */
-  --color-base-border: #e5e7eb;
-  --color-strong-border: #d1d5db;
+jan 18th 2026
+copy pasted all jsx code in the components and pasted all the componenets.
+wire the ui with state redux and sockets and other events and make it work
+
+jan 25th 2026
+made the copy pasted ui work. by adding all the value fillers in jsx code
+add the required types and constants at proper places and wire up the ui with redux and backend
+
+feb 1st 2026
+made the mental model of how the app is working in FE and BE. working core functionality of app with some issues.
+just test app moudle by module and make it work by fixing issues
+
+
+
+feb 8th 2026
+fixed bugs in game page (ball result popup, ball history duplicating fix)
+continue to fix bugs
+
+
+
+things to fix
+guest name hard coded in server on register user handlers
+navigate to game page when match is found hardcoded in client
+socket emits are being done in game manager and socket handlers
+
+1st may
+mostly fixed the issues in game play flow. 
+need to fix ui for dark and light theme in some overlays and in some places
+and then work on home page
+
+2nd may
+review the auth and db plan here at: C:\Users\ArunDev18\.gemini\antigravity\brain\a231f78a-bf32-4362-8115-0832ef6a92ee\implementation_plan.md.resolved
+and install the postgres db in local, create a user, db and use it.
+continue to work on auth and db implementation
+
+3rd may
+installed postgres. need to do testing of db and auth.
+the schema does not look fine. need to do changes. like the relation beween games, users and etc.
+think of the schema again for all then proceed to test and finalize
 
   

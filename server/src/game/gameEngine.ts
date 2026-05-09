@@ -7,7 +7,6 @@ import type { GameState, Inning, BallResult, EndReason, PlayerPublic } from '@hi
 import {
     GAME_PHASE,
     BALL_OUTCOME,
-    END_REASON,
     BROADCAST_BALL_HISTORY_LENGTH,
     type Choice,
 } from '@hit-wicket/shared';

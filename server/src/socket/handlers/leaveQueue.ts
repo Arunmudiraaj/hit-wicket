@@ -8,7 +8,7 @@ import { createLogger } from '../../utils/logger.js';
 
 const log = createLogger('handler:leave-queue');
 
-export function handleLeaveQueue(socket: Socket, playerId: string) {
+export function handleLeaveQueue(_socket: Socket, playerId: string) {
     return (): void => {
         log.debug({ playerId }, 'leave_queue received');
 

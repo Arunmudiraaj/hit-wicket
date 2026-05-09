@@ -74,3 +74,15 @@ export const BROADCAST_BALL_HISTORY_LENGTH = 6;
 
 // Total innings in a match
 export const TOTAL_INNINGS = 2;
+
+// DB-level game status enum values (used by pgEnum in schema)
+export const GAME_STATUS_DB = {
+    IN_PROGRESS: 'IN_PROGRESS',
+    COMPLETED:   'COMPLETED',
+    FORFEIT:     'FORFEIT',
+    TIMEOUT:     'TIMEOUT',
+    DISCONNECT:  'DISCONNECT',
+} as const;
+
+export type GameStatusDb = (typeof GAME_STATUS_DB)[keyof typeof GAME_STATUS_DB];
+
