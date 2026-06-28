@@ -13,37 +13,49 @@
  * See implementation_plan.md — Open Question #1 for rationale.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSession } from '../lib/auth';
 import { useAppDispatch } from './useTypedRedux';
 import { setAuthUser, clearAuthUser, setAuthLoading } from '../store/slices/authSlice';
 import { setPlayerId, setPlayerName } from '../store/slices/sessionSlice';
 import { storage } from '../utils/storage';
+import { reconnectSocket } from '../socket/socketManager';
 
 export function useAuth(): void {
     const { data: session, isPending } = useSession();
     const dispatch = useAppDispatch();
+    
+    // Track previous auth state to detect login/logout transitions
+    const prevAuthRef = useRef<boolean | null>(null);
 
     useEffect(() => {
         dispatch(setAuthLoading(isPending));
 
         if (isPending) return;
 
-        if (session?.user && session?.session?.token) {
+        const isAuthenticated = !!(session?.user && session?.session?.token);
+
+        if (isAuthenticated) {
             // Authenticated user
             dispatch(setAuthUser({
-                id:    session.user.id,
-                name:  session.user.name,
-                email: session.user.email,
-                image: session.user.image ?? null,
+                id:    session!.user.id,
+                name:  session!.user.name,
+                email: session!.user.email,
+                image: session!.user.image ?? null,
             }));
 
             // Use real user ID as playerId for the current session.
             // Not saved to localStorage (cookie handles re-identification).
-            dispatch(setPlayerId(session.user.id));
+            dispatch(setPlayerId(session!.user.id));
 
             // Keep playerName in sync with auth name
-            dispatch(setPlayerName(session.user.name));
+            dispatch(setPlayerName(session!.user.name));
+            
+            // If they just logged in mid-session, reconnect to apply the auth token
+            if (prevAuthRef.current === false) {
+                reconnectSocket();
+            }
+            prevAuthRef.current = true;
         } else {
             // Not authenticated — clear auth state and restore guest ID
             dispatch(clearAuthUser());
@@ -53,6 +65,13 @@ export function useAuth(): void {
             if (savedGuestId?.startsWith('guest_')) {
                 dispatch(setPlayerId(savedGuestId));
             }
+            
+            // If they just logged out mid-session, reconnect to drop the auth token
+            if (prevAuthRef.current === true) {
+                reconnectSocket(savedGuestId ?? undefined);
+            }
+            prevAuthRef.current = false;
         }
     }, [session, isPending, dispatch]);
 }
+

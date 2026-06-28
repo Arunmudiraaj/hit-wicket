@@ -188,6 +188,29 @@ export function cleanupSocketManager() {
 }
 
 /**
+ * Force a socket reconnection with a new playerId.
+ * Used when authentication state changes (e.g. user logs out) to drop the 
+ * authenticated session and reconnect as a guest.
+ */
+export function reconnectSocket(playerId?: string) {
+    if (!initialized || !storeRef) return;
+    
+    console.log('🔄 Reconnecting socket due to auth state change...');
+    
+    // Disconnect the current socket
+    socket.disconnect();
+    
+    // Update the auth payload for the new handshake
+    socket.auth = playerId ? { playerId } : {};
+    
+    // Reconnect after a tiny delay to ensure the server processes the disconnect
+    setTimeout(() => {
+        storeRef?.dispatch(setConnectionStatus('connecting'));
+        socket.connect();
+    }, 50);
+}
+
+/**
  * Check if socket is connected
  */
 export function isSocketConnected(): boolean {

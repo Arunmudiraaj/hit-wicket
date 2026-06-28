@@ -17,26 +17,10 @@ export const auth = betterAuth({
         }
     },
     /**
-     * Cookie configuration for cross-origin dev setup.
-     *
-     * Client runs on :3000, server on :3001. The Browser won't send SameSite=Lax
-     * cookies cross-origin (which blocks the Socket.IO upgrade request).
-     *
-     * In dev: SameSite=None; Secure=false so the session cookie is sent with:
-     *   - Regular HTTP requests from authClient (/api/auth/*) ✅
-     *   - WebSocket upgrade requests from Socket.IO ✅
-     *
-     * In production (same domain/reverse-proxied): remove this block and let
-     * Better Auth default to SameSite=Lax with Secure=true.
+     * Better Auth defaults to SameSite=Lax, which works perfectly for localhost
+     * development even across different ports (e.g. 3000 to 3001), because cookies
+     * do not isolate by port.
      */
-    advanced: {
-        defaultCookieAttributes: config.NODE_ENV === "production"
-            ? {}
-            : {
-                sameSite: "none",
-                secure: false,
-            },
-    },
     socialProviders: {
         github: {
             clientId: config.GITHUB_CLIENT_ID || "",
