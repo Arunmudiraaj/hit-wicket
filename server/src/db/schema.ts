@@ -7,6 +7,7 @@
 import {
     pgTable,
     pgEnum,
+    primaryKey,
     text,
     timestamp,
     boolean,
@@ -57,14 +58,14 @@ export const session = pgTable('session', {
     updatedAt: timestamp('updatedAt').notNull(),
     ipAddress: text('ipAddress'),
     userAgent: text('userAgent'),
-    userId:    text('userId').notNull().references(() => user.id),
+    userId:    text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
 });
 
 export const account = pgTable('account', {
     id:                    text('id').primaryKey(),
     accountId:             text('accountId').notNull(),
     providerId:            text('providerId').notNull(),
-    userId:                text('userId').notNull().references(() => user.id),
+    userId:                text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
     accessToken:           text('accessToken'),
     refreshToken:          text('refreshToken'),
     idToken:               text('idToken'),
@@ -89,7 +90,7 @@ export const verification = pgTable('verification', {
 // One row per user. Synced to DB for cross-device access.
 
 export const userSettings = pgTable('user_settings', {
-    userId:       text('user_id').primaryKey().references(() => user.id),
+    userId:       text('user_id').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
     theme:        themeEnum('theme').notNull().default(THEME_MODE.SYSTEM),
     soundEnabled: boolean('sound_enabled').notNull().default(true),
     createdAt:    timestamp('created_at').notNull().defaultNow(),
@@ -106,7 +107,7 @@ export const games = pgTable('games', {
     maxBalls:    integer('max_balls').notNull(),
     maxWickets:  integer('max_wickets').notNull(),
     status:      gameStatusEnum('status').notNull().default(GAME_STATUS_DB.IN_PROGRESS),
-    winnerId:    text('winner_id').references(() => user.id),
+    winnerId:    text('winner_id').references(() => user.id, { onDelete: 'set null' }),
     endReason:   endReasonEnum('end_reason'),
     totalBalls:  integer('total_balls'),
     createdAt:   timestamp('created_at').notNull().defaultNow(),
@@ -120,8 +121,8 @@ export const games = pgTable('games', {
 
 export const gamePlayers = pgTable('game_players', {
     id:       serial('id').primaryKey(),
-    gameId:   text('game_id').notNull().references(() => games.id),
-    userId:   text('user_id').notNull().references(() => user.id),
+    gameId:   text('game_id').notNull().references(() => games.id, { onDelete: 'cascade' }),
+    userId:   text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
     isWinner: boolean('is_winner').notNull(),
     playedAt: timestamp('played_at').notNull().defaultNow(),
 }, (t) => [
@@ -134,10 +135,11 @@ export const gamePlayers = pgTable('game_players', {
 
 export const gameInnings = pgTable('game_innings', {
     id:          serial('id').primaryKey(),
-    gameId:      text('game_id').notNull().references(() => games.id),
+    gameId:      text('game_id').notNull().references(() => games.id, { onDelete: 'cascade' }),
     inningNo:    integer('inning_no').notNull(),
-    batsmanId:   text('batsman_id').references(() => user.id),
-    bowlerId:    text('bowler_id').references(() => user.id),
+    // Nullable if player deleted their account, history remains
+    batsmanId:   text('batsman_id').references(() => user.id, { onDelete: 'set null' }),
+    bowlerId:    text('bowler_id').references(() => user.id, { onDelete: 'set null' }),
     runsScored:  integer('runs_scored').notNull(),
     ballsPlayed: integer('balls_played').notNull(),
     wicketsLost: integer('wickets_lost').notNull(),
@@ -156,11 +158,12 @@ export const gameInnings = pgTable('game_innings', {
 //   bowling economy = totalRunsConceded / totalBallsBowled
 
 export const playerStats = pgTable('player_stats', {
-    userId:            text('user_id').notNull().references(() => user.id),
+    userId:            text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
     mode:              gameModeEnum('mode').notNull(),
     gamesPlayed:       integer('games_played').notNull().default(0),
     gamesWon:          integer('games_won').notNull().default(0),
     gamesLost:         integer('games_lost').notNull().default(0),
+    gamesDrawn:        integer('games_drawn').notNull().default(0),
     // Batting
     totalRunsScored:   integer('total_runs_scored').notNull().default(0),
     totalBallsFaced:   integer('total_balls_faced').notNull().default(0),
@@ -174,7 +177,7 @@ export const playerStats = pgTable('player_stats', {
     bestWinStreak:     integer('best_win_streak').notNull().default(0),
     updatedAt:         timestamp('updated_at').notNull().defaultNow(),
 }, (t) => [
-    uniqueIndex('player_stats_user_mode_idx').on(t.userId, t.mode),
+    primaryKey({ columns: [t.userId, t.mode] }),
 ]);
 
 // ─── User Achievements ─────────────────────────────────────────────────────────
@@ -183,7 +186,7 @@ export const playerStats = pgTable('player_stats', {
 
 export const userAchievements = pgTable('user_achievements', {
     id:            serial('id').primaryKey(),
-    userId:        text('user_id').notNull().references(() => user.id),
+    userId:        text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
     achievementId: text('achievement_id').notNull(),
     unlockedAt:    timestamp('unlocked_at').notNull().defaultNow(),
 }, (t) => [

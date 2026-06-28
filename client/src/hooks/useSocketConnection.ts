@@ -1,6 +1,11 @@
 /**
- * useSocketConnection - Global socket connection hook
- * Initializes socket manager on mount, cleans up on unmount
+ * useSocketConnection — Global socket connection hook.
+ * Initializes the socket manager on mount, cleans up on unmount.
+ *
+ * Auth works automatically — the browser sends the Better Auth HttpOnly cookie
+ * (`better-auth.session_token`) as part of the WebSocket upgrade HTTP request
+ * because the socket is configured with `withCredentials: true`. The server
+ * middleware reads it directly from the handshake headers. No token-passing needed.
  */
 
 import { useEffect } from 'react';
@@ -8,16 +13,16 @@ import { store } from '../store/store';
 import { initSocketManager, cleanupSocketManager } from '../socket/socketManager';
 
 export const useSocketConnection = (): void => {
-  useEffect(() => {
-    // Get stored player ID
-    const savedPlayerId = localStorage.getItem('hit_wicket_player_id') || undefined;
+    useEffect(() => {
+        // Read saved guest ID for reconnection (undefined if no previous guest session)
+        const savedPlayerId = localStorage.getItem('hit_wicket_player_id') || undefined;
 
-    // Initialize socket manager with store and saved ID
-    initSocketManager(store, savedPlayerId);
+        // The session cookie is sent automatically by the browser via withCredentials.
+        // No need to read or forward the token manually.
+        initSocketManager(store, savedPlayerId);
 
-    // Cleanup on unmount
-    return () => {
-      cleanupSocketManager();
-    };
-  }, []);
+        return () => {
+            cleanupSocketManager();
+        };
+    }, []);
 };

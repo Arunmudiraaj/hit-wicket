@@ -59,8 +59,12 @@ function handleDisconnect(reason: string) {
  * Handle guest_init event - server assigns player ID
  */
 function handleGuestInit(data: GuestInitPayload) {
-    console.log('🎮 Guest initialized:', data.playerId);
-    localStorage.setItem('hit_wicket_player_id', data.playerId);
+    console.log('🎮 Player initialized:', data.playerId);
+    // Only persist guest IDs to localStorage.
+    // Auth user IDs are identified via session token on each connection.
+    if (data.playerId.startsWith('guest_')) {
+        localStorage.setItem('hit_wicket_player_id', data.playerId);
+    }
     storeRef?.dispatch(setPlayerId(data.playerId));
 }
 
@@ -81,10 +85,15 @@ function handleState(data: StatePayload) {
     storeRef?.dispatch(setServerState(data.game));
     storeRef?.dispatch(setLastGameId(data.game.gameId));
 
-    // Clear opponent disconnected status when we receive state
-    // (indicates game is proceeding normally)
-    storeRef?.dispatch(setConnectionStatus('connected'));
-    storeRef?.dispatch(setOpponentDisconnectedAt(undefined));
+    // Clear opponent disconnected status ONLY if opponent is actually connected
+    const state = storeRef?.getState();
+    const myPlayerId = state?.session.playerId;
+    const opponent = data.game.players.find((p) => p.id !== myPlayerId);
+
+    if (!opponent || opponent.isConnected) {
+        storeRef?.dispatch(setConnectionStatus('connected'));
+        storeRef?.dispatch(setOpponentDisconnectedAt(undefined));
+    }
 }
 
 /**
@@ -113,7 +122,14 @@ function handleStatsUpdate(data: StatsPayload) {
 
 /**
  * Initialize socket manager with Redux store
- * Attaches all event listeners and connects socket
+ * Attaches all event listeners and connects socket.
+ *
+ * Auth is handled automatically: the browser forwards the Better Auth HttpOnly
+ * cookie in the WebSocket upgrade request (withCredentials: true). The server
+ * middleware reads it from socket.handshake.headers.cookie.
+ *
+ * @param store     - Redux store reference
+ * @param playerId  - Saved guest ID for reconnection (undefined if none)
  */
 export function initSocketManager(store: Store<RootState>, playerId?: string) {
     if (initialized) {
@@ -134,16 +150,15 @@ export function initSocketManager(store: Store<RootState>, playerId?: string) {
     socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
     socket.on(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
 
-    // Set auth if player ID exists
-    if (playerId) {
-        socket.auth = { playerId };
-    }
+    // Only send playerId if we have a saved guest ID to reconnect with.
+    // Auth user identity comes from the session cookie, not from socket.auth.
+    socket.auth = playerId ? { playerId } : {};
 
     // Connect socket
     storeRef.dispatch(setConnectionStatus('connecting'));
     socket.connect();
 
-    console.log('✅ Socket manager initialized');
+    console.log('✅ Socket manager initialized', { hasPlayerId: !!playerId });
 }
 
 /**

@@ -683,12 +683,6 @@ class GameManager {
         // Mark player as connected
         game.state = updatePlayerConnection(game.state, playerId, true);
 
-        // Notify opponent
-        const opponent = game.state.players.find((p) => p.id !== playerId);
-        if (opponent) {
-            this.emitToPlayer(opponent.id, SOCKET_EVENTS.OPPONENT_DISCONNECTED, { opponentId: playerId });
-        }
-
         this.broadcastState(gameId);
         log.info({ playerId, gameId }, 'Player reconnected to game');
     }

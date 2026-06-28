@@ -6,6 +6,8 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import { config } from '../config/index.js';
 import { healthRouter } from './routes.js';
+import { meRouter } from './api/meRouter.js';
+import { leaderboardRouter } from './api/leaderboardRouter.js';
 import { createLogger } from '../utils/logger.js';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from '../auth.js';
@@ -35,10 +37,15 @@ export function createApp(): Express {
     // Better Auth routes
     app.all('/api/auth/*', toNodeHandler(auth.handler));
 
-    // Routes
+    // Game API routes
+    app.use('/api/me', meRouter);
+    app.use('/api/leaderboard', leaderboardRouter);
+
+    // Health check
     app.use(healthRouter);
 
     return app;
 }
 
 export default createApp;
+

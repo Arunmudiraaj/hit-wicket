@@ -70,13 +70,18 @@ hit-wicket/
 │   │   │   ├── relations.ts      # Drizzle relations() for typed relational query API
 │   │   │   └── migrations/       # Auto-generated SQL migration files
 │   │   ├── http/
-│   │   │   ├── app.ts            # Express: CORS, JSON parsing, health routes, Better Auth handler
+│   │   │   ├── app.ts            # Express: CORS, JSON parsing, health routes, Better Auth handler, API routers
 │   │   │   ├── routes.ts         # GET /health endpoint
-│   │   │   └── server.ts         # Creates Node HTTP server from Express app
+│   │   │   ├── server.ts         # Creates Node HTTP server from Express app
+│   │   │   ├── middleware/
+│   │   │   │   └── requireAuth.ts # Express middleware: validates Better Auth session, attaches req.authUser
+│   │   │   └── api/
+│   │   │       ├── meRouter.ts        # GET /api/me (profile+stats+achievements), PATCH /api/me/settings
+│   │   │       └── leaderboardRouter.ts # GET /api/leaderboard?mode=&limit=
 │   │   ├── socket/
 │   │   │   ├── socketServer.ts   # Creates Socket.IO server, registers middleware + handlers
 │   │   │   ├── middleware/
-│   │   │   │   └── socketAuth.ts # Better Auth session check; falls back to guest_xxx validation
+│   │   │   │   └── socketAuth.ts # Validates Better Auth token from socket.auth.token; falls back to guest
 │   │   │   └── handlers/
 │   │   │       ├── joinQueue.ts      # Validates & calls gameManager.joinQueue()
 │   │   │       ├── submitChoice.ts   # Validates & calls gameManager.submitChoice()
@@ -98,13 +103,17 @@ hit-wicket/
     ├── vite.config.ts        # Plugins: react, tailwindcss. Aliases: @→src, @shared→../shared/src
     ├── src/
     │   ├── main.tsx              # Entry: React.StrictMode → Redux Provider → ThemeProvider → App
-    │   ├── App.tsx               # Calls useSocketConnection(), renders RouterProvider
+    │   ├── App.tsx               # Calls useAuth(), useSocketConnection(), renders RouterProvider
     │   ├── index.css             # Tailwind + custom CSS variables (themes, colors)
     │   ├── routes/router.tsx     # react-router-dom: lazy routes for all pages
     │   ├── constants/constants.ts # APP_ROUTES, EXTRA_ROUTES, THEME keys
     │   ├── hooks/
-    │   │   ├── useSocketConnection.ts  # Init socket manager on mount with saved playerId
+    │   │   ├── useAuth.ts              # ★ Syncs Better Auth session → Redux (authSlice + sessionSlice)
+    │   │   ├── useSocketConnection.ts  # Init socket manager on mount with saved playerId + auth token
     │   │   └── useTypedRedux.ts        # useAppSelector, useAppDispatch typed hooks
+    │   ├── lib/
+    │   │   ├── auth.ts               # Better Auth client (createAuthClient, signIn, signOut, useSession)
+    │   │   └── utils.ts              # cn() helper for class merging (clsx + tailwind-merge)
     │   ├── socket/
     │   │   ├── socket.ts             # Socket.IO client instance (autoConnect: false, websocket)
     │   │   ├── socketManager.ts      # ★ Attaches all event listeners, dispatches to Redux
@@ -113,8 +122,8 @@ hit-wicket/
     │   │   ├── store.ts              # configureStore: auth, session, game, theme slices
     │   │   ├── slices/
     │   │   │   ├── gameSlice.ts      # serverState, connectionStatus, opponentDisconnectedAt
-    │   │   │   ├── sessionSlice.ts   # playerId, playerName, lastGameId (persisted to localStorage)
-    │   │   │   ├── authSlice.ts      # Placeholder for future auth
+    │   │   │   ├── sessionSlice.ts   # playerId, playerName, lastGameId, authToken (persisted to localStorage for guests only)
+    │   │   │   ├── authSlice.ts      # ★ Auth user (id/name/email/image), isAuthenticated, isLoading — synced by useAuth()
     │   │   │   └── themeSlice.ts     # Dark/light theme preference
     │   │   └── selectors/
     │   │       └── gameSelectors.ts  # ★ 25+ memoized selectors deriving all game UI state
@@ -146,8 +155,7 @@ hit-wicket/
     │   │   └── ui/                   # shadcn/ui primitives (button, input, avatar, dialog, etc.)
     │   ├── utils/
     │   │   ├── storage.ts            # localStorage wrapper (playerId, playerName, lastGameId)
-    │   │   └── utils.ts              # getOrCreatePlayerId()
-    │   └── lib/utils.ts              # cn() helper for class merging (clsx + tailwind-merge)
+    │   │   └── utils.ts              # getSavedPlayerId() — read-only, never creates IDs client-side
     └── package.json
 ```
 
@@ -160,10 +168,12 @@ The server is the **single source of truth** for all game state. The client rece
 
 ### Connection Lifecycle
 ```
-Client connects → socketAuth middleware validates →
-  → server calls gameManager.registerPlayer(socket, existingPlayerId)
-  → server emits GUEST_INIT { playerId } to client
-  → client saves playerId to localStorage + Redux
+Client fetches Better Auth session token (authClient.getSession())
+  → connects socket with { auth: { playerId?, token? } }
+  → socketAuth middleware validates token (Better Auth) OR guest ID format
+  → server calls gameManager.registerPlayer(socket, resolvedPlayerId)
+  → server emits GUEST_INIT { playerId } — real userId for auth users, guest_xxx for guests
+  → client saves guest_xxx to localStorage (auth user IDs are NOT saved)
   → server checks for active game to reconnect (handleGameReconnect)
 ```
 
@@ -257,7 +267,7 @@ TIMING = {
 | `submit_choice` | C→S | `{ gameId, choice, ballNumber }` | Submit number for current ball |
 | `leave_game` | C→S | `{ gameId }` | Forfeit and leave game |
 | `ping_state` | C→S | `{ gameId }` | Request current state (reconnection) |
-| `guest_init` | S→C | `{ playerId }` | Assign/confirm player identity |
+| `guest_init` | S→C | `{ playerId }` | Assign/confirm player identity (guest or real userId) |
 | `match_found` | S→C | `{ gameId, opponentId, opponentName?, role }` | Match has been made |
 | `state` | S→C | `{ game: GameState, lastBall? }` | Authoritative state update |
 | `error` | S→C | `{ code, message }` | Error notification |
@@ -270,11 +280,16 @@ TIMING = {
 ### Redux Store Shape
 ```
 {
-  auth: {},                                // Placeholder
+  auth: {
+    user: { id, name, email, image } | null,  // Better Auth user, synced by useAuth()
+    isAuthenticated: boolean,
+    isLoading: boolean
+  },
   session: {
-    playerId: string,                      // From server or localStorage
+    playerId: string,                      // guest_xxx or real userId from server
     playerName: string,
-    lastGameId: string | null
+    lastGameId: string | null,
+    authToken: string | null               // Better Auth session token for socket handshake
   },
   game: {
     serverState: GameState | null,         // Direct from server
@@ -301,10 +316,15 @@ All game UI data is derived from `serverState` + `session.playerId` via **memoiz
 
 This keeps socket logic **completely separate** from React components.
 
+### Socket Auth Pattern
+`useSocketConnection.ts` fetches the Better Auth session token via `authClient.getSession()` before connecting. The token is passed in `socket.auth.token`. The server `socketAuthMiddleware` validates the token and overrides the playerId with the real user ID.
+
 ### Session Persistence
-- `playerId` is persisted to `localStorage` key `hit_wicket_player_id`
-- On reconnect, the saved ID is sent via `socket.auth = { playerId }` in the handshake
-- Server validates format (`guest_` prefix), reuses session if found
+- Guest `playerId` (format `guest_xxx`) is persisted to `localStorage` key `hit_wicket_player_id`
+- Auth user IDs are **never** saved to localStorage (the session token handles re-identification)
+- On reconnect, the saved guest ID is sent via `socket.auth.playerId` in the handshake
+- Server validates format (`guest_` prefix + nanoid), generates fresh one if missing or invalid
+- Guest IDs are assigned exclusively by the server (never created client-side)
 
 ---
 
@@ -383,18 +403,21 @@ VITE_PORT=3000
 9. **Persistence is fire-and-forget**: `persistGameStart` and `persistGameEnd` are called async without awaiting. DB failures never crash the game.
 10. **Per-mode player stats**: `player_stats` has composite PK `(userId, mode)` — enables both per-mode and global leaderboard queries.
 11. **DB enums from shared constants**: `pgEnum` values are sourced from `GAME_MODE_ID`, `GAME_STATUS_DB`, `END_REASON`, `THEME_MODE` in shared — single source of truth for client and server.
+12. **Socket auth via token, not cookie**: Better Auth session token is passed explicitly in `socket.auth.token` (WebSocket transport does not auto-send cookies). Server validates via `auth.api.getSession({ headers: { authorization: 'Bearer <token>' } })`.
+13. **Guest IDs are server-assigned**: The server (gameManager) generates all guest IDs with `nanoid`. The client never creates IDs — only reads/persists the ID received from `GUEST_INIT`.
+14. **Cascade deletes on user data**: All user-owned tables (stats, achievements, settings, game_players) cascade-delete when a user account is deleted. Game records (games, innings) use `set null` to preserve history.
 
 ---
 
 ## 12. Known Limitations / TODOs
 
-- **Auth not fully wired to game**: Authenticated user IDs flow into the game and DB, but the client UI doesn't yet show the logged-in user's profile data.
+- **Auth not fully wired to game**: ~~Authenticated user IDs flow into the game and DB, but the client UI doesn't yet show the logged-in user's profile data.~~ **RESOLVED**: Socket auth now validates Better Auth tokens, auth user IDs persist to DB.
 - **Hardcoded game mode**: Always uses `DEFAULT_GAME_MODE` (Quick: 1 over, 6 balls, 1 wicket). Mode selection UI not yet connected.
 - **No invite/friend system**: "Play with Friend" UI exists on Home page but is non-functional.
-- **Online player count**: Hardcoded to 3 on the Home page.
-- **Profile/Leaderboard pages**: Exist as routes but have placeholder content — not yet wired to real DB data.
-- **Settings page**: Not yet wired to `user_settings` table.
-- **Achievements not yet displayed**: `user_achievements` table exists and is populated but UI not built.
+- **Online player count**: Sourced from `stats_update` socket event (real-time).
+- **Profile/Leaderboard pages**: Routes exist and API is live (`GET /api/me`, `GET /api/leaderboard`), but UI not yet wired to real data.
+- **Settings page**: `PATCH /api/me/settings` API is live, but Settings.tsx not yet wired to it.
+- **Achievements not yet displayed**: `user_achievements` table is populated; `/api/me` returns them; UI not built.
 - **CHOICE_TIMEOUT_MS is very high**: Set to 25 min for dev convenience — must reduce for production.
 - **No unit tests**: Only manual testing scripts exist.
 - **Error toasts**: Errors from server are logged to console but not shown to user (TODO noted in code).

@@ -31,7 +31,7 @@ import {
     type ThemeMode,
     type EndReason,
 } from '@hit-wicket/shared';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { createLogger } from '../utils/logger.js';
 
 const log = createLogger('persistence');
@@ -101,11 +101,16 @@ export async function persistGameEnd(gameState: GameState): Promise<void> {
             })
             .where(eq(games.id, gameState.gameId));
 
-        // Update winner flags
+        // Update winner flag per player — must filter by both gameId AND userId
         for (const player of authPlayers) {
             await db.update(gamePlayers)
                 .set({ isWinner: gameState.winnerId === player.id })
-                .where(eq(gamePlayers.gameId, gameState.gameId));
+                .where(
+                    and(
+                        eq(gamePlayers.gameId, gameState.gameId),
+                        eq(gamePlayers.userId, player.id),
+                    )
+                );
         }
 
         // Insert innings rows
@@ -142,6 +147,8 @@ export async function persistGameEnd(gameState: GameState): Promise<void> {
 async function upsertPlayerStats(userId: string, gameState: GameState): Promise<void> {
     const isWinner = gameState.winnerId === userId;
     const isLoss   = gameState.winnerId !== undefined && !isWinner;
+    // A draw: game ended with no winner (e.g. both players timed out simultaneously)
+    const isDraw   = gameState.endReason !== undefined && gameState.winnerId === undefined;
 
     const battingInning = gameState.innings.find(inn => inn?.batsmanId === userId);
     const bowlingInning = gameState.innings.find(inn => inn?.bowlerId  === userId);
@@ -161,6 +168,7 @@ async function upsertPlayerStats(userId: string, gameState: GameState): Promise<
             gamesPlayed:       1,
             gamesWon:          isWinner ? 1 : 0,
             gamesLost:         isLoss   ? 1 : 0,
+            gamesDrawn:        isDraw   ? 1 : 0,
             totalRunsScored:   runsScored,
             totalBallsFaced:   ballsFaced,
             highestScore:      runsScored,
@@ -176,13 +184,14 @@ async function upsertPlayerStats(userId: string, gameState: GameState): Promise<
                 gamesPlayed:       sql`${playerStats.gamesPlayed} + 1`,
                 gamesWon:          isWinner ? sql`${playerStats.gamesWon} + 1`  : sql`${playerStats.gamesWon}`,
                 gamesLost:         isLoss   ? sql`${playerStats.gamesLost} + 1` : sql`${playerStats.gamesLost}`,
+                gamesDrawn:        isDraw   ? sql`${playerStats.gamesDrawn} + 1` : sql`${playerStats.gamesDrawn}`,
                 totalRunsScored:   sql`${playerStats.totalRunsScored} + ${runsScored}`,
                 totalBallsFaced:   sql`${playerStats.totalBallsFaced} + ${ballsFaced}`,
                 highestScore:      sql`GREATEST(${playerStats.highestScore}, ${runsScored})`,
                 totalWicketsTaken: sql`${playerStats.totalWicketsTaken} + ${wicketsTaken}`,
                 totalBallsBowled:  sql`${playerStats.totalBallsBowled} + ${ballsBowled}`,
                 totalRunsConceded: sql`${playerStats.totalRunsConceded} + ${runsConceded}`,
-                // Reset streak to 0 on loss, increment on win
+                // Reset streak to 0 on loss/draw, increment on win
                 currentWinStreak:  isWinner ? sql`${playerStats.currentWinStreak} + 1` : sql`0`,
                 // Update best streak only when winning (current+1 may exceed historical best)
                 bestWinStreak:     isWinner

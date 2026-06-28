@@ -3,16 +3,15 @@
  */
 
 import { storage } from './storage';
-import { v4 as uuid } from 'uuid';
 
 /**
- * Get or create a player ID from localStorage
+ * Read saved guest player ID from localStorage.
+ * Returns null if none exists — the server will assign a new ID on connection
+ * and send it back via the GUEST_INIT event.
+ *
+ * IMPORTANT: Never generate an ID client-side. The server is the source of truth
+ * for player IDs (see known-issues.txt #2).
  */
-export function getOrCreatePlayerId(): string {
-  let id = storage.getPlayerId();
-  if (!id) {
-    id = `guest-${uuid()}`;
-    storage.setPlayerId(id);
-  }
-  return id;
+export function getSavedPlayerId(): string | null {
+    return storage.getPlayerId() ?? null;
 }
