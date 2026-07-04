@@ -9,3 +9,8 @@ You are STRICTLY REQUIRED to keep the files in the `.context/` directory in sync
 Whenever you update ANY file in the `.context/` directory, you MUST also update the `Last Updated: YYYY-MM-DD` text at the top of `.context/index.md` to the current date.
 
 Failure to do so will mislead future agents and cause bugs. Code and context files MUST evolve together. Never skip this step when completing a task.
+
+## Testing Sync (CRITICAL RULE)
+You are STRICTLY REQUIRED to keep the test files in sync with the codebase. If you add a new feature, change an architecture pattern, modify a method signature, add new routes, or introduce new socket events, you MUST add or update tests to verify the new behavior. 
+
+Tests are part of the codebase. Never leave tests broken, never skip writing tests for new features, and always verify that `npm test` passes before considering a task complete. Read `.context/testing.md` for testing instructions.

@@ -23,6 +23,8 @@ Based on your task, use your file reading tools to read the relevant files below
   Read `.context/database.md`
 - **Checking what's currently broken or incomplete?**
   Read `.context/known-issues-and-todos.md`
+- **Need to write or understand the automated tests?**
+  Read `.context/testing.md`
 - **General coding rules (Must Read for all tasks):** 
   Read `.context/coding-standards.md`
 - **Cleaning up or refactoring code?**
