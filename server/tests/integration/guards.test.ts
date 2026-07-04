@@ -224,4 +224,45 @@ describe('Guards & Validations', () => {
         const err = await errorPromise;
         expect(err.code).toBe(ERROR_CODES.GAME_NOT_FOUND);
     });
+
+    test('Spoofing: Invalid guest ID in handshake is stripped and replaced', async () => {
+        // We pass a malicious existingPlayerId to connectGuest
+        const spoofedId = 'guest_HACKERMAN!@#';
+        const p1 = await guest(spoofedId);
+        
+        // p1.playerId is what the server returned in GUEST_INIT
+        expect(p1.playerId).not.toBe(spoofedId);
+        expect(p1.playerId).toMatch(/^guest_[a-zA-Z0-9_-]{8,}$/); // Must match the correct nanoid format
+    });
+
+    test('Queue Spamming: Rapid join/leave does not corrupt queue state', async () => {
+        const p1 = await guest();
+        
+        // Spam JOIN and LEAVE synchronously (creates a burst of events)
+        for (let i = 0; i < 50; i++) {
+            p1.socket.emit(SOCKET_EVENTS.JOIN_QUEUE, { name: 'Spammer' });
+            p1.socket.emit(SOCKET_EVENTS.LEAVE_QUEUE);
+        }
+        
+        await vi.advanceTimersByTimeAsync(100);
+
+        // Have a normal player join
+        const p2 = await guest();
+        p2.socket.emit(SOCKET_EVENTS.JOIN_QUEUE, { name: 'Normal' });
+        
+        // Wait. p2 should NOT receive MATCH_FOUND if p1's LEAVE_QUEUE worked properly.
+        await vi.advanceTimersByTimeAsync(500);
+        
+        expect(p2.latestState).toBeUndefined(); // No state means no game started
+
+        // Now if p1 joins properly, they should match p2 immediately
+        const matchPromise = waitForEvent<any>(p2.socket, SOCKET_EVENTS.MATCH_FOUND);
+        p1.socket.emit(SOCKET_EVENTS.JOIN_QUEUE, { name: 'Spammer' });
+        
+        await vi.advanceTimersByTimeAsync(100);
+        const match = await matchPromise;
+        
+        expect(match).toBeDefined();
+        expect(match.opponentId).toBe(p1.playerId);
+    });
 });

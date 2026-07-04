@@ -156,4 +156,41 @@ describe('Authenticated Users', () => {
             expect(bobState?.name).toBe('BobAuth');
         }
     });
+    test('Auth vs Guest matchmaking and persistence', async () => {
+        const authPlayer = await connectAuth('user-charlie', 'CharlieAuth');
+        const guestPlayer = await connectGuest(testServer.url);
+        clients.push(guestPlayer); // Ensure cleanup
+
+        const game = await matchTwoPlayers(authPlayer, guestPlayer, { p1: 'CharlieAuth', p2: 'GuestBob' });
+        expect(game.gameId).toBeTruthy();
+
+        // Ensure players are recognized correctly in state
+        const state = authPlayer.latestState.game;
+        const charlie = state.players.find((p: any) => p.id === 'user-charlie');
+        const guest = state.players.find((p: any) => p.id.startsWith('guest_'));
+        
+        expect(charlie).toBeDefined();
+        expect(charlie.name).toBe('CharlieAuth');
+        expect(guest).toBeDefined();
+        expect(guest.name).toBe('GuestBob');
+
+        // Play 1 ball then forfeit to test persistence
+        await playBallAndAdvance(vi, authPlayer, guestPlayer, game.gameId, 1, 2, 1);
+        
+        // Guest leaves game -> Auth wins
+        guestPlayer.socket.emit(SOCKET_EVENTS.LEAVE_GAME, { gameId: game.gameId });
+        await vi.advanceTimersByTimeAsync(100);
+
+        // Verify persistGameEnd was called
+        expect(persistence.persistGameEnd).toHaveBeenCalled();
+        const callArgs = vi.mocked(persistence.persistGameEnd).mock.calls.at(-1);
+        expect(callArgs).toBeDefined();
+        
+        if (callArgs) {
+            const endState = callArgs[0];
+            expect(endState.winnerId).toBe('user-charlie');
+            expect(endState.players.some(p => p.id === 'user-charlie')).toBe(true);
+            expect(endState.players.some(p => p.id.startsWith('guest_'))).toBe(true);
+        }
+    });
 });
