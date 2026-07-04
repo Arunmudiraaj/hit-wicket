@@ -3,6 +3,7 @@
 _Last Updated: 2026-07-04_
 
 > **⚠️ CRITICAL MAINTENANCE RULE:** If you make changes that affect this project's architecture, dependencies, or conventions, you **MUST update the relevant context file** before finishing your task. Code and context MUST be in sync.
+> **⚠️ CRITICAL TESTING RULE:** If you add a new feature, change an architecture pattern, or introduce new socket events, you **MUST add or update tests** to verify the new behavior. Code, context, and tests MUST be in sync.
 
 Hit-Wicket is a real-time multiplayer Hand Cricket game built as a full-stack TypeScript monorepo (React, Node, Socket.IO, Drizzle).
 
