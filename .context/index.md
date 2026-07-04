@@ -1,6 +1,6 @@
 # Hit-Wicket Context Index
 
-_Last Updated: 2026-07-04_
+_Last Updated: 2025-05-14_
 
 > **⚠️ CRITICAL MAINTENANCE RULE:** If you make changes that affect this project's architecture, dependencies, or conventions, you **MUST update the relevant context file** before finishing your task. Code and context MUST be in sync.
 

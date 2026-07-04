@@ -77,4 +77,11 @@ installed postgres. need to do testing of db and auth.
 the schema does not look fine. need to do changes. like the relation beween games, users and etc.
 think of the schema again for all then proceed to test and finalize
 
+28th june
+finalized db schema. wired db and auth with server and client
+created all context files for whole app. added the folders (.context and .agents) for context to ai 
+planned to add unit tests to backend, frontend
+
+
+
   

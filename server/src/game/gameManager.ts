@@ -784,17 +784,20 @@ class GameManager {
             clearTimeout(timer);
         }
 
-        // Update player sessions and leave the game room
-        for (const player of game.state.players) {
-            const session = this.players.get(player.id);
-            if (session) {
-                session.socket.leave(gameId); // remove from room
-                session.currentGameId = undefined;
-                if (session.disconnectedAt) {
-                    this.players.delete(player.id);
+        // Delay leaving the room to allow pending broadcasts (like GAME_OVER) to be sent
+        setTimeout(() => {
+            // Update player sessions and leave the game room
+            for (const player of game.state.players) {
+                const session = this.players.get(player.id);
+                if (session) {
+                    session.socket.leave(gameId); // remove from room
+                    session.currentGameId = undefined;
+                    if (session.disconnectedAt) {
+                        this.players.delete(player.id);
+                    }
                 }
             }
-        }
+        }, 100);
 
         // Persist game end state and stats (fire and forget)
         persistGameEnd(game.state);

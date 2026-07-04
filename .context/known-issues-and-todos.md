@@ -10,10 +10,7 @@ This document outlines intentionally incomplete features, technical debt, and kn
 - **Settings UI**: `PATCH /api/me/settings` API is live, but `Settings.tsx` is not yet wired to it.
 - **Achievements UI**: `user_achievements` table is populated; `/api/me` returns them; but the UI is not built.
 - **Dev Timers**: `CHOICE_TIMEOUT_MS` is set very high (25 min) for dev convenience — must reduce for production.
-- **No unit tests**: Only manual testing scripts exist.
 - **Error toasts**: Errors from server are logged to console but not shown to the user (TODO noted in code).
 
 ## 2. Open Architectural Decisions
-- **Socket Auth Fallback**: If the Better Auth token validation fails in `socketAuth` middleware (expired/invalid token), the user silently falls back to guest mode.
-  - *Current behavior*: Intentional — we never block the socket connection.
-  - *Open question*: Should the client be notified (e.g. via an 'error' event) so it can show a "session expired, please log in again" UI? Or is silent guest fallback acceptable?
+- No open architectural decisions at this time.

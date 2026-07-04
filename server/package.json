@@ -8,6 +8,10 @@
         "dev": "tsx watch src/index.ts",
         "build": "tsc",
         "start": "node dist/index.js",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:unit": "vitest run tests/unit",
+        "test:integration": "vitest run tests/integration",
         "test:client": "node scripts/test-client.js",
         "test:2players": "powershell -ExecutionPolicy Bypass -File scripts/run-2players.ps1"
     },
@@ -29,6 +33,7 @@
         "drizzle-kit": "^0.31.10",
         "socket.io-client": "^4.8.1",
         "tsx": "^4.19.1",
-        "typescript": "~5.8.3"
+        "typescript": "~5.8.3",
+        "vitest": "^3.2.4"
     }
 }

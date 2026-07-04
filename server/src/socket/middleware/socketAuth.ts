@@ -62,11 +62,13 @@ export async function socketAuthMiddleware(
                 return next();
             }
 
-            // Cookie present but session invalid/expired — fall through to guest.
-            log.debug({ socketId: socket.id }, 'Cookie present but no valid session — falling back to guest');
+            // Cookie present but session invalid/expired — DO NOT fall back to guest. Reject connection.
+            log.warn({ socketId: socket.id }, 'Cookie present but no valid session — rejecting connection');
+            return next(new Error('NOT_AUTHENTICATED'));
         } catch (err) {
-            // Network/DB error checking session — fall through, never block the connection.
-            log.error(err, 'Error validating Better Auth cookie in socket middleware — falling back to guest');
+            // Network/DB error checking session — reject connection to be safe.
+            log.error(err, 'Error validating Better Auth cookie in socket middleware — rejecting connection');
+            return next(new Error('NOT_AUTHENTICATED'));
         }
     }
 
