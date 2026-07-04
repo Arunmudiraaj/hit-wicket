@@ -31,6 +31,10 @@ export interface PlayerSession {
 /**
  * Live game state (server-only runtime)
  * Contains authoritative game state + server runtime objects
+ *
+ * Broadcasting: all players are joined into a Socket.IO room named after gameId.
+ * Use io.to(gameId).emit() for symmetric events (STATE).
+ * Use session.socket.emit() for asymmetric events (MATCH_FOUND, OPPONENT_DISCONNECTED).
  */
 export interface LiveGame {
     /** Authoritative game state (safe to broadcast) */
@@ -38,9 +42,6 @@ export interface LiveGame {
 
     /** Full ball history for each inning (server keeps all, broadcasts last 6) */
     ballHistory: [BallResult[], BallResult[]];
-
-    /** Socket mapping: playerId -> socketId */
-    sockets: Map<string, string>;
 
     /** Pending choices for current ball */
     pendingChoices: Map<string, PendingChoice>;

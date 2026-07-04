@@ -32,6 +32,13 @@ All game UI data is derived from `serverState` + `session.playerId` via **memoiz
 
 This keeps socket logic **completely separate** from React components.
 
+### Server Broadcasting Strategy
+- **Symmetric events** (`STATE`): broadcast via `io.to(gameId).emit()` — Socket.IO room named after `gameId`.
+  - Players join the room in `createGame()` and re-join on reconnect via `handleGameReconnect()`.
+  - Socket.IO auto-removes sockets from rooms on disconnect, preventing stale broadcasts.
+- **Asymmetric events** (`MATCH_FOUND`, `OPPONENT_DISCONNECTED`): sent via `session.socket.emit()` directly,
+  because each player receives a different payload (role, opponentId, etc.).
+
 ## Game Page Component Hierarchy
 ```text
 Game.tsx                          # Main page, reads all selectors

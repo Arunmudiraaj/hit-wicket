@@ -246,28 +246,30 @@ class GameManager {
         const liveGame: LiveGame = {
             state: initialState,
             ballHistory: [[], []],
-            sockets: new Map([
-                [p1Entry.playerId, p1Entry.socketId],
-                [p2Entry.playerId, p2Entry.socketId],
-            ]),
             pendingChoices: new Map(),
             disconnectTimers: new Map(),
         };
 
         this.games.set(initialState.gameId, liveGame);
 
-        // Update player sessions
+        // Update player sessions and join both sockets into the game room
         const session1 = this.players.get(p1Entry.playerId);
         const session2 = this.players.get(p2Entry.playerId);
-        if (session1) session1.currentGameId = initialState.gameId;
-        if (session2) session2.currentGameId = initialState.gameId;
+        if (session1) {
+            session1.currentGameId = initialState.gameId;
+            session1.socket.join(initialState.gameId);
+        }
+        if (session2) {
+            session2.currentGameId = initialState.gameId;
+            session2.socket.join(initialState.gameId);
+        }
 
         log.info({ gameId: initialState.gameId }, 'Game created');
 
         // Persist game start (fire and forget)
         persistGameStart(initialState);
 
-        // Emit match_found to both players
+        // Emit match_found to both players (asymmetric — different payload per player)
         this.emitToPlayer(p1Entry.playerId, SOCKET_EVENTS.MATCH_FOUND, {
             gameId: initialState.gameId,
             opponentId: p2Entry.playerId,
@@ -677,8 +679,8 @@ class GameManager {
             game.disconnectTimers.delete(playerId);
         }
 
-        // Update socket mapping
-        game.sockets.set(playerId, socket.id);
+        // Re-join the game room with the new socket so broadcastState() reaches it
+        socket.join(gameId);
 
         // Mark player as connected
         game.state = updatePlayerConnection(game.state, playerId, true);
@@ -728,23 +730,21 @@ class GameManager {
         const game = this.games.get(gameId);
         if (!game) return;
 
-        const io = this.getIO();
+        // Broadcast to the game room — all joined sockets receive this.
+        // Players join the room in createGame() and re-join in handleGameReconnect().
+        const payload = {
+            game: game.state,
+            lastBall: lastBall
+                ? {
+                    batterChoice: lastBall.batterChoice,
+                    bowlerChoice: lastBall.bowlerChoice,
+                    runs: lastBall.runs,
+                    isWicket: lastBall.isWicket,
+                }
+                : undefined,
+        };
 
-        for (const [_, socketId] of game.sockets) {
-            const payload = {
-                game: game.state,
-                lastBall: lastBall
-                    ? {
-                        batterChoice: lastBall.batterChoice,
-                        bowlerChoice: lastBall.bowlerChoice,
-                        runs: lastBall.runs,
-                        isWicket: lastBall.isWicket,
-                    }
-                    : undefined,
-            };
-
-            io.to(socketId).emit(SOCKET_EVENTS.STATE, payload);
-        }
+        this.getIO().to(gameId).emit(SOCKET_EVENTS.STATE, payload);
     }
 
     /**
@@ -784,13 +784,14 @@ class GameManager {
             clearTimeout(timer);
         }
 
-        // Update player sessions
-        for (const [playerId] of game.sockets) {
-            const session = this.players.get(playerId);
+        // Update player sessions and leave the game room
+        for (const player of game.state.players) {
+            const session = this.players.get(player.id);
             if (session) {
+                session.socket.leave(gameId); // remove from room
                 session.currentGameId = undefined;
                 if (session.disconnectedAt) {
-                    this.players.delete(playerId);
+                    this.players.delete(player.id);
                 }
             }
         }
@@ -798,13 +799,14 @@ class GameManager {
         // Persist game end state and stats (fire and forget)
         persistGameEnd(game.state);
 
-        // Keep game in memory for a bit (for reconnection/history)
-        // In production, you'd archive to DB here
+        // Keep game in memory for 60s after end so late-reconnecting clients can
+        // still retrieve the final state via ping_state.
+        // Socket.IO auto-cleans the room once all sockets have left.
         setTimeout(() => {
             this.games.delete(gameId);
-            log.info({ gameId }, 'Game cleaned up');
+            log.info({ gameId }, 'Game cleaned up from memory');
             this.broadcastStats();
-        }, 60_000); // Keep for 1 minute after end
+        }, 60_000);
     }
 
     // ============================================
