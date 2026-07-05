@@ -1,8 +1,9 @@
-
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { PlayerRole } from "@shared/constants/game-rules"
 import { ROLES } from "@shared/constants/game-rules"
+import { WifiOff } from "lucide-react"
 
 type PlayerInfo = {
   userId: string
@@ -17,10 +18,29 @@ type PlayerCardProps = {
   hasSubmitted?: boolean
   className?: string
   showChoiceMakeIndicator?: boolean
+  disconnectedAt?: number
 }
 
-export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, className, showChoiceMakeIndicator }: PlayerCardProps) {
+export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, className, showChoiceMakeIndicator, disconnectedAt }: PlayerCardProps) {
   const isBatsman = role === ROLES.BATSMAN;
+
+  const [disconnectSecondsLeft, setDisconnectSecondsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!disconnectedAt) {
+      setDisconnectSecondsLeft(null);
+      return;
+    }
+
+    const updateTimer = () => {
+      const left = Math.max(0, Math.ceil((disconnectedAt - Date.now()) / 1000));
+      setDisconnectSecondsLeft(left);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [disconnectedAt]);
 
   return (
     <div
@@ -39,7 +59,15 @@ export function PlayerCard({ player, role, isCurrentPlayer, hasSubmitted, classN
         </AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
-        <span className="font-semibold text-foreground">{isCurrentPlayer ? "You" : player.userName}</span>
+        <span className="font-semibold text-foreground flex items-center flex-wrap gap-1">
+          {isCurrentPlayer ? "You" : player.userName}
+          {disconnectedAt && disconnectSecondsLeft !== null && (
+             <span className="text-destructive flex items-center text-xs font-bold bg-destructive/10 px-1.5 py-0.5 rounded animate-pulse">
+               <WifiOff className="w-3 h-3 mr-1" />
+               {disconnectSecondsLeft}s
+             </span>
+          )}
+        </span>
         <div className="flex items-center gap-2">
           <span
             className={cn(

@@ -29,6 +29,7 @@ import {
   selectChoiceDeadline,
   selectInningBreakDeadline,
   selectWinnerId,
+  selectEndReason,
 } from '@/store/selectors/gameSelectors';
 import { GAME_PHASE, ROLES, type Choice } from '@shared/constants/game-rules';
 import { TIMING } from '@shared/constants/config';
@@ -72,6 +73,7 @@ export default function Game() {
   const choiceDeadline = useAppSelector(selectChoiceDeadline);
   const inningBreakDeadline = useAppSelector(selectInningBreakDeadline);
   const winnerId = useAppSelector(selectWinnerId);
+  const endReason = useAppSelector(selectEndReason);
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<boolean>(false);
@@ -137,26 +139,6 @@ export default function Game() {
     );
   }
 
-  // Render opponent disconnected overlay
-  const renderDisconnectedOverlay = () => {
-    if (connectionStatus !== 'opponent_disconnected') return null;
-
-    const reconnectDeadline = opponentDisconnectedAt
-      ? opponentDisconnectedAt + TIMING.DISCONNECT_GRACE_PERIOD_MS
-      : Date.now() + TIMING.DISCONNECT_GRACE_PERIOD_MS;
-    const secondsLeft = Math.max(0, Math.ceil((reconnectDeadline - Date.now()) / 1000));
-
-    return (
-      <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div className="bg-slate-800 p-6 rounded-lg text-center">
-          <h2 className="text-xl text-white mb-2">Opponent Disconnected</h2>
-          <p className="text-slate-300">Waiting for reconnection...</p>
-          <p className="text-2xl text-yellow-400 mt-2">{secondsLeft}s</p>
-        </div>
-      </div>
-    );
-  };
-
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -175,7 +157,6 @@ export default function Game() {
 
       {/* Main Content */}
       <main className="flex-1 p-4 flex flex-col gap-4 max-w-2xl mx-auto w-full relative">
-        {renderDisconnectedOverlay()}
 
         {/* Players */}
         <div className="grid grid-cols-2 gap-3">
@@ -192,6 +173,7 @@ export default function Game() {
             isCurrentPlayer={false}
             hasSubmitted={opponentHasSubmitted}
             showChoiceMakeIndicator={showChoiceMakeIndicator}
+            disconnectedAt={connectionStatus === 'opponent_disconnected' ? opponentDisconnectedAt : undefined}
           />
         </div>
 
@@ -251,6 +233,7 @@ export default function Game() {
         <MatchSummary
           innings={innings}
           winnerId={winnerId}
+          endReason={endReason}
           myPlayerId={playerId}
           myName={playerName ?? ''}
           opponent={opponent}

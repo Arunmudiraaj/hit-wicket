@@ -5,10 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Trophy } from "lucide-react"
 import type { Inning } from "@shared/types/game"
 import type { PlayerPublic } from "@shared/types/player"
+import { END_REASON } from "@shared/constants/game-rules"
 
 type MatchSummaryProps = {
   innings: [Inning | null, Inning | null]
   winnerId: string | null | undefined
+  endReason?: string | null
   myPlayerId: string
   myName: string
   opponent: PlayerPublic | null
@@ -18,6 +20,7 @@ type MatchSummaryProps = {
 export function MatchSummary({
   innings,
   winnerId,
+  endReason,
   myPlayerId,
   myName,
   opponent,
@@ -34,13 +37,25 @@ export function MatchSummary({
   const resultText = isTie ? "It's a Tie!" : isWinner ? "Victory!" : "Defeat"
   const resultColor = isTie ? "text-accent" : isWinner ? "text-primary" : "text-destructive"
 
+  const getReasonText = () => {
+    if (!endReason || endReason === END_REASON.COMPLETED) return null;
+    if (endReason === END_REASON.DISCONNECT) return "Opponent Disconnected";
+    if (endReason === END_REASON.FORFEIT) return "Opponent Forfeited";
+    if (endReason === END_REASON.TIMEOUT) return "Time Ran Out";
+    return null;
+  }
+  const reasonText = getReasonText();
+
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-2xl p-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
         {/* Result */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 text-center">
           {isWinner && <Trophy className="w-16 h-16 text-yellow-500 animate-bounce" />}
           <h1 className={cn("text-4xl font-bold", resultColor)}>{resultText}</h1>
+          {reasonText && (
+            <p className="text-muted-foreground font-medium mt-1">({reasonText})</p>
+          )}
         </div>
 
         {/* Players */}

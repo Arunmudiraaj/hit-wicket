@@ -49,14 +49,6 @@ const gameSlice = createSlice({
      */
     setServerState: (state, action: PayloadAction<GameState>) => {
       state.serverState = action.payload;
-      // Clear opponent disconnected when we receive new state
-      // (they may have reconnected)
-      if (state.connectionStatus === 'opponent_disconnected') {
-        // Check if opponent is back by looking at players
-        // The server will send updated state when opponent reconnects
-        state.connectionStatus = 'connected';
-        state.opponentDisconnectedAt = undefined;
-      }
     },
 
     /**
