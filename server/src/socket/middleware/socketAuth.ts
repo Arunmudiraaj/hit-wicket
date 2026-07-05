@@ -22,8 +22,10 @@
  */
 
 import type { Socket } from 'socket.io';
+import jwt from 'jsonwebtoken';
 import { auth } from '../../auth.js';
 import { createLogger } from '../../utils/logger.js';
+import { config } from '../../config/index.js';
 
 const log = createLogger('socket-auth');
 
@@ -35,7 +37,7 @@ export async function socketAuthMiddleware(
     next: (err?: Error) => void
 ): Promise<void> {
     const handshakeAuth = socket.handshake.auth as Record<string, unknown>;
-    const playerId = handshakeAuth?.playerId as string | undefined;
+    const token = handshakeAuth?.token as string | undefined;
 
     // Build a Headers object from the socket's HTTP upgrade request.
     // This includes the `cookie` header with `better-auth.session_token`.
@@ -46,7 +48,7 @@ export async function socketAuthMiddleware(
     }
 
     const hasCookie = requestHeaders.has('cookie');
-    log.debug({ socketId: socket.id, hasCookie, playerId }, 'Socket auth check');
+    log.debug({ socketId: socket.id, hasCookie, hasToken: !!token }, 'Socket auth check');
 
     // ── Step 1: Validate Better Auth session from upgrade request cookie ─────
     if (hasCookie) {
@@ -72,16 +74,30 @@ export async function socketAuthMiddleware(
         }
     }
 
-    // ── Step 2: Validate existing guest ID format ────────────────────────────
-    // Guest IDs are generated server-side by gameManager.
-    // Here we only *validate* a reconnection ID sent by the client.
-    // If the format is invalid we strip it so gameManager generates a fresh one.
-    if (playerId && !GUEST_ID_RE.test(playerId)) {
-        log.warn({ socketId: socket.id, playerId }, 'Invalid guest ID format — stripping so a new one is assigned');
+    // ── Step 2: Validate existing guest token ────────────────────────────
+    if (token) {
+        try {
+            // Use BETTER_AUTH_SECRET as the JWT secret
+            const secret = config.BETTER_AUTH_SECRET;
+            const decoded = jwt.verify(token, secret) as { playerId: string };
+            
+            if (decoded.playerId && GUEST_ID_RE.test(decoded.playerId)) {
+                log.info({ socketId: socket.id, playerId: decoded.playerId }, 'Socket authenticated via Guest JWT');
+                handshakeAuth.playerId = decoded.playerId;
+                handshakeAuth.isAuthUser = false;
+                return next();
+            }
+        } catch (err) {
+            log.warn({ socketId: socket.id }, 'Invalid/Expired Guest JWT — stripping so a new one is assigned');
+            delete handshakeAuth.playerId;
+            delete handshakeAuth.token;
+        }
+    } else {
+        // Strip any unverified playerId sent from client just in case
         delete handshakeAuth.playerId;
     }
 
-    // ── Step 3: Allow connection (guest mode) ────────────────────────────────
+    // ── Step 3: Allow connection (new guest mode) ────────────────────────────────
     handshakeAuth.isAuthUser = false;
     next();
 }

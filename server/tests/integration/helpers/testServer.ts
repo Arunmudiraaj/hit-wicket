@@ -13,6 +13,8 @@
 
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import jwt from 'jsonwebtoken';
+import { config } from '../../../src/config/index.js';
 import { SOCKET_EVENTS } from '@hit-wicket/shared';
 
 // Production handlers — these are what we're actually testing
@@ -67,7 +69,13 @@ export async function startTestServer(): Promise<TestServer> {
         const existingPlayerId = socket.handshake.auth?.playerId as string | undefined;
         const playerId = gameManager.registerPlayer(socket, existingPlayerId);
 
-        socket.emit(SOCKET_EVENTS.GUEST_INIT, { playerId });
+        let guestToken: string | undefined;
+        // Only generate a JWT token for brand new guest sessions
+        if (!existingPlayerId) {
+            guestToken = jwt.sign({ playerId }, config.BETTER_AUTH_SECRET, { expiresIn: '365d' });
+        }
+
+        socket.emit(SOCKET_EVENTS.GUEST_INIT, { playerId, guestToken });
         socket.emit(SOCKET_EVENTS.STATS_UPDATE, gameManager.getStats());
 
         // Reconnection path: if player has an active game, re-join the room

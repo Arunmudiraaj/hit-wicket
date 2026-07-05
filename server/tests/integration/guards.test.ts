@@ -32,8 +32,8 @@ afterEach(async () => {
     testServer.resetState();
 });
 
-async function guest(existingPlayerId?: string): Promise<TestClient> {
-    const c = await connectGuest(testServer.url, { existingPlayerId });
+async function guest(guestToken?: string): Promise<TestClient> {
+    const c = await connectGuest(testServer.url, { guestToken });
     clients.push(c);
     return c;
 }
@@ -225,14 +225,15 @@ describe('Guards & Validations', () => {
         expect(err.code).toBe(ERROR_CODES.GAME_NOT_FOUND);
     });
 
-    test('Spoofing: Invalid guest ID in handshake is stripped and replaced', async () => {
-        // We pass a malicious existingPlayerId to connectGuest
-        const spoofedId = 'guest_HACKERMAN!@#';
-        const p1 = await guest(spoofedId);
+    test('Spoofing: Invalid guest token in handshake is stripped and replaced', async () => {
+        // We pass a malicious guestToken to connectGuest
+        const spoofedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.token';
+        const p1 = await guest(spoofedToken);
         
         // p1.playerId is what the server returned in GUEST_INIT
-        expect(p1.playerId).not.toBe(spoofedId);
+        // The server should have ignored the fake token and issued a new valid guest
         expect(p1.playerId).toMatch(/^guest_[a-zA-Z0-9_-]{8,}$/); // Must match the correct nanoid format
+        expect(p1.guestToken).toBeDefined(); // Must have received a new valid token
     });
 
     test('Queue Spamming: Rapid join/leave does not corrupt queue state', async () => {

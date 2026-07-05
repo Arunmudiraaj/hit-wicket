@@ -19,6 +19,8 @@ export interface TestClient {
     socket: Socket;
     /** The playerId assigned by the server on GUEST_INIT (or from reconnect) */
     playerId: string;
+    /** The JWT token assigned by the server for reconnection */
+    guestToken?: string;
     /** Convenience: disconnect this socket */
     disconnect: () => void;
     /** The most recently received STATE payload. Updated automatically. */
@@ -97,20 +99,20 @@ export function waitForBallResult(socket: Socket, timeoutMs = 5_000): Promise<Ba
  * always has a valid playerId.
  *
  * @param url     - Test server URL (e.g. http://localhost:54321)
- * @param options - Optional: pass existingPlayerId to simulate a reconnection
+ * @param options - Optional: pass guestToken to simulate a reconnection
  */
 export async function connectGuest(
     url: string,
-    options: { existingPlayerId?: string } = {}
+    options: { guestToken?: string } = {}
 ): Promise<TestClient> {
     const socket = io(url, {
-        auth: options.existingPlayerId ? { playerId: options.existingPlayerId } : {},
+        auth: options.guestToken ? { token: options.guestToken } : {},
         // Disable auto-reconnect so tests control reconnections explicitly
         reconnection: false,
         transports: ['websocket'],
     });
 
-    const initData = await waitForEvent<{ playerId: string }>(
+    const initData = await waitForEvent<{ playerId: string; guestToken?: string }>(
         socket,
         SOCKET_EVENTS.GUEST_INIT,
         5_000
@@ -119,6 +121,7 @@ export async function connectGuest(
     const client: TestClient = {
         socket,
         playerId: initData.playerId,
+        guestToken: initData.guestToken,
         disconnect: () => {
             if (socket.connected) socket.disconnect();
         },

@@ -4,6 +4,7 @@
 
 import { Server as SocketIOServer } from 'socket.io';
 import type { Server as HttpServer } from 'http';
+import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import { SOCKET_EVENTS } from '@hit-wicket/shared';
 import { socketAuthMiddleware } from './middleware/index.js';
@@ -45,8 +46,14 @@ export function createSocketServer(httpServer: HttpServer): SocketIOServer {
         const existingPlayerId = socket.handshake.auth?.playerId as string | undefined;
         const playerId = gameManager.registerPlayer(socket, existingPlayerId);
 
-        // Send guest_init with player ID
-        socket.emit(SOCKET_EVENTS.GUEST_INIT, { playerId });
+        let guestToken: string | undefined;
+        // Only generate a JWT token for brand new guest sessions
+        if (!existingPlayerId) {
+            guestToken = jwt.sign({ playerId }, config.BETTER_AUTH_SECRET, { expiresIn: '365d' });
+        }
+
+        // Send guest_init with player ID and token (if new)
+        socket.emit(SOCKET_EVENTS.GUEST_INIT, { playerId, guestToken });
 
         // Send current stats immediately
         socket.emit(SOCKET_EVENTS.STATS_UPDATE, gameManager.getStats());

@@ -32,8 +32,8 @@ afterEach(async () => {
     testServer.resetState();
 });
 
-async function guest(existingPlayerId?: string): Promise<TestClient> {
-    const c = await connectGuest(testServer.url, { existingPlayerId });
+async function guest(guestToken?: string): Promise<TestClient> {
+    const c = await connectGuest(testServer.url, { guestToken });
     clients.push(c);
     return c;
 }
@@ -87,7 +87,7 @@ describe('Disconnects & Reconnects', () => {
         await disconnectAndWait(p1);
         await vi.advanceTimersByTimeAsync(500);
 
-        const p1Reconnected = await guest(p1.playerId);
+        const p1Reconnected = await guest(p1.guestToken);
         
         await vi.advanceTimersByTimeAsync(100);
 

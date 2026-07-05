@@ -52,6 +52,7 @@ export interface RequestStatePayload {
  */
 export interface GuestInitPayload {
     playerId: string;
+    guestToken?: string;
 }
 
 /**

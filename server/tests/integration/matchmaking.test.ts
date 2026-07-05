@@ -41,8 +41,8 @@ afterEach(async () => {
 });
 
 // Helper to track client for cleanup
-async function guest(existingPlayerId?: string): Promise<TestClient> {
-    const c = await connectGuest(testServer.url, { existingPlayerId });
+async function guest(guestToken?: string): Promise<TestClient> {
+    const c = await connectGuest(testServer.url, { guestToken });
     clients.push(c);
     return c;
 }

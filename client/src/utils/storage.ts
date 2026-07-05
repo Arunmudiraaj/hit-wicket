@@ -3,6 +3,7 @@ const KEYS = {
   LAST_GAME_ID: "lastGameId",
   PLAYER_ID: "playerId",
   PLAYER_NAME: "playerName",
+  GUEST_TOKEN: "guestToken",
 };
 
 export const storage = {
@@ -15,6 +16,9 @@ export const storage = {
 
   setPlayerName: (name: string) => localStorage.setItem(KEYS.PLAYER_NAME, name),
   getPlayerName: () => localStorage.getItem(KEYS.PLAYER_NAME),
+
+  setGuestToken: (token: string) => localStorage.setItem(KEYS.GUEST_TOKEN, token),
+  getGuestToken: () => localStorage.getItem(KEYS.GUEST_TOKEN),
 
   KEYS,
 };

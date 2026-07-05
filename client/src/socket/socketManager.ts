@@ -18,6 +18,7 @@ import {
     setOpponentDisconnectedAt,
 } from '../store/slices/gameSlice';
 import { setPlayerId, setLastGameId, setLiveStats } from '../store/slices/sessionSlice';
+import { storage } from '../utils/storage';
 import type {
     GuestInitPayload,
     MatchFoundPayload,
@@ -64,6 +65,9 @@ function handleGuestInit(data: GuestInitPayload) {
     // Auth user IDs are identified via session token on each connection.
     if (data.playerId.startsWith('guest_')) {
         localStorage.setItem('hit_wicket_player_id', data.playerId);
+        if (data.guestToken) {
+            storage.setGuestToken(data.guestToken);
+        }
     }
     storeRef?.dispatch(setPlayerId(data.playerId));
 }
@@ -150,15 +154,16 @@ export function initSocketManager(store: Store<RootState>, playerId?: string) {
     socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
     socket.on(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
 
-    // Only send playerId if we have a saved guest ID to reconnect with.
+    // Only send guest token if we have a saved guest ID to reconnect with.
     // Auth user identity comes from the session cookie, not from socket.auth.
-    socket.auth = playerId ? { playerId } : {};
+    const guestToken = storage.getGuestToken();
+    socket.auth = guestToken ? { token: guestToken } : {};
 
     // Connect socket
-    storeRef.dispatch(setConnectionStatus('connecting'));
+    storeRef?.dispatch(setConnectionStatus('connecting'));
     socket.connect();
 
-    console.log('✅ Socket manager initialized', { hasPlayerId: !!playerId });
+    console.log('✅ Socket manager initialized', { hasToken: !!guestToken });
 }
 
 /**
@@ -201,7 +206,8 @@ export function reconnectSocket(playerId?: string) {
     socket.disconnect();
     
     // Update the auth payload for the new handshake
-    socket.auth = playerId ? { playerId } : {};
+    const guestToken = storage.getGuestToken();
+    socket.auth = guestToken ? { token: guestToken } : {};
     
     // Reconnect after a tiny delay to ensure the server processes the disconnect
     setTimeout(() => {
