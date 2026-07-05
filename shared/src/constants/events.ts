@@ -10,6 +10,9 @@ export const SOCKET_EVENTS = {
     LEAVE_GAME: 'leave_game',
     LEAVE_QUEUE: 'leave_queue',
     PING_STATE: 'ping_state',
+    CREATE_ROOM: 'create_room',
+    JOIN_ROOM: 'join_room',
+    CANCEL_ROOM: 'cancel_room',
 
     // Server → Client
     GUEST_INIT: 'guest_init',
@@ -18,6 +21,8 @@ export const SOCKET_EVENTS = {
     STATS_UPDATE: 'stats_update',
     ERROR: 'error',
     OPPONENT_DISCONNECTED: 'opponent_disconnected',
+    ROOM_CREATED: 'room_created',
+    ROOM_ERROR: 'room_error',
 
     // Built-in Socket.IO events
     CONNECTION: 'connection',

@@ -57,6 +57,8 @@ export interface GameState {
     choiceDeadline?: number;
     /** Absolute timestamp (ms) when inning break ends */
     inningBreakDeadline?: number;
+    /** Is this a private unranked match? */
+    isPrivate?: boolean;
 }
 
 /**

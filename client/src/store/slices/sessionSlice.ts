@@ -23,6 +23,12 @@ interface SessionState {
     lastGameId?:   string | null;
     onlinePlayers: number;
     activeGames:   number;
+    
+    // Private Room State
+    roomCode:      string | null;
+    isCreatingRoom: boolean;
+    isJoiningRoom:  boolean;
+    roomError:     string | null;
 }
 
 const initialState: SessionState = {
@@ -33,6 +39,10 @@ const initialState: SessionState = {
     lastGameId:    storage.getLastGameId(),
     onlinePlayers: 0,
     activeGames:   0,
+    roomCode:      null,
+    isCreatingRoom: false,
+    isJoiningRoom:  false,
+    roomError:     null,
 };
 
 const sessionSlice = createSlice({
@@ -59,6 +69,18 @@ const sessionSlice = createSlice({
             state.onlinePlayers = action.payload.players;
             state.activeGames   = action.payload.games;
         },
+        setRoomCode(state, action: PayloadAction<string | null>) {
+            state.roomCode = action.payload;
+        },
+        setIsCreatingRoom(state, action: PayloadAction<boolean>) {
+            state.isCreatingRoom = action.payload;
+        },
+        setIsJoiningRoom(state, action: PayloadAction<boolean>) {
+            state.isJoiningRoom = action.payload;
+        },
+        setRoomError(state, action: PayloadAction<string | null>) {
+            state.roomError = action.payload;
+        },
     },
 });
 
@@ -67,6 +89,10 @@ export const {
     setPlayerName,
     setLastGameId,
     setLiveStats,
+    setRoomCode,
+    setIsCreatingRoom,
+    setIsJoiningRoom,
+    setRoomError,
 } = sessionSlice.actions;
 
 export default sessionSlice.reducer;

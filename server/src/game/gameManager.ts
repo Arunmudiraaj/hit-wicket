@@ -19,6 +19,7 @@ import type { LiveGame, QueueEntry, PlayerSession } from '../types/server.js';
 import {
     createInitialGameState,
     resetSubmitted,
+    generateRoomCode,
 } from './stateFactory.js';
 import {
     resolveBall,
@@ -57,6 +58,9 @@ class GameManager {
     /** Matchmaking queue */
     private queue: QueueEntry[] = [];
 
+    /** Pending private rooms: roomCode -> host QueueEntry */
+    private pendingPrivateRooms: Map<string, QueueEntry> = new Map();
+
     /**
      * Initialize with Socket.IO server
      */
@@ -88,6 +92,12 @@ class GameManager {
         // Check if player is reconnecting
         const existingSession = this.players.get(playerId);
         if (existingSession) {
+            // Disconnect old socket if it exists and is different
+            if (existingSession.socket && existingSession.socket.id !== socket.id) {
+                existingSession.socket.emit(SOCKET_EVENTS.ERROR, { code: 'MULTIPLE_TABS', message: 'Connected from another tab. This tab is now disconnected.' });
+                existingSession.socket.disconnect(true);
+            }
+
             // Update socket reference
             this.socketToPlayer.delete(existingSession.socketId);
             existingSession.socket = socket;
@@ -139,6 +149,9 @@ class GameManager {
 
         // Remove from queue if present
         this.leaveQueue(playerId);
+
+        // Cancel any pending private room hosted by this player
+        this.cancelPrivateRoom(playerId);
 
         // Mark session as disconnected
         session.disconnectedAt = now();
@@ -234,14 +247,120 @@ class GameManager {
     // Game Management
     // ============================================
 
+    // --- Private Rooms ---
+
+    /**
+     * Create a private room
+     */
+    createPrivateRoom(playerId: string, name?: string): { roomCode?: string, error?: { code: string; message: string } } {
+        const session = this.players.get(playerId);
+        if (!session) {
+            return { error: { code: ERROR_CODES.NOT_AUTHENTICATED, message: ERROR_MESSAGES[ERROR_CODES.NOT_AUTHENTICATED] } };
+        }
+
+        if (session.currentGameId) {
+            return { error: { code: ERROR_CODES.ALREADY_IN_GAME, message: ERROR_MESSAGES[ERROR_CODES.ALREADY_IN_GAME] } };
+        }
+        
+        // Remove from regular queue if in it
+        this.leaveQueue(playerId);
+        // Cancel existing room if any
+        this.cancelPrivateRoom(playerId);
+
+        let roomCode = generateRoomCode();
+        while (this.pendingPrivateRooms.has(roomCode)) {
+            roomCode = generateRoomCode();
+        }
+
+        const entry: QueueEntry = {
+            playerId,
+            socketId: session.socketId,
+            name,
+            joinedAt: now(),
+        };
+
+        session.name = name;
+        this.pendingPrivateRooms.set(roomCode, entry);
+        log.info({ playerId, roomCode }, 'Private room created');
+
+        return { roomCode };
+    }
+
+    /**
+     * Join a private room
+     */
+    joinPrivateRoom(playerId: string, roomCode: string, name?: string): { error?: { code: string; message: string } } {
+        const session = this.players.get(playerId);
+        if (!session) {
+            return { error: { code: ERROR_CODES.NOT_AUTHENTICATED, message: ERROR_MESSAGES[ERROR_CODES.NOT_AUTHENTICATED] } };
+        }
+
+        if (session.currentGameId) {
+            return { error: { code: ERROR_CODES.ALREADY_IN_GAME, message: ERROR_MESSAGES[ERROR_CODES.ALREADY_IN_GAME] } };
+        }
+
+        const normalizedCode = roomCode.toUpperCase();
+        const hostEntry = this.pendingPrivateRooms.get(normalizedCode);
+        if (!hostEntry) {
+            return { error: { code: ERROR_CODES.ROOM_NOT_FOUND, message: ERROR_MESSAGES[ERROR_CODES.ROOM_NOT_FOUND] } };
+        }
+
+        if (hostEntry.playerId === playerId) {
+            return { error: { code: ERROR_CODES.SELF_JOIN, message: ERROR_MESSAGES[ERROR_CODES.SELF_JOIN] } };
+        }
+
+        // Check if host is still connected
+        if (!this.players.has(hostEntry.playerId)) {
+            this.pendingPrivateRooms.delete(normalizedCode);
+            return { error: { code: ERROR_CODES.ROOM_NOT_FOUND, message: ERROR_MESSAGES[ERROR_CODES.ROOM_NOT_FOUND] } };
+        }
+
+        // Remove from regular queue if in it
+        this.leaveQueue(playerId);
+        // Cancel existing room if any
+        this.cancelPrivateRoom(playerId);
+
+        // Match found!
+        this.pendingPrivateRooms.delete(normalizedCode);
+        session.name = name;
+        const guestEntry: QueueEntry = {
+            playerId,
+            socketId: session.socketId,
+            name,
+            joinedAt: now(),
+        };
+
+        log.info({ hostId: hostEntry.playerId, guestId: guestEntry.playerId, roomCode: normalizedCode }, 'Private match found');
+        this.createGame(hostEntry, guestEntry, true);
+
+        return {};
+    }
+
+    /**
+     * Cancel a private room hosted by this player
+     */
+    cancelPrivateRoom(playerId: string): void {
+        for (const [code, entry] of this.pendingPrivateRooms.entries()) {
+            if (entry.playerId === playerId) {
+                this.pendingPrivateRooms.delete(code);
+                log.info({ playerId, roomCode: code }, 'Private room cancelled');
+                break;
+            }
+        }
+    }
+
     /**
      * Create a new game with two players
      */
-    private createGame(p1Entry: QueueEntry, p2Entry: QueueEntry): void {
+    private createGame(p1Entry: QueueEntry, p2Entry: QueueEntry, isPrivate: boolean = false): void {
         const initialState = createInitialGameState(
             { id: p1Entry.playerId, name: p1Entry.name },
             { id: p2Entry.playerId, name: p2Entry.name }
         );
+
+        if (isPrivate) {
+            initialState.isPrivate = true;
+        }
 
         const liveGame: LiveGame = {
             state: initialState,

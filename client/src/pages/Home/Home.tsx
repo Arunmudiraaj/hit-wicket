@@ -1,6 +1,7 @@
 import { useAppSelector } from "../../hooks/useTypedRedux";
 import { emitJoinQueue, emitLeaveQueue } from "../../socket/socketEmitters";
 import { MatchmakingOverlay } from "./components/MatchmakingOverlay";
+import { RoomModal } from "./components/RoomModal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { selectGameId, selectGamePhase } from "../../store/selectors/gameSelectors";
@@ -13,6 +14,7 @@ import { signIn, signOut, useSession } from "../../lib/auth";
 
 export default function Home() {
   const [findMatchLoading, setFindMatchLoading] = useState(false);
+  const [showRoomModal, setShowRoomModal] = useState(false);
   const { playerName, onlinePlayers, activeGames } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
   const { data: session, isPending } = useSession();
@@ -44,6 +46,10 @@ export default function Home() {
       {/* Matchmaking Overlay */}
       {findMatchLoading && (
         <MatchmakingOverlay onCancel={handleCancelMatchmaking} playersOnline={onlinePlayers} activeGames={activeGames} />
+      )}
+      {/* Private Room Modal */}
+      {showRoomModal && (
+        <RoomModal onClose={() => setShowRoomModal(false)} playerName={playerName} />
       )}
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border">
@@ -118,35 +124,14 @@ export default function Home() {
           )}
 
           {/* Play with Friend */}
-          <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-foreground">Play with Friend</span>
-            </div>
-
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter invite code"
-                value={"34532"}
-                onChange={() => { }}
-                className="flex-1"
-              />
-              <Button onClick={() => { }} disabled={false}>
-                Join
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-muted-foreground text-sm">or</span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
-
-            <Button variant="outline" className="w-full bg-transparent">
-              <Link className="w-4 h-4 mr-2" />
-              Create Invite Link
-            </Button>
-          </div>
+          <Button 
+            onClick={() => setShowRoomModal(true)} 
+            className="w-full h-16 text-lg bg-card text-foreground border border-border hover:bg-muted" 
+            variant="outline"
+          >
+            <Users className="w-5 h-5 mr-2 text-primary" />
+            Play with Friend
+          </Button>
         </div>
 
         {/* Quick Actions */}

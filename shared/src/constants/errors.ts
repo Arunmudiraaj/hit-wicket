@@ -23,6 +23,10 @@ export const ERROR_CODES = {
     NOT_AUTHENTICATED: 'NOT_AUTHENTICATED',
     SESSION_EXPIRED: 'SESSION_EXPIRED',
 
+    // Room errors
+    ROOM_NOT_FOUND: 'ROOM_NOT_FOUND',
+    SELF_JOIN: 'SELF_JOIN',
+
     // Server errors
     INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const;
@@ -42,5 +46,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
     [ERROR_CODES.ALREADY_IN_GAME]: 'You are already in an active game',
     [ERROR_CODES.NOT_AUTHENTICATED]: 'Authentication required',
     [ERROR_CODES.SESSION_EXPIRED]: 'Session has expired',
+    [ERROR_CODES.ROOM_NOT_FOUND]: 'Invalid or expired room code',
+    [ERROR_CODES.SELF_JOIN]: 'Cannot join your own room',
     [ERROR_CODES.INTERNAL_ERROR]: 'An internal server error occurred',
 };

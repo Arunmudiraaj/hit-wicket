@@ -48,6 +48,18 @@ export function createInning(
 }
 
 /**
+ * Generate a 6-character alphanumeric room code
+ */
+export function generateRoomCode(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+/**
  * Create initial game state when two players are matched
  */
 export function createInitialGameState(

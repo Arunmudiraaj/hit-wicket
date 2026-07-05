@@ -63,3 +63,27 @@ export const emitRequestState = (gameId: string): void => {
   socket.emit(SOCKET_EVENTS.PING_STATE, payload);
   console.log('📡 Requesting state for:', gameId);
 };
+
+/**
+ * Create a private room
+ */
+export const emitCreateRoom = (name?: string): void => {
+  socket.emit(SOCKET_EVENTS.CREATE_ROOM, { name });
+  console.log('🏠 Creating private room...');
+};
+
+/**
+ * Join a private room
+ */
+export const emitJoinRoom = (roomCode: string, name?: string): void => {
+  socket.emit(SOCKET_EVENTS.JOIN_ROOM, { roomCode, name });
+  console.log('🏠 Joining private room:', roomCode);
+};
+
+/**
+ * Cancel a private room
+ */
+export const emitCancelRoom = (): void => {
+  socket.emit(SOCKET_EVENTS.CANCEL_ROOM);
+  console.log('🏠 Cancelling private room...');
+};

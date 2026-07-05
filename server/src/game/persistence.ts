@@ -47,6 +47,8 @@ function isAuthUser(playerId: string): boolean {
  * Called when a game is matched and created.
  */
 export async function persistGameStart(gameState: GameState): Promise<void> {
+    if (gameState.isPrivate) return;
+
     const authPlayers = gameState.players.filter(p => isAuthUser(p.id));
     if (authPlayers.length === 0) return;
 
@@ -82,6 +84,8 @@ export async function persistGameStart(gameState: GameState): Promise<void> {
  * Called when a game ends for any reason.
  */
 export async function persistGameEnd(gameState: GameState): Promise<void> {
+    if (gameState.isPrivate) return;
+
     const authPlayers = gameState.players.filter(p => isAuthUser(p.id));
     if (authPlayers.length === 0) return;
 

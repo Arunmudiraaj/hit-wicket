@@ -17,7 +17,7 @@ import {
     setConnectionStatus,
     setOpponentDisconnectedAt,
 } from '../store/slices/gameSlice';
-import { setPlayerId, setLastGameId, setLiveStats } from '../store/slices/sessionSlice';
+import { setPlayerId, setLastGameId, setLiveStats, setRoomCode, setRoomError } from '../store/slices/sessionSlice';
 import { storage } from '../utils/storage';
 import type {
     GuestInitPayload,
@@ -125,6 +125,22 @@ function handleStatsUpdate(data: StatsPayload) {
 }
 
 /**
+ * Handle room_created event
+ */
+function handleRoomCreated(data: { roomCode: string }) {
+    console.log('🏠 Room created:', data.roomCode);
+    storeRef?.dispatch(setRoomCode(data.roomCode));
+}
+
+/**
+ * Handle room_error event
+ */
+function handleRoomError(data: { code: string; message: string }) {
+    console.error('🏠 Room error:', data.code, data.message);
+    storeRef?.dispatch(setRoomError(data.message));
+}
+
+/**
  * Initialize socket manager with Redux store
  * Attaches all event listeners and connects socket.
  *
@@ -153,6 +169,8 @@ export function initSocketManager(store: Store<RootState>, playerId?: string) {
     socket.on(SOCKET_EVENTS.ERROR, handleError);
     socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
     socket.on(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
+    socket.on(SOCKET_EVENTS.ROOM_CREATED, handleRoomCreated);
+    socket.on(SOCKET_EVENTS.ROOM_ERROR, handleRoomError);
 
     // Only send guest token if we have a saved guest ID to reconnect with.
     // Auth user identity comes from the session cookie, not from socket.auth.
@@ -182,6 +200,8 @@ export function cleanupSocketManager() {
     socket.off(SOCKET_EVENTS.ERROR, handleError);
     socket.off(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
     socket.off(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
+    socket.off(SOCKET_EVENTS.ROOM_CREATED, handleRoomCreated);
+    socket.off(SOCKET_EVENTS.ROOM_ERROR, handleRoomError);
 
     // Disconnect socket
     socket.disconnect();

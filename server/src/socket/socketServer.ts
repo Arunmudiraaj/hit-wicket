@@ -13,6 +13,7 @@ import { handleSubmitChoice } from './handlers/submitChoice.js';
 import { handleLeaveGame } from './handlers/leaveGame.js';
 import { handleLeaveQueue } from './handlers/leaveQueue.js';
 import { handlePingState } from './handlers/pingState.js';
+import { registerRoomHandlers } from './handlers/roomHandlers.js';
 import { gameManager } from '../game/gameManager.js';
 import { createLogger } from '../utils/logger.js';
 
@@ -67,6 +68,7 @@ export function createSocketServer(httpServer: HttpServer): SocketIOServer {
         socket.on(SOCKET_EVENTS.LEAVE_GAME, handleLeaveGame(socket, playerId));
         socket.on(SOCKET_EVENTS.LEAVE_QUEUE, handleLeaveQueue(socket, playerId));
         socket.on(SOCKET_EVENTS.PING_STATE, handlePingState(socket, playerId));
+        registerRoomHandlers(socket);
 
         // Disconnect handler
         socket.on(SOCKET_EVENTS.DISCONNECT, (reason) => {
