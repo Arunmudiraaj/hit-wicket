@@ -34,6 +34,19 @@ Client emits JOIN_QUEUE { name? }
   → client navigates to /game/:matchId
 ```
 
+## Private Room Flow
+```text
+Host emits CREATE_ROOM { name? }
+  → server generates 6-char room code
+  → server adds host to pendingPrivateRooms map
+  → server emits ROOM_CREATED { roomCode }
+
+Guest emits JOIN_ROOM { roomCode, name? }
+  → server validates code and host connectivity
+  → server creates GameState (with isPrivate = true)
+  → server emits MATCH_FOUND and STATE to both players
+```
+
 ## Key Data Types (For Reference)
 - `GameState`: Found in `shared/src/types/game.ts`. Safe to broadcast to clients.
 - `LiveGame`: Found in `server/src/types/server.ts`. Runtime state tracking sockets, pending choices, timers.

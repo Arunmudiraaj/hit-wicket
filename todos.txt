@@ -1,2 +1,0 @@
-2. If cookie is present but expired/invalid, the middleware silently falls back to GUEST mode. The user plays as a guest with no stats persistence. The client is NOT notified of this — need to think of this
-

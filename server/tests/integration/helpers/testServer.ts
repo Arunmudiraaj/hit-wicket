@@ -24,6 +24,7 @@ import { handleSubmitChoice } from '../../../src/socket/handlers/submitChoice.js
 import { handleLeaveGame } from '../../../src/socket/handlers/leaveGame.js';
 import { handleLeaveQueue } from '../../../src/socket/handlers/leaveQueue.js';
 import { handlePingState } from '../../../src/socket/handlers/pingState.js';
+import { registerRoomHandlers } from '../../../src/socket/handlers/roomHandlers.js';
 import { gameManager } from '../../../src/game/gameManager.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -87,6 +88,8 @@ export async function startTestServer(): Promise<TestServer> {
         socket.on(SOCKET_EVENTS.LEAVE_QUEUE,    handleLeaveQueue(socket, playerId));
         socket.on(SOCKET_EVENTS.PING_STATE,     handlePingState(socket, playerId));
 
+        registerRoomHandlers(socket);
+
         socket.on(SOCKET_EVENTS.DISCONNECT, () => {
             gameManager.handleDisconnect(socket.id);
         });
@@ -120,6 +123,7 @@ export async function startTestServer(): Promise<TestServer> {
                     gm.players = new Map();
                     gm.socketToPlayer = new Map();
                     gm.queue = [];
+                    gm.pendingPrivateRooms = new Map();
                 },
                 getStats: () => gameManager.getStats(),
             });
