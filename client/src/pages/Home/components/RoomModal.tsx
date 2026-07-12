@@ -5,6 +5,7 @@ import { emitCreateRoom, emitJoinRoom, emitCancelRoom } from "../../../socket/so
 import { Button } from "../../../components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Copy, Check, Users } from "lucide-react";
+import { toast } from "sonner";
 
 interface RoomModalProps {
   onClose: () => void;
@@ -56,6 +57,7 @@ export function RoomModal({ onClose, playerName }: RoomModalProps) {
     if (roomCode) {
       navigator.clipboard.writeText(roomCode);
       setCopied(true);
+      toast.success("Room code copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
     }
   };

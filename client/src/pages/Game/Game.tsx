@@ -21,7 +21,6 @@ import {
   selectConnectionStatus,
   selectOpponentDisconnectedAt,
   selectIsGameOver,
-  selectGameResult,
   selectOpponent,
   selectCurrentBallNumber,
   selectTarget,

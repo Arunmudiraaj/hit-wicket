@@ -17,14 +17,14 @@ import {
     setConnectionStatus,
     setOpponentDisconnectedAt,
 } from '../store/slices/gameSlice';
-import { setPlayerId, setLastGameId, setLiveStats, setRoomCode, setRoomError, setGlobalError } from '../store/slices/sessionSlice';
+import { setPlayerId, setLastGameId, setLiveStats, setRoomCode, setRoomError } from '../store/slices/sessionSlice';
 import { CONNECTION_STATUS } from '@shared/types/player';
 import { storage } from '../utils/storage';
+import { toast } from 'sonner';
 import type {
     GuestInitPayload,
     MatchFoundPayload,
     StatePayload,
-    ErrorPayload,
     OpponentDisconnectedPayload,
     StatsPayload,
 } from '@shared/types/socket';
@@ -104,14 +104,9 @@ function handleState(data: StatePayload) {
 /**
  * Handle error event
  */
-function handleError(data: ErrorPayload) {
-    console.error('🚨 Game error:', data.code, data.message);
-    storeRef?.dispatch(setGlobalError(data.message));
-    
-    // Auto-clear error after 4 seconds
-    setTimeout(() => {
-        storeRef?.dispatch(setGlobalError(null));
-    }, 4000);
+function handleSocketError(data: any) {
+    console.error('⚠️ Socket error:', data.message);
+    toast.error(data.message);
 }
 
 /**
@@ -172,7 +167,7 @@ export function initSocketManager(store: Store<RootState>, playerId?: string) {
     socket.on(SOCKET_EVENTS.GUEST_INIT, handleGuestInit);
     socket.on(SOCKET_EVENTS.MATCH_FOUND, handleMatchFound);
     socket.on(SOCKET_EVENTS.STATE, handleState);
-    socket.on(SOCKET_EVENTS.ERROR, handleError);
+    socket.on(SOCKET_EVENTS.ERROR, handleSocketError);
     socket.on(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
     socket.on(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
     socket.on(SOCKET_EVENTS.ROOM_CREATED, handleRoomCreated);
@@ -203,7 +198,7 @@ export function cleanupSocketManager() {
     socket.off(SOCKET_EVENTS.GUEST_INIT, handleGuestInit);
     socket.off(SOCKET_EVENTS.MATCH_FOUND, handleMatchFound);
     socket.off(SOCKET_EVENTS.STATE, handleState);
-    socket.off(SOCKET_EVENTS.ERROR, handleError);
+    socket.off(SOCKET_EVENTS.ERROR, handleSocketError);
     socket.off(SOCKET_EVENTS.OPPONENT_DISCONNECTED, handleOpponentDisconnected);
     socket.off(SOCKET_EVENTS.STATS_UPDATE, handleStatsUpdate);
     socket.off(SOCKET_EVENTS.ROOM_CREATED, handleRoomCreated);
