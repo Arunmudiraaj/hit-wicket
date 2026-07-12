@@ -7,6 +7,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import { getPlayerRole, getCurrentInning } from '@shared/types/game';
 import { getStatusFromPhase, GAME_PHASE, ROLES } from '@shared/constants/game-rules';
+import { CONNECTION_STATUS } from '@shared/types/player';
 import type { GameState, Inning, BallResult } from '@shared/types/game';
 import type { PlayerRole, GamePhase, GameStatus } from '@shared/constants/game-rules';
 
@@ -154,7 +155,7 @@ export const selectCanPlay = createSelector(
     (phase, hasSubmitted, gameSlice): boolean => {
         if (phase !== GAME_PHASE.WAITING_FOR_CHOICES) return false;
         if (hasSubmitted) return false;
-        if (gameSlice.connectionStatus !== 'connected') return false;
+        if (gameSlice.connectionStatus !== CONNECTION_STATUS.CONNECTED) return false;
         return true;
     }
 );

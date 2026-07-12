@@ -36,8 +36,8 @@ This keeps socket logic **completely separate** from React components.
 - **Symmetric events** (`STATE`): broadcast via `io.to(gameId).emit()` — Socket.IO room named after `gameId`.
   - Players join the room in `createGame()` and re-join on reconnect via `handleGameReconnect()`.
   - Socket.IO auto-removes sockets from rooms on disconnect, preventing stale broadcasts.
-- **Asymmetric events** (`MATCH_FOUND`, `OPPONENT_DISCONNECTED`): sent via `session.socket.emit()` directly,
-  because each player receives a different payload (role, opponentId, etc.).
+- **Asymmetric events** (`MATCH_FOUND`, `OPPONENT_DISCONNECTED`): sent by iterating over all sockets in a player's session (`session.sockets.forEach(s => s.emit(...))`),
+  because each player receives a different payload (role, opponentId, etc.), and all their active tabs need to receive it.
 
 ## Game Page Component Hierarchy
 ```text

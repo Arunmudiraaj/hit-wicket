@@ -15,6 +15,6 @@ I use this prompt for each folder/file to organize code
 - Avoid refactors that are purely stylistic or formatting-only.
 - If a change is potentially risky, explicitly call it out and explain why.
 - Briefly explain the reasoning behind each meaningful change.
-- Move hardcoded user-facing strings to constants. Do not move non-UI constants.
+- Move hardcoded values to constants. If it makes sense. like if it is being used more than once, or if it is a magic value. 
 - Create enums or constants only when they clearly reduce duplication or magic values.
 - Organize files only if they are clearly misplaced. Do not reshuffle packages without a strong reason.

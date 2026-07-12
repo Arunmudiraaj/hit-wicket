@@ -32,6 +32,7 @@ import {
   selectEndReason,
 } from '@/store/selectors/gameSelectors';
 import { GAME_PHASE, ROLES, type Choice } from '@shared/constants/game-rules';
+import { CONNECTION_STATUS } from '@shared/types/player';
 import { TIMING } from '@shared/constants/config';
 
 import { RoleIndicator } from "./components/RoleIndicator"
@@ -45,7 +46,7 @@ import { InningsBreakOverlay } from "./components/InningsBreakOverlay"
 import { CommentaryPanel } from "./components/CommentaryPanel"
 import { MatchSummary } from "./components/MatchSummary"
 import { Button } from "@/components/ui/button"
-import { Settings, LogOut } from "lucide-react"
+import { Settings, LogOut, WifiOff } from "lucide-react"
 
 export default function Game() {
   const navigate = useNavigate();
@@ -64,7 +65,6 @@ export default function Game() {
   const connectionStatus = useAppSelector(selectConnectionStatus);
   const opponentDisconnectedAt = useAppSelector(selectOpponentDisconnectedAt);
   const isGameOver = useAppSelector(selectIsGameOver);
-  const gameResult = useAppSelector(selectGameResult);
   const opponent = useAppSelector(selectOpponent);
   const currentBallNumber = useAppSelector(selectCurrentBallNumber);
   const target = useAppSelector(selectTarget);
@@ -77,6 +77,7 @@ export default function Game() {
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<boolean>(false);
+  const [offlineSince, setOfflineSince] = useState<number | null>(null);
   const showChoiceMakeIndicator = opponentHasSubmitted != hasSubmittedChoice;
 
   // Track last processed ball index to prevent replay on reload
@@ -110,11 +111,19 @@ export default function Game() {
         setLastBallResult(false);
       }, TIMING.BALL_RESOLVE_DELAY_MS);
       return () => clearTimeout(timer);
-    } else if (recentBalls.length < processedRef.index) {
       // Reset if game restarted or new game
       processedRef.index = recentBalls.length;
     }
   }, [recentBalls.length]);
+
+  // Track offline time for local grace period timer
+  useEffect(() => {
+    if (connectionStatus === CONNECTION_STATUS.DISCONNECTED) {
+      if (!offlineSince) setOfflineSince(Date.now());
+    } else {
+      setOfflineSince(null);
+    }
+  }, [connectionStatus, offlineSince]);
 
   const handleChoiceSubmit = (choice: number) => {
     if (!canPlay || !gameId) return;
@@ -173,7 +182,7 @@ export default function Game() {
             isCurrentPlayer={false}
             hasSubmitted={opponentHasSubmitted}
             showChoiceMakeIndicator={showChoiceMakeIndicator}
-            disconnectedAt={connectionStatus === 'opponent_disconnected' ? opponentDisconnectedAt : undefined}
+            disconnectedAt={connectionStatus === CONNECTION_STATUS.OPPONENT_DISCONNECTED ? opponentDisconnectedAt : undefined}
           />
         </div>
 
@@ -239,6 +248,21 @@ export default function Game() {
           opponent={opponent}
           onContinue={() => navigate(`/result/${gameId}`)}
         />
+      )}
+
+      {/* Offline Overlay */}
+      {connectionStatus === CONNECTION_STATUS.DISCONNECTED && offlineSince && (
+        <div className="absolute inset-0 z-50 bg-background/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+          <WifiOff className="w-16 h-16 text-destructive mb-4 animate-pulse" />
+          <h2 className="text-2xl font-bold mb-2 text-foreground">Connection Lost</h2>
+          <p className="text-muted-foreground mb-6 max-w-sm">
+            Please check your internet connection. Reconnecting...
+          </p>
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground">Forfeit in</span>
+            <Timer duration={TIMING.DISCONNECT_GRACE_PERIOD_MS / 1000} deadline={offlineSince + TIMING.DISCONNECT_GRACE_PERIOD_MS} />
+          </div>
+        </div>
       )}
     </div>
   )

@@ -61,6 +61,16 @@ export const END_REASON = {
 
 export type EndReason = (typeof END_REASON)[keyof typeof END_REASON];
 
+// Connection Status
+export const CONNECTION_STATUS = {
+    CONNECTING: 'connecting',
+    CONNECTED: 'connected',
+    DISCONNECTED: 'disconnected',
+    OPPONENT_DISCONNECTED: 'opponent_disconnected',
+} as const;
+
+export type ConnectionStatus = (typeof CONNECTION_STATUS)[keyof typeof CONNECTION_STATUS];
+
 // Valid choices for batsman/bowler
 export const VALID_CHOICES = [1, 2, 3, 4, 5, 6] as const;
 export type Choice = (typeof VALID_CHOICES)[number];

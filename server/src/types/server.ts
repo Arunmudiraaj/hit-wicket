@@ -21,8 +21,7 @@ export interface PendingChoice {
  */
 export interface PlayerSession {
     playerId: string;
-    socketId: string;
-    socket: Socket;
+    sockets: Set<Socket>;
     name?: string;
     currentGameId?: string;
     disconnectedAt?: number;
@@ -64,7 +63,6 @@ export interface LiveGame {
  */
 export interface QueueEntry {
     playerId: string;
-    socketId: string;
     name?: string;
     joinedAt: number;
 }

@@ -112,6 +112,14 @@ export async function connectGuest(
         transports: ['websocket'],
     });
 
+    // We must register the STATE listener BEFORE awaiting GUEST_INIT,
+    // otherwise we might miss the initial state broadcast that happens
+    // immediately after GUEST_INIT on reconnects.
+    let latestState: any;
+    socket.on(SOCKET_EVENTS.STATE, (state) => {
+        latestState = state;
+    });
+
     const initData = await waitForEvent<{ playerId: string; guestToken?: string }>(
         socket,
         SOCKET_EVENTS.GUEST_INIT,
@@ -127,9 +135,12 @@ export async function connectGuest(
         },
     };
 
-    // Automatically track the latest state received
-    socket.on(SOCKET_EVENTS.STATE, (state) => {
-        client.latestState = state;
+    // Attach a getter so it always returns the latest state we captured
+    Object.defineProperty(client, 'latestState', {
+        get: () => latestState,
+        set: (val) => { latestState = val; },
+        enumerable: true,
+        configurable: true
     });
 
     return client;

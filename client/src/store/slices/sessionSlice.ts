@@ -29,6 +29,9 @@ interface SessionState {
     isCreatingRoom: boolean;
     isJoiningRoom:  boolean;
     roomError:     string | null;
+    
+    // Global Error State
+    globalError:   string | null;
 }
 
 const initialState: SessionState = {
@@ -43,6 +46,7 @@ const initialState: SessionState = {
     isCreatingRoom: false,
     isJoiningRoom:  false,
     roomError:     null,
+    globalError:   null,
 };
 
 const sessionSlice = createSlice({
@@ -81,6 +85,9 @@ const sessionSlice = createSlice({
         setRoomError(state, action: PayloadAction<string | null>) {
             state.roomError = action.payload;
         },
+        setGlobalError(state, action: PayloadAction<string | null>) {
+            state.globalError = action.payload;
+        },
     },
 });
 
@@ -93,6 +100,7 @@ export const {
     setIsCreatingRoom,
     setIsJoiningRoom,
     setRoomError,
+    setGlobalError,
 } = sessionSlice.actions;
 
 export default sessionSlice.reducer;

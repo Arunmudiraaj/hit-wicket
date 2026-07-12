@@ -14,6 +14,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { GameState } from '@shared/types/game';
 import type { ConnectionStatus } from '@shared/types/player';
 
+import { CONNECTION_STATUS } from '@shared/types/player';
+
 // Re-export ConnectionStatus for consumers
 export type { ConnectionStatus };
 
@@ -31,7 +33,7 @@ interface GameSliceState {
 
 const initialState: GameSliceState = {
   serverState: null,
-  connectionStatus: 'connecting',
+  connectionStatus: CONNECTION_STATUS.CONNECTING,
   opponentDisconnectedAt: undefined,
 };
 

@@ -1,9 +1,6 @@
 import type { Socket } from 'socket.io';
 import { SOCKET_EVENTS, ERROR_CODES, ERROR_MESSAGES } from '@hit-wicket/shared';
 import { gameManager } from '../../game/gameManager.js';
-import { createLogger } from '../../utils/logger.js';
-
-const log = createLogger('room-handlers');
 
 export function registerRoomHandlers(socket: Socket): void {
     // Create Room

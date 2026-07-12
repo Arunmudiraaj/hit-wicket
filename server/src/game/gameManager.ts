@@ -88,31 +88,25 @@ class GameManager {
      */
     registerPlayer(socket: Socket, existingPlayerId?: string): string {
         const playerId = existingPlayerId || `guest_${nanoid(8)}`;
+        
+        // Always join the user room for broadcasting to all devices
+        socket.join(`user:${playerId}`);
 
-        // Check if player is reconnecting
-        const existingSession = this.players.get(playerId);
-        if (existingSession) {
-            // Disconnect old socket if it exists and is different
-            if (existingSession.socket && existingSession.socket.id !== socket.id) {
-                existingSession.socket.emit(SOCKET_EVENTS.ERROR, { code: 'MULTIPLE_TABS', message: 'Connected from another tab. This tab is now disconnected.' });
-                existingSession.socket.disconnect(true);
-            }
-
-            // Update socket reference
-            this.socketToPlayer.delete(existingSession.socketId);
-            existingSession.socket = socket;
-            existingSession.socketId = socket.id;
-            existingSession.disconnectedAt = undefined;
+        // Check if player is reconnecting or has existing session
+        let session = this.players.get(playerId);
+        
+        if (session) {
+            session.sockets.add(socket);
+            session.disconnectedAt = undefined;
             this.socketToPlayer.set(socket.id, playerId);
-            log.info({ playerId, socketId: socket.id }, 'Player reconnected');
+            log.info({ playerId, socketId: socket.id }, 'Player added socket connection');
             return playerId;
         }
 
         // New player session
-        const session: PlayerSession = {
+        session = {
             playerId,
-            socketId: socket.id,
-            socket,
+            sockets: new Set([socket]),
         };
 
         this.players.set(playerId, session);
@@ -122,6 +116,8 @@ class GameManager {
         this.broadcastStats();
         return playerId;
     }
+
+
 
     /**
      * Get player ID from socket ID
@@ -144,8 +140,32 @@ class GameManager {
         const playerId = this.socketToPlayer.get(socketId);
         if (!playerId) return;
 
+        // Always remove socket mapping since socket is dead
+        this.socketToPlayer.delete(socketId);
+
         const session = this.players.get(playerId);
         if (!session) return;
+        
+        // Find and remove the specific socket
+        let socketToRemove: Socket | undefined;
+        for (const s of session.sockets) {
+            if (s.id === socketId) {
+                socketToRemove = s;
+                break;
+            }
+        }
+        if (socketToRemove) {
+            session.sockets.delete(socketToRemove);
+        }
+
+        // If they still have other active sockets, do not trigger game disconnect logic
+        if (session.sockets.size > 0) {
+            log.info({ playerId, socketId, activeSockets: session.sockets.size }, 'Player disconnected one device but remains online');
+            return;
+        }
+
+        // --- All sockets disconnected ---
+        log.info({ playerId, socketId }, 'Player fully disconnected');
 
         // Remove from queue if present
         this.leaveQueue(playerId);
@@ -165,10 +185,6 @@ class GameManager {
             this.players.delete(playerId);
         }
 
-        // Always remove socket mapping since socket is dead
-        this.socketToPlayer.delete(socketId);
-
-        log.info({ playerId, socketId }, 'Player disconnected');
         this.broadcastStats();
     }
 
@@ -198,7 +214,6 @@ class GameManager {
         // Add to queue
         const entry: QueueEntry = {
             playerId,
-            socketId: session.socketId,
             name,
             joinedAt: now(),
         };
@@ -274,7 +289,6 @@ class GameManager {
 
         const entry: QueueEntry = {
             playerId,
-            socketId: session.socketId,
             name,
             joinedAt: now(),
         };
@@ -325,7 +339,6 @@ class GameManager {
         session.name = name;
         const guestEntry: QueueEntry = {
             playerId,
-            socketId: session.socketId,
             name,
             joinedAt: now(),
         };
@@ -371,16 +384,20 @@ class GameManager {
 
         this.games.set(initialState.gameId, liveGame);
 
-        // Update player sessions and join both sockets into the game room
+        // Update player sessions and join all their sockets into the game room
         const session1 = this.players.get(p1Entry.playerId);
         const session2 = this.players.get(p2Entry.playerId);
         if (session1) {
             session1.currentGameId = initialState.gameId;
-            session1.socket.join(initialState.gameId);
+            for (const socket of session1.sockets) {
+                socket.join(initialState.gameId);
+            }
         }
         if (session2) {
             session2.currentGameId = initialState.gameId;
-            session2.socket.join(initialState.gameId);
+            for (const socket of session2.sockets) {
+                socket.join(initialState.gameId);
+            }
         }
 
         log.info({ gameId: initialState.gameId }, 'Game created');
@@ -870,10 +887,7 @@ class GameManager {
      * Emit event to specific player
      */
     emitToPlayer(playerId: string, event: SocketEventName, payload: unknown): void {
-        const session = this.players.get(playerId);
-        if (!session) return;
-
-        session.socket.emit(event, payload);
+        this.getIO().to(`user:${playerId}`).emit(event, payload);
     }
 
     /**
@@ -909,7 +923,9 @@ class GameManager {
             for (const player of game.state.players) {
                 const session = this.players.get(player.id);
                 if (session) {
-                    session.socket.leave(gameId); // remove from room
+                    for (const socket of session.sockets) {
+                        socket.leave(gameId); // remove from room
+                    }
                     session.currentGameId = undefined;
                     if (session.disconnectedAt) {
                         this.players.delete(player.id);

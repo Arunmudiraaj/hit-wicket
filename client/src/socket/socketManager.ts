@@ -17,7 +17,8 @@ import {
     setConnectionStatus,
     setOpponentDisconnectedAt,
 } from '../store/slices/gameSlice';
-import { setPlayerId, setLastGameId, setLiveStats, setRoomCode, setRoomError } from '../store/slices/sessionSlice';
+import { setPlayerId, setLastGameId, setLiveStats, setRoomCode, setRoomError, setGlobalError } from '../store/slices/sessionSlice';
+import { CONNECTION_STATUS } from '@shared/types/player';
 import { storage } from '../utils/storage';
 import type {
     GuestInitPayload,
@@ -37,7 +38,7 @@ let initialized = false;
  */
 function handleConnect() {
     console.log('🔌 Socket connected');
-    storeRef?.dispatch(setConnectionStatus('connected'));
+    storeRef?.dispatch(setConnectionStatus(CONNECTION_STATUS.CONNECTED));
 
     // Check if we have a game to rejoin
     const state = storeRef?.getState();
@@ -53,7 +54,7 @@ function handleConnect() {
  */
 function handleDisconnect(reason: string) {
     console.log('❌ Socket disconnected:', reason);
-    storeRef?.dispatch(setConnectionStatus('disconnected'));
+    storeRef?.dispatch(setConnectionStatus(CONNECTION_STATUS.DISCONNECTED));
 }
 
 /**
@@ -95,7 +96,7 @@ function handleState(data: StatePayload) {
     const opponent = data.game.players.find((p) => p.id !== myPlayerId);
 
     if (!opponent || opponent.isConnected) {
-        storeRef?.dispatch(setConnectionStatus('connected'));
+        storeRef?.dispatch(setConnectionStatus(CONNECTION_STATUS.CONNECTED));
         storeRef?.dispatch(setOpponentDisconnectedAt(undefined));
     }
 }
@@ -105,7 +106,12 @@ function handleState(data: StatePayload) {
  */
 function handleError(data: ErrorPayload) {
     console.error('🚨 Game error:', data.code, data.message);
-    // TODO: You could dispatch to a toast/notification slice here
+    storeRef?.dispatch(setGlobalError(data.message));
+    
+    // Auto-clear error after 4 seconds
+    setTimeout(() => {
+        storeRef?.dispatch(setGlobalError(null));
+    }, 4000);
 }
 
 /**
@@ -113,7 +119,7 @@ function handleError(data: ErrorPayload) {
  */
 function handleOpponentDisconnected(data: OpponentDisconnectedPayload) {
     console.log('⚠️ Opponent disconnected, grace period started:', data.gracePeriodEndsAt);
-    storeRef?.dispatch(setConnectionStatus('opponent_disconnected'));
+    storeRef?.dispatch(setConnectionStatus(CONNECTION_STATUS.OPPONENT_DISCONNECTED));
     storeRef?.dispatch(setOpponentDisconnectedAt(data.gracePeriodEndsAt));
 }
 

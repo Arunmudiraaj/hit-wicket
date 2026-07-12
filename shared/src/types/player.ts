@@ -3,7 +3,8 @@
  * Player-related type definitions
  */
 
-import type { PlayerRole } from '../constants/game-rules.js';
+import type { PlayerRole, ConnectionStatus } from '../constants/game-rules.js';
+import { CONNECTION_STATUS } from '../constants/game-rules.js';
 
 /**
  * Public player information safe to broadcast
@@ -15,11 +16,7 @@ export interface PlayerPublic {
 }
 
 /**
- * Player connection status
+ * Re-export for convenience
  */
-export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'opponent_disconnected';
-
-/**
- * Re-export PlayerRole for convenience
- */
-export type { PlayerRole };
+export type { PlayerRole, ConnectionStatus };
+export { CONNECTION_STATUS };

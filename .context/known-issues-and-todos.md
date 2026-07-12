@@ -9,7 +9,6 @@ This document outlines intentionally incomplete features, technical debt, and kn
 - **Achievements UI**: `user_achievements` table is populated; `/api/me` returns them; but the UI is not built.
 - **Game page**: when on an unknown game route or completed game route like this /game/:id the frontend shows loading state infinitely.
 - **Dev Timers**: `CHOICE_TIMEOUT_MS` is set very high (25 min) for dev convenience — must reduce for production.
-- **Multiple tabs (Same Browser) issue**: Using multiple tabs in the same browser shares the same local storage `guest_id`, leading to session confusion. Joining/creating rooms with this setup will result in the older tab becoming orphaned (forcefully disconnected by the backend). For local testing with yourself, use Incognito Mode or a different browser.
 - **Error toasts**: Errors from server are logged to console but not shown to the user (TODO noted in code).
 
 ## 2. Open Architectural Decisions
