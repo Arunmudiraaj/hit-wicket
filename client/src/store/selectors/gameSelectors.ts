@@ -24,6 +24,14 @@ export const selectServerState = createSelector(
 );
 
 /**
+ * Select game error message
+ */
+export const selectGameError = createSelector(
+    [selectGameSlice],
+    (game): string | null => game.error ?? null
+);
+
+/**
  * Select current player ID
  */
 export const selectPlayerId = createSelector(

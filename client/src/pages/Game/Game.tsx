@@ -29,6 +29,7 @@ import {
   selectInningBreakDeadline,
   selectWinnerId,
   selectEndReason,
+  selectGameError,
 } from '@/store/selectors/gameSelectors';
 import { GAME_PHASE, ROLES, type Choice } from '@shared/constants/game-rules';
 import { CONNECTION_STATUS } from '@shared/types/player';
@@ -73,6 +74,7 @@ export default function Game() {
   const inningBreakDeadline = useAppSelector(selectInningBreakDeadline);
   const winnerId = useAppSelector(selectWinnerId);
   const endReason = useAppSelector(selectEndReason);
+  const gameError = useAppSelector(selectGameError);
 
   // Local UI state
   const [lastBallResult, setLastBallResult] = useState<boolean>(false);
@@ -135,6 +137,16 @@ export default function Game() {
     }
     navigate('/');
   };
+
+  if (gameError) {
+    return (
+      <div className="relative h-screen w-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-destructive">Oops!</h2>
+        <p className="text-muted-foreground mb-6 max-w-md">{gameError}</p>
+        <Button onClick={() => navigate('/')}>Return to Home</Button>
+      </div>
+    );
+  }
 
   // Show loading if no game data
   if (!gameId || !phase) {

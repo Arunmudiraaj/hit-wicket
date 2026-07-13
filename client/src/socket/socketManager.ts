@@ -10,12 +10,14 @@
 
 import socket from './socket';
 import { SOCKET_EVENTS } from '@shared/constants/events';
+import { ERROR_CODES } from '@shared/constants/errors';
 import type { Store } from '@reduxjs/toolkit';
 import type { RootState } from '../store/store';
 import {
     setServerState,
     setConnectionStatus,
     setOpponentDisconnectedAt,
+    setGameError,
 } from '../store/slices/gameSlice';
 import { setPlayerId, setLastGameId, setLiveStats, setRoomCode, setRoomError } from '../store/slices/sessionSlice';
 import { CONNECTION_STATUS } from '@shared/types/player';
@@ -107,6 +109,9 @@ function handleState(data: StatePayload) {
 function handleSocketError(data: any) {
     console.error('⚠️ Socket error:', data.message);
     toast.error(data.message);
+    if (data.code === ERROR_CODES.GAME_NOT_FOUND || data.code === ERROR_CODES.PLAYER_NOT_IN_GAME) {
+        storeRef?.dispatch(setGameError(data.message));
+    }
 }
 
 /**

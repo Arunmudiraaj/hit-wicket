@@ -29,12 +29,15 @@ interface GameSliceState {
   connectionStatus: ConnectionStatus;
   /** When opponent disconnected (for grace period countdown) */
   opponentDisconnectedAt: number | undefined;
+  /** Game error message if the game was not found or accessible */
+  error: string | null;
 }
 
 const initialState: GameSliceState = {
   serverState: null,
   connectionStatus: CONNECTION_STATUS.CONNECTING,
   opponentDisconnectedAt: undefined,
+  error: null,
 };
 
 const gameSlice = createSlice({
@@ -59,6 +62,7 @@ const gameSlice = createSlice({
     clearGame: (state) => {
       state.serverState = null;
       state.opponentDisconnectedAt = undefined;
+      state.error = null;
     },
 
     /**
@@ -74,6 +78,13 @@ const gameSlice = createSlice({
     setOpponentDisconnectedAt: (state, action: PayloadAction<number | undefined>) => {
       state.opponentDisconnectedAt = action.payload;
     },
+
+    /**
+     * Set game error message
+     */
+    setGameError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
   },
 });
 
@@ -83,6 +94,7 @@ export const {
   clearGame,
   setConnectionStatus,
   setOpponentDisconnectedAt,
+  setGameError,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
