@@ -5,10 +5,9 @@ import { RoomModal } from "./components/RoomModal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { selectGameId, selectGamePhase } from "../../store/selectors/gameSelectors";
-import { Button } from "../../components/ui/button";
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users, Shuffle, UserPlus, Link, Trophy, User, Settings, Loader2, LogOut, Github } from "lucide-react"
+import { Users, Shuffle, Trophy, User, Settings, LogOut, Github } from "lucide-react"
 import { GAME_PHASE } from "@shared/constants/game-rules";
 import { signIn, signOut, useSession } from "../../lib/auth";
 
@@ -17,7 +16,7 @@ export default function Home() {
   const [showRoomModal, setShowRoomModal] = useState(false);
   const { playerName, onlinePlayers, activeGames } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
-  const { data: session, isPending } = useSession();
+  const { data: session } = useSession();
 
   // Watch for match found
   const gameId = useAppSelector(selectGameId);

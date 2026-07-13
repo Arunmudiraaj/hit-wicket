@@ -7,6 +7,8 @@ import { useAppSelector } from "@/hooks/useTypedRedux"
 import { THEME } from "@/constants/constants"
 import { useDispatch } from "react-redux"
 import { toggleTheme } from "@/store/slices/themeSlice"
+import { useUpdateSettings } from "@/api/mutations/useUpdateSettings"
+import { useNavigate } from "react-router-dom"
 
 export default function SettingsScreen() {
   const dispatch = useDispatch()
@@ -14,6 +16,8 @@ export default function SettingsScreen() {
   const [animationsEnabled, setAnimationsEnabled] = useState(true)
   const theme = useAppSelector((state: { theme: { mode: string } }) => state.theme.mode);
   const isDarkMode = theme === THEME.DARK
+  const { mutate: updateSettings } = useUpdateSettings()
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Apply theme class to document
@@ -26,15 +30,21 @@ export default function SettingsScreen() {
     localStorage.setItem(THEME.STORAGE_KEY, theme)
   }, [theme])
 
-  const toggleThemeHandler = () => {
+  const toggleThemeHandler = (checked: boolean) => {
     dispatch(toggleTheme())
+    updateSettings({ theme: checked ? THEME.DARK : THEME.LIGHT })
+  }
+
+  const toggleSoundHandler = (checked: boolean) => {
+    setSoundEnabled(checked)
+    updateSettings({ soundEnabled: checked })
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center gap-4 p-4 border-b border-border">
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold text-foreground">Settings</h1>
@@ -57,7 +67,7 @@ export default function SettingsScreen() {
                   Sound Effects
                 </Label>
               </div>
-              <Switch id="sound" checked={soundEnabled} onCheckedChange={setSoundEnabled} />
+              <Switch id="sound" checked={soundEnabled} onCheckedChange={toggleSoundHandler} />
             </div>
 
             <div className="flex items-center justify-between">

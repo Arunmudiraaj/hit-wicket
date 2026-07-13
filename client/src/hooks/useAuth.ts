@@ -68,7 +68,7 @@ export function useAuth(): void {
             
             // If they just logged out mid-session, reconnect to drop the auth token
             if (prevAuthRef.current === true) {
-                reconnectSocket(savedGuestId ?? undefined);
+                reconnectSocket();
             }
             prevAuthRef.current = false;
         }

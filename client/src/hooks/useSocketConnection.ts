@@ -14,12 +14,9 @@ import { initSocketManager, cleanupSocketManager } from '../socket/socketManager
 
 export const useSocketConnection = (): void => {
     useEffect(() => {
-        // Read saved guest ID for reconnection (undefined if no previous guest session)
-        const savedPlayerId = localStorage.getItem('hit_wicket_player_id') || undefined;
-
         // The session cookie is sent automatically by the browser via withCredentials.
         // No need to read or forward the token manually.
-        initSocketManager(store, savedPlayerId);
+        initSocketManager(store);
 
         return () => {
             cleanupSocketManager();

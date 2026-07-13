@@ -157,7 +157,7 @@ function handleRoomError(data: { code: string; message: string }) {
  * @param store     - Redux store reference
  * @param playerId  - Saved guest ID for reconnection (undefined if none)
  */
-export function initSocketManager(store: Store<RootState>, playerId?: string) {
+export function initSocketManager(store: Store<RootState>) {
     if (initialized) {
         console.warn('Socket manager already initialized');
         return;
@@ -223,7 +223,7 @@ export function cleanupSocketManager() {
  * Used when authentication state changes (e.g. user logs out) to drop the 
  * authenticated session and reconnect as a guest.
  */
-export function reconnectSocket(playerId?: string) {
+export function reconnectSocket() {
     if (!initialized || !storeRef) return;
     
     console.log('🔄 Reconnecting socket due to auth state change...');

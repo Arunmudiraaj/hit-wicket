@@ -15,11 +15,18 @@ Client fetches Better Auth session token (authClient.getSession())
 ```
 
 ## Client-Side Architecture (Redux)
-### Redux Store Shape
+### Redux Store Shape (Client State)
 - `auth`: Better Auth user, isAuthenticated, isLoading (Synced by `useAuth()`).
 - `session`: playerId, playerName, lastGameId, authToken (Local state for connection).
-- `game`: `serverState` (GameState direct from server), `connectionStatus`, `opponentDisconnectedAt`.
+- `game`: `serverState` (GameState direct from server via WebSockets), `connectionStatus`, `opponentDisconnectedAt`.
 - `theme`: light/dark preference.
+
+### Server State (TanStack Query)
+We use **TanStack Query (React Query)** to manage asynchronous server state fetched over HTTP (e.g., Profile, Leaderboard). 
+- **Centralized Axios Client**: `client/src/api/client.ts` sets up the base instance.
+- **Query Keys Factory**: `client/src/api/queryKeys.ts` defines all query keys to prevent typos.
+- **Custom Hooks**: Data fetching is encapsulated in custom hooks like `useProfile()` and `useLeaderboard()` inside `client/src/api/queries/`. Mutations like `useUpdateSettings()` are in `client/src/api/mutations/`.
+- UI components simply call these hooks to receive reactive `data`, `isLoading`, and `isError` states.
 
 ### Selector Pattern
 All game UI data is derived from `serverState` + `session.playerId` via **memoized selectors** in `gameSelectors.ts`. Components never compute game logic — they just read selectors. Example: `selectMyRole`, `selectCanPlay`, `selectScoreData`.

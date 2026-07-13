@@ -9,4 +9,5 @@ export * from './errors.js';
 export * from './config.js';
 export * from './achievements.js';
 export * from './settings.js';
+export * from './leaderboard.js';
 

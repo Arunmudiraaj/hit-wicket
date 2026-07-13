@@ -36,7 +36,7 @@ meRouter.get('/', async (req: Request, res: Response): Promise<void> => {
             .where(eq(playerStats.userId, user.id));
 
         // Aggregate across modes for overall profile numbers
-        const aggregated = stats.reduce(
+        const rawAggregated = stats.reduce(
             (acc, row) => ({
                 gamesPlayed:       acc.gamesPlayed       + row.gamesPlayed,
                 gamesWon:          acc.gamesWon           + row.gamesWon,
@@ -57,6 +57,36 @@ meRouter.get('/', async (req: Request, res: Response): Promise<void> => {
                 bestWinStreak: 0,
             }
         );
+
+        // Calculate derived stats
+        const winRate = rawAggregated.gamesPlayed > 0 
+            ? (rawAggregated.gamesWon / rawAggregated.gamesPlayed) * 100 
+            : 0;
+        
+        const averageRuns = rawAggregated.gamesPlayed > 0 
+            ? rawAggregated.totalRunsScored / rawAggregated.gamesPlayed 
+            : 0;
+        
+        const strikeRate = rawAggregated.totalBallsFaced > 0 
+            ? (rawAggregated.totalRunsScored / rawAggregated.totalBallsFaced) * 100 
+            : 0;
+        
+        const economyRate = rawAggregated.totalBallsBowled > 0 
+            ? (rawAggregated.totalRunsConceded / rawAggregated.totalBallsBowled) * 6 
+            : 0;
+        
+        const avgWicketsPerMatch = rawAggregated.gamesPlayed > 0 
+            ? rawAggregated.totalWicketsTaken / rawAggregated.gamesPlayed 
+            : 0;
+
+        const aggregated = {
+            ...rawAggregated,
+            winRate,
+            averageRuns,
+            strikeRate,
+            economyRate,
+            avgWicketsPerMatch
+        };
 
         // Fetch unlocked achievements
         const achievements = await db

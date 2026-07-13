@@ -13,7 +13,9 @@ import { db } from '../../db/index.js';
 import { playerStats, user } from '../../db/schema.js';
 import { desc, eq, sql } from 'drizzle-orm';
 import { createLogger } from '../../utils/logger.js';
-import { GAME_MODE_ID, type GameModeId } from '@hit-wicket/shared';
+import { GAME_MODE_ID, LEADERBOARD_PERIOD, LEADERBOARD_MODE, type GameModeId, type LeaderboardPeriod } from '@hit-wicket/shared';
+import { games, gamePlayers } from '../../db/schema.js';
+import { and, gte } from 'drizzle-orm';
 
 const log = createLogger('api:leaderboard');
 
@@ -30,14 +32,23 @@ const DEFAULT_LIMIT = 50;
 leaderboardRouter.get('/', async (req: Request, res: Response): Promise<void> => {
     const rawMode  = req.query.mode  as string | undefined;
     const rawLimit = req.query.limit as string | undefined;
+    const rawPeriod = req.query.period as string | undefined;
 
     // Validate mode
     const validModes = Object.values(GAME_MODE_ID) as string[];
-    if (rawMode && !validModes.includes(rawMode)) {
-        res.status(400).json({ error: `Invalid mode. Must be one of: ${validModes.join(', ')}` });
+    if (rawMode && rawMode !== LEADERBOARD_MODE.ALL && !validModes.includes(rawMode)) {
+        res.status(400).json({ error: `Invalid mode. Must be one of: ${LEADERBOARD_MODE.ALL}, ${validModes.join(', ')}` });
         return;
     }
-    const mode = rawMode as GameModeId | undefined;
+    const mode = rawMode === LEADERBOARD_MODE.ALL ? undefined : (rawMode as GameModeId | undefined);
+
+    // Validate period
+    const validPeriods = Object.values(LEADERBOARD_PERIOD) as string[];
+    if (rawPeriod && !validPeriods.includes(rawPeriod)) {
+        res.status(400).json({ error: `Invalid period. Must be one of: ${validPeriods.join(', ')}` });
+        return;
+    }
+    const period = (rawPeriod as LeaderboardPeriod) || LEADERBOARD_PERIOD.ALL;
 
     // Clamp limit
     const limit = Math.min(
@@ -46,6 +57,45 @@ leaderboardRouter.get('/', async (req: Request, res: Response): Promise<void> =>
     );
 
     try {
+        if (period === LEADERBOARD_PERIOD.WEEKLY || period === LEADERBOARD_PERIOD.MONTHLY) {
+            const startDate = new Date();
+            if (period === LEADERBOARD_PERIOD.WEEKLY) {
+                startDate.setDate(startDate.getDate() - 7);
+            } else {
+                startDate.setDate(startDate.getDate() - 30);
+            }
+
+            const rows = await db
+                .select({
+                    userId:      gamePlayers.userId,
+                    name:        user.name,
+                    image:       user.image,
+                    gamesPlayed: sql<number>`count(${gamePlayers.id})`.mapWith(Number),
+                    gamesWon:    sql<number>`sum(case when ${gamePlayers.isWinner} then 1 else 0 end)`.mapWith(Number),
+                })
+                .from(gamePlayers)
+                .innerJoin(user, eq(gamePlayers.userId, user.id))
+                .innerJoin(games, eq(gamePlayers.gameId, games.id))
+                .where(
+                    and(
+                        gte(gamePlayers.playedAt, startDate),
+                        mode ? eq(games.mode, mode) : undefined
+                    )
+                )
+                .groupBy(gamePlayers.userId, user.id)
+                .orderBy(desc(sql`sum(case when ${gamePlayers.isWinner} then 1 else 0 end)`), desc(sql`count(${gamePlayers.id})`))
+                .limit(limit);
+
+            const processedRows = rows.map((r, i) => {
+                const winPercentage = r.gamesPlayed > 0 ? (r.gamesWon / r.gamesPlayed) * 100 : 0;
+                return { rank: i + 1, ...r, winPercentage };
+            });
+
+            res.json({ mode: rawMode || LEADERBOARD_MODE.ALL, period, rows: processedRows });
+            return;
+        }
+
+        // All-time query using denormalized playerStats table
         if (mode) {
             // Single-mode leaderboard: one row per user for the given mode
             const rows = await db
@@ -55,10 +105,6 @@ leaderboardRouter.get('/', async (req: Request, res: Response): Promise<void> =>
                     image:       user.image,
                     gamesPlayed: playerStats.gamesPlayed,
                     gamesWon:    playerStats.gamesWon,
-                    gamesLost:   playerStats.gamesLost,
-                    gamesDrawn:  playerStats.gamesDrawn,
-                    highestScore: playerStats.highestScore,
-                    bestWinStreak: playerStats.bestWinStreak,
                 })
                 .from(playerStats)
                 .innerJoin(user, eq(playerStats.userId, user.id))
@@ -66,7 +112,12 @@ leaderboardRouter.get('/', async (req: Request, res: Response): Promise<void> =>
                 .orderBy(desc(playerStats.gamesWon), desc(playerStats.highestScore))
                 .limit(limit);
 
-            res.json({ mode, rows: rows.map((r, i) => ({ rank: i + 1, ...r })) });
+            const processedRows = rows.map((r, i) => {
+                const winPercentage = r.gamesPlayed > 0 ? (r.gamesWon / r.gamesPlayed) * 100 : 0;
+                return { rank: i + 1, ...r, winPercentage };
+            });
+
+            res.json({ mode, period, rows: processedRows });
         } else {
             // All-time leaderboard: aggregate across modes
             const rows = await db
@@ -76,10 +127,6 @@ leaderboardRouter.get('/', async (req: Request, res: Response): Promise<void> =>
                     image:       user.image,
                     gamesPlayed: sql<number>`sum(${playerStats.gamesPlayed})`.mapWith(Number),
                     gamesWon:    sql<number>`sum(${playerStats.gamesWon})`.mapWith(Number),
-                    gamesLost:   sql<number>`sum(${playerStats.gamesLost})`.mapWith(Number),
-                    gamesDrawn:  sql<number>`sum(${playerStats.gamesDrawn})`.mapWith(Number),
-                    highestScore: sql<number>`max(${playerStats.highestScore})`.mapWith(Number),
-                    bestWinStreak: sql<number>`max(${playerStats.bestWinStreak})`.mapWith(Number),
                 })
                 .from(playerStats)
                 .innerJoin(user, eq(playerStats.userId, user.id))
@@ -87,7 +134,12 @@ leaderboardRouter.get('/', async (req: Request, res: Response): Promise<void> =>
                 .orderBy(desc(sql`sum(${playerStats.gamesWon})`), desc(sql`max(${playerStats.highestScore})`))
                 .limit(limit);
 
-            res.json({ mode: 'all', rows: rows.map((r, i) => ({ rank: i + 1, ...r })) });
+            const processedRows = rows.map((r, i) => {
+                const winPercentage = r.gamesPlayed > 0 ? (r.gamesWon / r.gamesPlayed) * 100 : 0;
+                return { rank: i + 1, ...r, winPercentage };
+            });
+
+            res.json({ mode: rawMode || LEADERBOARD_MODE.ALL, period, rows: processedRows });
         }
     } catch (err) {
         log.error(err, 'Failed to fetch leaderboard');

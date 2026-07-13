@@ -82,6 +82,11 @@ finalized db schema. wired db and auth with server and client
 created all context files for whole app. added the folders (.context and .agents) for context to ai 
 planned to add unit tests to backend, frontend
 
+5th july
+planning to fix the issue of opening the game in same browser with multiple tabs (guest user and auth user)
+and need to decide what happens if we open the game with same auth user in different browsers (how to handle the multi session, since there may be already playing a active game)
 
+12th july 2026
+refactored the backend architecture from 1:1 socket mapped to 1:N sockets mapped for the same session (player).
+completed the grace period local timer, offline ui overlay, and global toasts for socket errors.
 
-  
