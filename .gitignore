@@ -22,3 +22,5 @@ server/src/**/*.js
 !client/postcss.config.js
 !client/eslint.config.js
 !client/vite.config.js
+
+*.tsbuildinfo
