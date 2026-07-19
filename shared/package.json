@@ -23,7 +23,7 @@
         }
     },
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -b --force",
         "dev": "tsc --watch"
     },
     "devDependencies": {
