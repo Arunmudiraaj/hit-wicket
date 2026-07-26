@@ -7,16 +7,17 @@ import { useNavigate } from "react-router-dom";
 import { selectGameId, selectGamePhase } from "../../store/selectors/gameSelectors";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users, Shuffle, Trophy, User, Settings, LogOut, Github } from "lucide-react"
+import { Users, Shuffle, Trophy, User, Settings, Github, Loader2 } from "lucide-react"
 import { GAME_PHASE } from "@shared/constants/game-rules";
-import { signIn, signOut, useSession } from "../../lib/auth";
+import { signIn, useSession } from "../../lib/auth";
 
 export default function Home() {
   const [findMatchLoading, setFindMatchLoading] = useState(false);
   const [showRoomModal, setShowRoomModal] = useState(false);
+  const [loginProvider, setLoginProvider] = useState<"google" | "github" | null>(null);
   const { playerName, onlinePlayers, activeGames } = useAppSelector((s) => s.session);
   const navigate = useNavigate();
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
 
   // Watch for match found
   const gameId = useAppSelector(selectGameId);
@@ -59,22 +60,16 @@ export default function Home() {
           <span className="font-bold text-xl text-foreground">Hitwicket</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/profile/65")}>
-            {session?.user?.image ? (
+          {isPending ? (
+            <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+          ) : session?.user?.image ? (
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile/u")}>
               <img src={session.user.image} alt="Profile" className="w-8 h-8 rounded-full" />
-            ) : (
-              <User className="w-5 h-5" />
-            )}
+            </Button>
+          ) : null}
+          <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
+            <Settings className="w-5 h-5" />
           </Button>
-          {session ? (
-            <Button variant="ghost" size="icon" onClick={() => signOut()}>
-              <LogOut className="w-5 h-5 text-destructive" />
-            </Button>
-          ) : (
-            <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
-              <Settings className="w-5 h-5" />
-            </Button>
-          )}
         </div>
       </header>
 
@@ -104,20 +99,43 @@ export default function Home() {
           </Button>
 
           {/* Authentication Section */}
-          {!session ? (
+          {isPending ? (
+            <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-4 mt-2 h-[154px] animate-pulse">
+               <div className="h-5 bg-muted rounded w-1/2 mx-auto"></div>
+               <div className="h-12 bg-muted rounded w-full"></div>
+               <div className="h-12 bg-muted rounded w-full"></div>
+            </div>
+          ) : !session ? (
             <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-4 mt-2">
               <span className="font-semibold text-foreground text-center">Sign in to save your stats!</span>
-              <Button onClick={() => signIn.social({ provider: "google", callbackURL: window.location.origin })} variant="outline" className="w-full h-12 bg-transparent">
+              <Button 
+                onClick={() => {
+                  setLoginProvider("google");
+                  signIn.social({ provider: "google", callbackURL: window.location.origin });
+                }} 
+                disabled={loginProvider !== null}
+                variant="outline" 
+                className="w-full h-12 bg-transparent"
+              >
+                {loginProvider === "google" ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
                 Sign in with Google
               </Button>
-              <Button onClick={() => signIn.social({ provider: "github", callbackURL: window.location.origin })} variant="outline" className="w-full h-12 bg-transparent">
-                <Github className="w-5 h-5 mr-2" />
+              <Button 
+                onClick={() => {
+                  setLoginProvider("github");
+                  signIn.social({ provider: "github", callbackURL: window.location.origin });
+                }} 
+                disabled={loginProvider !== null}
+                variant="outline" 
+                className="w-full h-12 bg-transparent"
+              >
+                {loginProvider === "github" ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Github className="w-5 h-5 mr-2" />}
                 Sign in with GitHub
               </Button>
             </div>
           ) : (
              <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-2 mt-2">
-               <span className="text-foreground text-center font-medium">Welcome back, {session.user.name}!</span>
+               <span className="text-foreground text-center font-medium">Welcome, {session.user.name}!</span>
                <span className="text-muted-foreground text-sm text-center">Your game stats are being saved securely.</span>
              </div>
           )}
@@ -134,15 +152,17 @@ export default function Home() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className={`grid gap-4 ${session || isPending ? "grid-cols-2" : "grid-cols-1"}`}>
           <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => navigate("/leaderboard")}>
             <Trophy className="w-6 h-6 text-amber-500" />
             <span>Leaderboard</span>
           </Button>
-          <Button variant="outline" className="h-24 flex-col gap-2 bg-transparent" onClick={() => navigate("/profile/u")}>
-            <User className="w-6 h-6 text-accent-foreground" />
-            <span>My Profile</span>
-          </Button>
+          {(session || isPending) && (
+            <Button variant="outline" disabled={isPending} className="h-24 flex-col gap-2 bg-transparent" onClick={() => navigate("/profile/u")}>
+              <User className="w-6 h-6 text-accent-foreground" />
+              <span>My Profile</span>
+            </Button>
+          )}
         </div>
 
         {/* Recent Players */}

@@ -9,8 +9,10 @@ import { useDispatch } from "react-redux"
 import { toggleTheme } from "@/store/slices/themeSlice"
 import { useUpdateSettings } from "@/api/mutations/useUpdateSettings"
 import { useNavigate } from "react-router-dom"
+import { useSession, signOut } from "@/lib/auth"
 
 export default function SettingsScreen() {
+  const { data: session } = useSession()
   const dispatch = useDispatch()
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [animationsEnabled, setAnimationsEnabled] = useState(true)
@@ -131,24 +133,26 @@ export default function SettingsScreen() {
         </div>
 
         {/* Account */}
-        <div className="bg-card rounded-xl border border-border p-4">
-          <h3 className="font-semibold text-foreground mb-4">Account</h3>
+        {session && (
+          <div className="bg-card rounded-xl border border-border p-4">
+            <h3 className="font-semibold text-foreground mb-4">Account</h3>
 
-          <div className="flex flex-col gap-2">
-            <Button variant="ghost" className="justify-start h-12">
-              <User className="w-5 h-5 mr-3" />
-              Edit Profile
-            </Button>
-            <Button variant="ghost" className="justify-start h-12">
-              <HelpCircle className="w-5 h-5 mr-3" />
-              Help & Support
-            </Button>
-            <Button variant="ghost" className="justify-start h-12 text-destructive hover:text-destructive">
-              <LogOut className="w-5 h-5 mr-3" />
-              Sign Out
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button variant="ghost" className="justify-start h-12">
+                <User className="w-5 h-5 mr-3" />
+                Edit Profile
+              </Button>
+              <Button variant="ghost" className="justify-start h-12">
+                <HelpCircle className="w-5 h-5 mr-3" />
+                Help & Support
+              </Button>
+              <Button onClick={() => signOut()} variant="ghost" className="justify-start h-12 text-destructive hover:text-destructive">
+                <LogOut className="w-5 h-5 mr-3" />
+                Sign Out
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Version */}
         <div className="text-center text-sm text-muted-foreground">Hitwicket v1.0.0</div>

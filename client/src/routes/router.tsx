@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy, type JSX } from 'react';
 import Loader from '../components/Loader';
 import { APP_ROUTES, EXTRA_ROUTES } from '../constants/constants';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 
 // Lazy-loaded route components
 const Home = lazy(() => import('../pages/Home/Home'));
@@ -25,7 +26,13 @@ const router = createBrowserRouter([
   { path: EXTRA_ROUTES.GAME.path, element: withSuspense(Game) },
   { path: APP_ROUTES.ABOUT.path, element: withSuspense(About) },
   { path: APP_ROUTES.SETTINGS.path, element: withSuspense(SettingsScreen) },
-  { path: EXTRA_ROUTES.PROFILE.path, element: withSuspense(Profile) },
+  { 
+    path: EXTRA_ROUTES.PROFILE.path, 
+    element: <ProtectedRoute />, 
+    children: [
+      { path: '', element: withSuspense(Profile) }
+    ]
+  },
   { path: APP_ROUTES.LEADERBOARD.path, element: withSuspense(LeaderboardScreen) },
   { path: '*', element: withSuspense(NotFound) },
 ]);
