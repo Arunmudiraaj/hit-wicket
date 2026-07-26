@@ -6,7 +6,7 @@
 // Timing constants (in milliseconds)
 export const TIMING = {
     /** Time allowed for each player to submit their choice per ball */
-    CHOICE_TIMEOUT_MS: 15_00_000,
+    CHOICE_TIMEOUT_MS: 10_000,
 
     /** Grace period for disconnected players before forfeit */
     DISCONNECT_GRACE_PERIOD_MS: 30_000,
