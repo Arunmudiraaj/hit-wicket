@@ -16,11 +16,12 @@ export const auth = betterAuth({
             trustedProviders: ["google", "github"],
         }
     },
-    /**
-     * Better Auth defaults to SameSite=Lax, which works perfectly for localhost
-     * development even across different ports (e.g. 3000 to 3001), because cookies
-     * do not isolate by port.
-     */
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+            secure: config.NODE_ENV === "production"
+        }
+    },
     socialProviders: {
         github: {
             clientId: config.GITHUB_CLIENT_ID || "",
