@@ -7,3 +7,5 @@ This document outlines intentionally incomplete features, technical debt, and kn
 - **Achievements UI**: `user_achievements` table is populated; `/api/me` returns them; but the UI is not built.
 
 ## 2. make sure all the ui and api is wired up
+
+sometimes the pop up for the resolved runs is not coming in production
