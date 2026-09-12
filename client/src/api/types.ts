@@ -27,6 +27,13 @@ export interface UserProfileResponse {
   achievements: { achievementId: string; unlockedAt: string }[];
 }
 
+export interface UserSettingsResponse {
+  settings: {
+    theme: string;
+    soundEnabled: boolean;
+  };
+}
+
 export interface LeaderboardRow {
   rank: number;
   userId: string;

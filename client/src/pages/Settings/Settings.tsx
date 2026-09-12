@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Volume2, VolumeX, Sparkles, Moon, Sun, HelpCircle, LogOut, User } from "lucide-react"
+import { ArrowLeft, Volume2, VolumeX, Moon, Sun, HelpCircle, LogOut, User } from "lucide-react"
 import { useAppSelector } from "@/hooks/useTypedRedux"
 import { THEME } from "@/constants/constants"
 import { useDispatch } from "react-redux"
-import { toggleTheme } from "@/store/slices/themeSlice"
+import { toggleTheme, toggleSound } from "@/store/slices/settingsSlice"
 import { useUpdateSettings } from "@/api/mutations/useUpdateSettings"
 import { useNavigate } from "react-router-dom"
 import { useSession, signOut } from "@/lib/auth"
 
 export default function SettingsScreen() {
-  const { data: session } = useSession()
+  const { data: session, isPending } = useSession()
   const dispatch = useDispatch()
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [animationsEnabled, setAnimationsEnabled] = useState(true)
-  const theme = useAppSelector((state: { theme: { mode: string } }) => state.theme.mode);
+  
+  const theme = useAppSelector((state: { settings: { theme: string } }) => state.settings.theme)
+  const soundEnabled = useAppSelector((state: { settings: { soundEnabled: boolean } }) => state.settings.soundEnabled)
   const isDarkMode = theme === THEME.DARK
   const { mutate: updateSettings } = useUpdateSettings()
   const navigate = useNavigate()
@@ -28,8 +28,6 @@ export default function SettingsScreen() {
     } else {
       document.documentElement.classList.remove(THEME.DARK)
     }
-    // Persist to localStorage
-    localStorage.setItem(THEME.STORAGE_KEY, theme)
   }, [theme])
 
   const toggleThemeHandler = (checked: boolean) => {
@@ -38,7 +36,7 @@ export default function SettingsScreen() {
   }
 
   const toggleSoundHandler = (checked: boolean) => {
-    setSoundEnabled(checked)
+    dispatch(toggleSound())
     updateSettings({ soundEnabled: checked })
   }
 
@@ -70,16 +68,6 @@ export default function SettingsScreen() {
                 </Label>
               </div>
               <Switch id="sound" checked={soundEnabled} onCheckedChange={toggleSoundHandler} />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <Label htmlFor="animations" className="text-foreground">
-                  Animations
-                </Label>
-              </div>
-              <Switch id="animations" checked={animationsEnabled} onCheckedChange={setAnimationsEnabled} />
             </div>
 
             <div className="flex items-center justify-between">
@@ -133,7 +121,16 @@ export default function SettingsScreen() {
         </div>
 
         {/* Account */}
-        {session && (
+        {isPending ? (
+          <div className="bg-card rounded-xl border border-border p-4 animate-pulse">
+            <div className="h-5 bg-muted rounded w-1/3 mb-4"></div>
+            <div className="flex flex-col gap-2">
+              <div className="h-12 bg-muted rounded w-full"></div>
+              <div className="h-12 bg-muted rounded w-full"></div>
+              <div className="h-12 bg-muted rounded w-full"></div>
+            </div>
+          </div>
+        ) : session ? (
           <div className="bg-card rounded-xl border border-border p-4">
             <h3 className="font-semibold text-foreground mb-4">Account</h3>
 
@@ -152,7 +149,7 @@ export default function SettingsScreen() {
               </Button>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Version */}
         <div className="text-center text-sm text-muted-foreground">Hitwicket v1.0.0</div>

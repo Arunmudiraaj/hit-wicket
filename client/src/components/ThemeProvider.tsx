@@ -3,7 +3,7 @@ import { useAppSelector } from '@/hooks/useTypedRedux';
 import { useEffect } from 'react';
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useAppSelector((state: { theme: { mode: string } }) => state.theme.mode);
+  const theme = useAppSelector((state: { settings: { theme: string } }) => state.settings.theme);
 
   useEffect(() => {
     const root = document.documentElement;

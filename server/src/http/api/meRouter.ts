@@ -112,6 +112,31 @@ meRouter.get('/', async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
+ * GET /api/me/settings
+ * Returns the authenticated user's settings.
+ */
+meRouter.get('/settings', async (req: Request, res: Response): Promise<void> => {
+    const user = (req as any).authUser as { id: string };
+
+    try {
+        const [settingsRow] = await db
+            .select()
+            .from(userSettings)
+            .where(eq(userSettings.userId, user.id));
+
+        const settings = {
+            theme: settingsRow?.theme ?? THEME_MODE.SYSTEM,
+            soundEnabled: settingsRow?.soundEnabled ?? true,
+        };
+
+        res.json({ settings });
+    } catch (err) {
+        log.error(err, 'Failed to fetch user settings');
+        res.status(500).json({ error: 'Failed to fetch settings' });
+    }
+});
+
+/**
  * PATCH /api/me/settings
  * Body: { theme?: string, soundEnabled?: boolean }
  */

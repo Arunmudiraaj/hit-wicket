@@ -20,6 +20,8 @@ import { setAuthUser, clearAuthUser, setAuthLoading } from '../store/slices/auth
 import { setPlayerId, setPlayerName } from '../store/slices/sessionSlice';
 import { storage } from '../utils/storage';
 import { reconnectSocket } from '../socket/socketManager';
+import { apiClient } from '../api/client';
+import { setSettings } from '../store/slices/settingsSlice';
 
 export function useAuth(): void {
     const { data: session, isPending } = useSession();
@@ -51,6 +53,15 @@ export function useAuth(): void {
             // Keep playerName in sync with auth name
             dispatch(setPlayerName(session!.user.name));
             
+            // Fetch and apply user settings from DB
+            apiClient.get('/api/me/settings')
+                .then((response) => {
+                    if (response.data?.settings) {
+                        dispatch(setSettings(response.data.settings));
+                    }
+                })
+                .catch((err) => console.error('Failed to fetch settings on auth', err));
+
             // If they just logged in mid-session, reconnect to apply the auth token
             if (prevAuthRef.current === false) {
                 reconnectSocket();
